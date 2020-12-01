@@ -1,0 +1,11 @@
+extern/JKQtPlotter/
+extern/cmake/
+extern/doctest/
+extern/ip/
+extern/sqlite_orm/
+JKQtPlotter/
+cmake/
+doctest/
+ip/
+sqlite_orm/
+convenient_multithreaded_qt_gui

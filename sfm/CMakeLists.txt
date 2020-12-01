@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 3.10)
+add_library(mlib-sfm INTERFACE)
+add_subdirectory(anms)
+target_link_libraries(mlib-sfm INTERFACE mlib-sfm-anms)
+add_subdirectory(p3p)
+target_link_libraries(mlib-sfm INTERFACE mlib-sfm-p3p)
+add_subdirectory(camera)
+target_link_libraries(mlib-sfm INTERFACE mlib-sfm-camera)

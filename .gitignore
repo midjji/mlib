@@ -1,0 +1,31 @@
+build*
+CMakeLists.txt.user*
+# tex is ridiculous
+*.log
+*.aux
+*.synctex.gz
+*.bbl
+*.blg
+*.brf
+*.dvi
+*.out
+*.snm
+*.toc
+*.nav
+*-eps-converted-to.pdf
+# the clion ide
+.idea*
+
+*.os
+.sconf_temp/
+.sconsign.dblite
+*.so
+.scons_opt
+.idea*
+*.cbp
+*CMakeFiles*
+*Makefile*
+config.log
+CMakeLists.txt.user
+
+build*
