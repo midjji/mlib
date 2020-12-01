@@ -1,3 +1,5 @@
+Under GPL
+
 # install the required dependencies
 # I think these are sufficient, but if not the list below is!
 # hard dependencies ! 
