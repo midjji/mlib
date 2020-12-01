@@ -47,6 +47,6 @@ if(WITH_SQLite)
 
     add_library(sqlite_orm INTERFACE)
     target_link_libraries(sqlite_orm INTERFACE SQLite::SQLite3)
-    target_include_directories(sqlite_orm INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/sqlite_orm/include/sqlite_orm")
+    target_include_directories(sqlite_orm INTERFACE SYSTEM "${CMAKE_CURRENT_SOURCE_DIR}/sqlite_orm/include/sqlite_orm")
     target_link_libraries(mlib-extern INTERFACE sqlite_orm)
 endif()
