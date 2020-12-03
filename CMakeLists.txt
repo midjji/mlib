@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 project(mlib VERSION 1.0
     DESCRIPTION "general utility library"
     LANGUAGES CXX)
-
+message("\n\nmlib configuration begin\n\n")
 
 include("extern/cmake/common.cmake")
 # add this path to module path, so any find modules here are founds
@@ -80,3 +80,4 @@ endif()
 if(BUILD_MLIB_TESTS)
     add_subdirectory(tests)
 endif()
+message("\n\nmlib configuration complete!\n\n")

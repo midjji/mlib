@@ -121,6 +121,13 @@ public:
         cv.notify_one();
         //std::cout<<"push done"<<std::endl;
     }
+    void push_blocking(const T& t){
+        std::unique_lock<std::mutex> ul(mtx); // locks, unlocked as it goes out of scope
+        cv.wait(ul, [this](){return que.size()<max_size || stopped;});
+        que.push_back(t);
+        ul.unlock();
+        cv.notify_one();
+    }
 
 
     // blocking, only fails if the que is stopped

@@ -17,7 +17,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${${PROJECT_NAME}_top})
 
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
-# We need this directory, and users of our library will need it too
+
 target_link_libraries(${PROJECT_NAME} PUBLIC mlib-opencv-utils)
 
 target_configure_warnings(${PROJECT_NAME})
