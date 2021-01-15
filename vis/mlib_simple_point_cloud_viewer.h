@@ -71,7 +71,6 @@ public:
 
     void setPointCloud(const std::vector<cvl::PoseD>& poses);
     void setPointCloud(const std::vector<std::vector<cvl::PoseD>>& poses);
-
     void setPointCloud(const std::vector<std::vector<cvl::PoseD>>& poses,
                        const std::vector<Color>& colors);
 

@@ -917,14 +917,13 @@ public:
     {
         return std::sqrt(squaredNorm());
     }
-    ///@return The vector L2 norm, with a different name
+    /// @return The L2 norm
     mlib_host_device_
-    T squaredLength() const
+    T norm2() const
     {
-        static_assert(Cols == 1 || Rows == 1,
-                "length() is only defined for vectors. Use norm() with matrices.");
         return squaredNorm();
     }
+
 
     ///@return The vector L2 norm, with a different name
     mlib_host_device_
@@ -1555,20 +1554,22 @@ using Vector7d = Matrix<double, 7, 1>;
 using Matrix2f = Matrix<float, 2, 2>;
 /// convenient alias
 using Matrix3f = Matrix<float, 3, 3>;
-/// convenient alias
+
 using Matrix34f = Matrix<float, 3, 4>;
-/// convenient alias
+
 using Matrix4f = Matrix<float, 4, 4>;
-/// convenient alias
+
 using  Matrix2d = Matrix<double, 2, 2>;
-/// convenient alias
+
 using  Matrix3d = Matrix<double, 3, 3>;
-/// convenient alias
+
 using  Matrix34d = Matrix<double, 3, 4>;
-/// convenient alias
+
 using  Matrix4d = Matrix<double, 4, 4>;
 
 
+using  Vector2i = Matrix<double, 2, 1>;
+using  Vector3i = Matrix<double, 3, 1>;
 
 // this class should be trivial for doubles, since this significantly improves speed and ease of optimization
 // very important

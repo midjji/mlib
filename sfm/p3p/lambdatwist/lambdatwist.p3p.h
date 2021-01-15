@@ -72,9 +72,9 @@ int p3p_lambdatwist( Vector3<T> y1,
 
 
 
-    T a12=d12.squaredLength();
-    T a13=d13.squaredLength();
-    T a23=d23.squaredLength();
+    T a12=d12.norm2();
+    T a13=d13.norm2();
+    T a23=d23.norm2();
 
     //if(abs(D1.determinant())<1e-5 || fabs(D2.determinant())<1e-5)        cout<<"det(D): "<<D1.determinant()<<" "<<D2.determinant()<<endl;
     TOC(lt1);

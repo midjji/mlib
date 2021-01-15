@@ -44,9 +44,6 @@ private:
        // actually opencv does not like blocking!
                 auto plotter=self.lock();
         run_in_gui_thread(new QAppLambda([plotter,xs,ys,title](){plotter->plot_internal(xs,ys,title);}));
-
-
-
     }
 
 
@@ -100,12 +97,12 @@ private:
         plot->addGraph(graph1);
 
         // 6. autoscale the plot so the graph is contained
-        plot->zoomToFit()
-                ;
+        plot->zoomToFit();
 
         // show plotter and make it a decent size
         plot->show();
         plot->resize(600,400);
+
     }
 };
 

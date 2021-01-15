@@ -50,6 +50,7 @@
 
 /// the standard uint typedef
 typedef unsigned int uint;
+#include <mlib/utils/cvl/matrix.h>
 
 namespace cvl{
 
@@ -131,7 +132,7 @@ public:
      * @param col
      * @return the element at (row,col)
      */
-    T& operator()( const uint& row, const uint& col){
+    T& operator()( uint row, uint col){
         assert(col<cols);
         assert(row<rows);
         T*  addr=(T*)(&data[row*stride +col*sizeof(T) ]);
@@ -145,13 +146,14 @@ public:
      * @return the element at (row,col)
      */
     mlib_host_device_
-    const T& operator()( const uint& row, const uint& col ) const    {
+    const T& operator()( uint row, uint col ) const    {
         assert(col<cols);
         assert(row<rows);
         T*  addr=(T*)(&data[row*stride +col*sizeof(T) ]);
         return addr[0];
 
     }
+
     mlib_host_device_
     /**
      * @brief operator ()
@@ -219,6 +221,7 @@ public:
     mlib_host_device_
     uint size(){return rows*stride;}
 
+
     /**
      * @brief getSubMatrix
      * @param row
@@ -285,6 +288,9 @@ public:
             for(uint col=0;col<cols;++col)
                 m(row,col)=at(row,col);
         return m;
+    }
+    Vector2i dimensions(){
+        return Vector2i(rows,cols);
     }
 
 

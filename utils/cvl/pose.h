@@ -326,11 +326,10 @@ public:
 
     /**
          * @brief getAngle
-         * @return the angle of the rotation in radians
-         * this function has issues near q == 1
-         * there are numerically stable variants that are slower, but this is only for display, never use purposes
+         * @return the angle of the rotation in radians         
          */
-    T getAngle() const{
+    T getAngle() const
+    {
         // assumes unit quaternion!
         const T sin_squared_theta = q[1] * q[1] + q[2] * q[2] + q[3] * q[3];
         const T sin_theta = std::sqrt(sin_squared_theta);

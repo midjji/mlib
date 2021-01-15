@@ -11,7 +11,7 @@ Data::Data(float str, float x, float y, int id):str(str),y(cvl::Vector2f(x,y)),i
 bool Data::near(const std::vector<Data>& datas,float radius2) const{
 
     for(const Data& data:datas)
-        if((data.y-y).squaredLength()<=radius2)
+        if((data.y-y).norm2()<=radius2)
             return true;
     return false;
 }

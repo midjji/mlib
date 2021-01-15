@@ -65,7 +65,8 @@ public:
     {
         Quaternion qxqc=(*this)*Quaternion(x)*conj();
         // simplify!
-#warning "Simplify this eqn for a significant accuracy and speed boost!"
+        ///TODO!
+//#warning "Simplify this eqn for a significant accuracy and speed boost!"
 
         //assert((qxqc[0]-T(0.0))<1e-10);
         return qxqc.x();
@@ -250,6 +251,12 @@ public:
     // for rotations, the minimum distance!
     T geodesic(Quaternion<T> b){
         return ceres::sqrt((conj()*b).ulog().x().squaredNorm());
+    }
+    T sign_minimizing_distance(Quaternion<T> b){
+        T d0=(q - b.q).norm();
+        T d1=(q + b.q).norm();
+        if(d0<d1) return d0;
+        return d1;
     }
 
 

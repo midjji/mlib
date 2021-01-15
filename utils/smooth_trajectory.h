@@ -171,8 +171,6 @@ public:
 
     }
 
-
-private:
     PoseD pose(double time)
     {
         time*=0.01;

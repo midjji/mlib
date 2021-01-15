@@ -90,18 +90,19 @@ void PointCloudViewer::setPointCloud(const std::vector<Vector3d>& xs,
     setPointCloud(xs,cols,std::vector<PoseD>());
 }
 void PointCloudViewer::setPointCloud(const std::vector<PoseD>& poses){
+
     std::vector<Vector3d> xs;
     std::vector<Color> cols;
     setPointCloud(xs,cols,poses);
 }
 void PointCloudViewer::setPointCloud(const std::vector<std::vector<PoseD>>& poses){
 
-    std::vector<Color> cols;
+    std::vector<Color> cols;cols.reserve(poses.size());
 
     for(uint i=0;i<poses.size();++i){
         cols.push_back(Color::nr(i));
     }
-    this->setPointCloud(poses, cols);
+    setPointCloud(poses, cols);
 }
 
 void PointCloudViewer::setPointCloud(const std::vector<Vector3d>& xs, const std::vector<PoseD>& poses){
@@ -154,6 +155,8 @@ void savePointCloud(const std::string& filename, std::vector<Vector3d>& Xs, std:
     file.close();
 
 }
+
+
 void PointCloudViewer::setPointCloud(
         const std::vector<std::vector<PoseD>>& posess,
         const std::vector<Color>& colors)
@@ -424,7 +427,7 @@ std::shared_ptr<std::map<std::string, std::shared_ptr<PointCloudViewer> >> get_p
 }
 
 std::shared_ptr<PointCloudViewer> pc_viewer(std::string name){
-    if(name=="") name="unamed window";
+    if(name=="") name="unnamed window";
     std::unique_lock<std::mutex> ul(pcv_mtx);
     auto pcvs=get_pcvs();
     auto it=pcvs->find(name);
