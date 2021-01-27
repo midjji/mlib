@@ -239,6 +239,9 @@ public:
     Quaternion operator-(){
         return Quaternion(-q);
     }
+    void normalize(){
+        q/=ceres::sqrt(q.squaredNorm());
+    }
 
     double norm(){
         return q.norm();
