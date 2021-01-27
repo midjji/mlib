@@ -80,4 +80,6 @@ endif()
 if(BUILD_MLIB_TESTS)
     add_subdirectory(tests)
 endif()
+add_executable(doctest_common_main doctest_common_main.cpp) # must be somewhere once atleast!
+target_link_libraries(doctest_common_main mlib)
 message("\n\nmlib configuration complete!\n\n")

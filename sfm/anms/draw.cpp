@@ -1,3 +1,4 @@
+#if 0
 #include <mlib/opencv_util/cv.h>
 #include <mlib/sfm/anms/draw.h>
 #include <mlib/utils/cvl/convertopencv.h>
@@ -240,3 +241,4 @@ std::vector<cv::KeyPoint> FastAnms(std::vector<cv::KeyPoint>& keypoints, int hei
     return kept_points;
 }
 */
+#endif

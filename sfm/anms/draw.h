@@ -1,4 +1,11 @@
 #pragma once
+#if 0
+This version does not keep the locked ones,
+Though they differ a bit in performance,
+keeping more than one implementation is uneccessary at this time,
+Also the interface needs to be redesigned!
+
+
 #include <memory>
 #include <mlib/sfm/anms/base.h>
 #include <mlib/utils/memmanager.h>
@@ -30,3 +37,4 @@ private:
 } // end namespace anms
 }// end namespace cvl
 
+#endif

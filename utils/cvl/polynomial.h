@@ -7,164 +7,9 @@
 #include <algorithm>
 
 #include <mlib/utils/cvl/matrix.h>
-using std::cout;
-using std::endl;
-
-namespace cvl{
-
-struct Sym{
-    Sym()=default;
-    Sym(std::string n, int d=1){
-        comps[n]=d;
-    }
-    // can be multiplied.
-    // symbolname, exponent;
-    // WARNING NAMES MUST NOT CONTAIN "^"
-    std::map<std::string, int> comps;
 
 
-
-    std::string str() const{
-        std::stringstream ss;
-        for(const auto& a:comps){
-            if(a.first=="I") continue;
-
-            ss<<a.first;
-            if(a.second>1)
-                ss<<"^"<<a.second;
-
-        }
-        return ss.str();
-    }
-    std::string hash(){
-        std::stringstream ss;
-        for(const auto& a:comps){
-            ss<<a.first;
-            ss<<"^"<<a.second;
-        }
-        return ss.str();
-    }
-};
-inline std::ostream& operator<<(std::ostream& os, Sym s){
-    return os<<s.str();
-}
-
-inline Sym operator*(Sym a, Sym b){
-    Sym c=a;
-    for(auto v:b.comps)
-        c.comps[v.first]+=v.second; // get zero initialized
-
-    return c;
-}
-inline bool operator<(Sym a, Sym b){
-    return a.hash()<b.hash();
-}
-
-struct Symb;
-Symb operator+(Symb a, Symb b);
-struct Symb{
-    std::map<Sym,double> koeffs;
-    Symb()=default;
-
-    Symb(double d){
-        if(d!=0.0)
-            koeffs[Sym("I")]=d;
-    }
-
-    Symb(Sym a, double k=1.0){
-        koeffs[a]=k;
-    }
-    void clear_zeros(){
-
-        std::map<Sym,double> ks;
-        for(auto k:koeffs)
-            if(k.second!=0.0)
-                ks[k.first]=k.second;
-        koeffs=ks;
-
-
-    }
-    std::string str(){
-
-
-        clear_zeros();
-        std::stringstream ss;
-        bool first=true;
-        bool plus=false;
-        for(auto [sym,k]:koeffs){
-            double v=k;
-            if(!first){plus=true;
-                if(k>0)
-                    ss<<" + ";
-                else{
-                    ss<<" - ";
-                    v=-v;
-                }
-
-            }
-            first=false;
-            if(std::abs(k-1.0)>1e-12)
-                ss<<v;
-            ss<<sym.str();
-        }
-        if(plus){
-            std::stringstream ss2;
-            ss2<<"("<<ss.str()<<")";
-            return ss2.str();
-        }
-        return ss.str();
-    }
-    Symb& operator+=(Symb b){
-        Symb c= *this + b;
-        koeffs=c.koeffs;
-        return *this;
-    }
-};
-inline Symb operator+(Symb a, Symb b){
-
-    Symb c=a;
-    for(auto v:b.koeffs){
-        c.koeffs[v.first]+=v.second; // get zero initialized
-    }
-    c.clear_zeros();
-    return c;
-}
-inline Symb operator*(Symb as, Symb bs)
-{
-
-    as.clear_zeros();
-    bs.clear_zeros();
-    std::vector<Sym> ss;
-    std::vector<double> ks;
-    for(auto a:as.koeffs)
-        for(auto b:bs.koeffs){
-            ss.push_back(a.first*b.first);
-            ks.push_back(a.second*b.second);
-        }
-
-    Symb cs;
-    for(uint i=0;i<ss.size();++i){
-        cs.koeffs[ss[i]]+=ks[i];
-    }
-
-    return cs;
-}
-inline Symb operator*(Symb as, double d){
-    for(auto& [a,k]:as.koeffs)
-        k*=d;
-    return as;
-}
-inline bool operator==(Symb s, double d){
-    if(d!=0.0) return false;
-    s.clear_zeros();
-    return s.koeffs.size()==0;
-}
-
-
-inline std::ostream& operator<<(std::ostream& os, Symb s){
-    return os<<s.str();
-}
-
+namespace cvl {
 
 
 
@@ -379,11 +224,17 @@ Polynomial<std::max(A,B)> operator-(Polynomial<A,Type> a,
     return poly;
 }
 
-template<unsigned int A, unsigned int B,class Type>
-Polynomial<A+B,Type> operator*(Polynomial<A,Type> a,
-                               Polynomial<B,Type> b){
+
+
+
+
+
+template<unsigned int A, unsigned int B, class Type1, class Type2>
+auto operator*(Polynomial<A,Type1> a,
+                               Polynomial<B,Type2> b){
     //cout<<"poly: "<<a<<" b: "<<b<<endl;
-    Polynomial<A+B,Type> poly;
+    using T=decltype(Type1(0) * Type2(0));
+    Polynomial<A+B,T> poly;
     for(uint i=0;i<a.coeffs.size();++i)
         for(uint j=0;j<b.coeffs.size();++j){
 
@@ -393,6 +244,8 @@ Polynomial<A+B,Type> operator*(Polynomial<A,Type> a,
     return poly;
 }
 
+
+/*
 template<unsigned int A>
 Polynomial<A,Symb> operator*(Polynomial<A,double> a,
                              Symb b){
@@ -402,42 +255,34 @@ Polynomial<A,Symb> operator*(Polynomial<A,double> a,
         poly.coeffs[i] = b*a.coeffs[i];
 
     return poly;
+}*/
+
+
+template<unsigned int A, class T, class T1> auto operator+(Polynomial<A,T> a, T1 t){
+    return a+Polynomial<0,T1>(t);
+}
+template<unsigned int A, class T, class T1> auto operator-(Polynomial<A,T> a, T1 t){
+    return a-Polynomial<0,T1>(t);
+}
+template<unsigned int A, class T, class T1> auto operator*(Polynomial<A,T> a, T1 t){
+    return a*Polynomial<0,T1>(t);
 }
 
-
-template<unsigned int A, class T> auto operator+(Polynomial<A,T> a, T t){
-    return a+Polynomial<0,T>(t);
+template<unsigned int A, class T, class T1> auto operator+(T1 t,Polynomial<A,T> a){
+    return a+Polynomial<0,T1>(t);
 }
-template<unsigned int A, class T> auto operator-(Polynomial<A,T> a, T t){
-    return a-Polynomial<0,T>(t);
+template<unsigned int A, class T, class T1> auto operator-(T1 t,Polynomial<A,T> a){
+    return a-Polynomial<0,T1>(t);
 }
-template<unsigned int A, class T> auto operator*(Polynomial<A,T> a, T t){
-    return a*Polynomial<0,T>(t);
+template<unsigned int A, class T, class T1> auto operator*(T1 t,Polynomial<A,T> a){
+    return a*Polynomial<0,T1>(t);
 }
-
-template<unsigned int A, class T> auto operator+(T t,Polynomial<A,T> a){
-    return a+Polynomial<0,T>(t);
-}
-template<unsigned int A, class T> auto operator-(T t,Polynomial<A,T> a){
-    return a-Polynomial<0,T>(t);
-}
-
-template<unsigned int A, class T> auto operator*(T t,Polynomial<A,T> a){
-    return a*Polynomial<0,T>(t);
-}
-
-
-
-
-
-
 
 
 template<unsigned int S, class Type>
 std::ostream& operator<<(std::ostream& os, Polynomial<S,Type> poly){
     return os<<poly.str();
 }
-
 template<unsigned int degree, class Type=double>
 class BoundedPolynomial
 {
@@ -481,7 +326,7 @@ public:
     std::string str(){
         std::stringstream ss;
         ss<<"bounds: ["<<bounds[0]<<","<<bounds[1]<<") ";
-        ss<<p;
+        ss<<p.str();
         return ss.str();
     }
 
@@ -543,10 +388,7 @@ template<unsigned int A> BoundedPolynomial<A> operator*(double t,BoundedPolynomi
     return a*BoundedPolynomial<0>(a.bounds,t);
 }
 
-template<unsigned int S,class Type>
-std::ostream& operator<<(std::ostream& os, BoundedPolynomial<S,Type> poly){
-    return os<<poly.str();
-}
+
 
 
 template<class T> bool less(const Vector2<T>& a,const Vector2<T>& b){
@@ -558,6 +400,10 @@ template<class T> bool less(const Vector2<T>& a,const Vector2<T>& b){
 };
 
 
+template<unsigned int S,class Type>
+std::ostream& operator<<(std::ostream& os, BoundedPolynomial<S,Type> poly){
+    return os<<poly.str();
+}
 template<unsigned int degree,class Type=double>
 class CompoundBoundedPolynomial
 {
@@ -593,7 +439,7 @@ public:
     std::string str(){
         std::stringstream ss;
         for(auto p:polys)
-            ss<<p<<"\n";
+            ss<<p.str()<<"\n";
         return ss.str();
     }
     Vector2d span(){
@@ -676,11 +522,11 @@ operator-(CompoundBoundedPolynomial<A,Type> a,
 }
 
 
-
-
 template<unsigned int S, class Type>
 std::ostream& operator<<(std::ostream& os, CompoundBoundedPolynomial<S,Type> poly){
     return os<<poly.str();
 }
 
-}
+} // end namespace cvl
+
+

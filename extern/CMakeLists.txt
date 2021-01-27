@@ -14,7 +14,7 @@ if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/doctest/CMakeLists.txt")
     message(FATAL_ERROR "doctest not found, clone it")
 endif()
 add_library(doctest INTERFACE)
-target_include_directories(doctest SYSTEM INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/doctest/")
+target_include_directories(doctest SYSTEM INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/doctest/doctest/")
 target_link_libraries(mlib-extern INTERFACE doctest)
 
 
