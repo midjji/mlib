@@ -13,7 +13,7 @@ namespace cvl {
 
 
 
-template<unsigned int degree, class Type=double>
+template<unsigned int degree, class Type=long double>
 class Polynomial {
 public:
 
@@ -26,6 +26,13 @@ public:
         //static_assert(O<=degree, "");
         for(uint i=0;i<std::min(o.coeffs.size(),coeffs.size());++i)
             coeffs[i]=o.coeffs[i];
+    }
+
+    void zero_eps_coefficients(){
+        if constexpr(std::is_floating_point<Type>()){
+            for(auto& c:coeffs)
+                if(std::abs(c)<1e-15 && false)c=0;
+        }
     }
 
 
@@ -104,8 +111,8 @@ public:
         }
         return poly;
     }
-    double operator()(Type x){
-        double v=coeffs[0];
+    long double operator()(Type x){
+        long double v=coeffs[0];
         for(uint i=1;i<coeffs.size();++i){
             v+=coeffs[i]*std::pow(x,Type(i));
         }
@@ -151,10 +158,9 @@ public:
 
 
     // t=x+d;
-
-    Polynomial<degree,Type> reparam(double d){
+    Polynomial<degree,Type> reparam(long double d){
         Polynomial<20,Type> out;
-        Polynomial<20,double> diff(d,1);
+        Polynomial<20,long double> diff(d,1);
 
 
         for(uint i=0;i<coeffs.size();++i)
@@ -204,8 +210,9 @@ Polynomial<std::max(A,B),Type> operator+(Polynomial<A,Type> a,
         if(i<a.coeffs.size())
             poly.coeffs[i]+=a.coeffs[i];
         if(i<b.coeffs.size())
-            poly.coeffs[i]+=b.coeffs[i];
+            poly.coeffs[i]+=b.coeffs[i];        
     }
+poly.zero_eps_coefficients();
     return poly;
 }
 
@@ -247,7 +254,7 @@ auto operator*(Polynomial<A,Type1> a,
 
 /*
 template<unsigned int A>
-Polynomial<A,Symb> operator*(Polynomial<A,double> a,
+Polynomial<A,Symb> operator*(Polynomial<A,long double> a,
                              Symb b){
 
     Polynomial<A,Symb> poly;
@@ -283,19 +290,19 @@ template<unsigned int S, class Type>
 std::ostream& operator<<(std::ostream& os, Polynomial<S,Type> poly){
     return os<<poly.str();
 }
-template<unsigned int degree, class Type=double>
+template<unsigned int degree, class Type=long double>
 class BoundedPolynomial
 {
 public:
-    Vector2d bounds; // only nonzero inside!
+    Vector2<long double> bounds; // only nonzero inside!
 
     Polynomial<degree,Type> p;
 
     template<class... V>
-    BoundedPolynomial(Vector2d bounds, V... v):bounds(bounds),p(v...){}
+    BoundedPolynomial(Vector2<long double> bounds, V... v):bounds(bounds),p(v...){}
 
     template<unsigned int O>
-    BoundedPolynomial(Vector2d bounds, Polynomial<O,Type> o):bounds(bounds),p(o){}
+    BoundedPolynomial(Vector2<long double> bounds, Polynomial<O,Type> o):bounds(bounds),p(o){}
 
     template<unsigned int O>
     BoundedPolynomial(BoundedPolynomial<O,Type> o):bounds(o.bounds),p(o.p){}
@@ -305,19 +312,26 @@ public:
     {
         return(bounds[0]<bounds[1]);
     }
+
+    BoundedPolynomial bound(Vector2<long double> b){
+       BoundedPolynomial ret;
+       ret.p=p;
+       ret.bounds=Vector2<long double>(std::max(bounds[0],b[0]),std::min(bounds[1],b[1]));
+       return ret;
+    }
     bool zero(){
         return p.zero();
     }
     // t=x+d
-    BoundedPolynomial reparam(double d){
-        return  BoundedPolynomial(bounds - Vector2d(d,d),p.reparam(d));
+    BoundedPolynomial reparam(long double d){
+        return  BoundedPolynomial(bounds - Vector2<long double>(d,d),p.reparam(d));
     }
 
 
-    template<unsigned int A> Vector2d overlap(BoundedPolynomial<A,Type> bp){
-        if(!good_bounds()) return Vector2d(0,0);
-        if(!bp.good_bounds()) return Vector2d(0,0);
-        return Vector2d(std::max(bounds[0],bp.bounds[0]),
+    template<unsigned int A> Vector2<long double> overlap(BoundedPolynomial<A,Type> bp){
+        if(!good_bounds()) return Vector2<long double>(0,0);
+        if(!bp.good_bounds()) return Vector2<long double>(0,0);
+        return Vector2<long double>(std::max(bounds[0],bp.bounds[0]),
                 std::min(bounds[1],bp.bounds[1]));
     }
 
@@ -344,7 +358,7 @@ public:
         std::vector<BoundedPolynomial<degree+1,Type>> ret;
         auto P=p.primitive();
         ret.push_back(BoundedPolynomial(bounds,P));
-        //ret.push_back(BoundedPolynomial({bounds,std::numeric_limits<double>::max()},Polynomial))
+        //ret.push_back(BoundedPolynomial({bounds,std::numeric_limits<long double>::max()},Polynomial))
     }
 
 
@@ -379,12 +393,12 @@ BoundedPolynomial<A+B,Type> operator*(BoundedPolynomial<A,Type> a,
     return BoundedPolynomial<A+B,Type>(a.overlap(b),   Polynomial<A+B,Type>());
 }
 
-template<unsigned int A,class Type> BoundedPolynomial<A,Type> operator*(BoundedPolynomial<A,Type> a, double t){
+template<unsigned int A,class Type> BoundedPolynomial<A,Type> operator*(BoundedPolynomial<A,Type> a, long double t){
     return a*BoundedPolynomial<0,Type>(a.bounds,t);
 }
 
 
-template<unsigned int A> BoundedPolynomial<A> operator*(double t,BoundedPolynomial<A> a){
+template<unsigned int A> BoundedPolynomial<A> operator*(long double t,BoundedPolynomial<A> a){
     return a*BoundedPolynomial<0>(a.bounds,t);
 }
 
@@ -404,7 +418,7 @@ template<unsigned int S,class Type>
 std::ostream& operator<<(std::ostream& os, BoundedPolynomial<S,Type> poly){
     return os<<poly.str();
 }
-template<unsigned int degree,class Type=double>
+template<unsigned int degree,class Type=long double>
 class CompoundBoundedPolynomial
 {
 public:
@@ -417,7 +431,7 @@ public:
         return v;
     }
 
-    CompoundBoundedPolynomial reparam(double d){
+    CompoundBoundedPolynomial reparam(long double d){
         CompoundBoundedPolynomial cbp;
         for(auto poly:polys)
             cbp.add(poly.reparam(d));
@@ -429,12 +443,18 @@ public:
         if(p.good_bounds())
             polys.push_back(p);
     }
-    std::vector<double> integrate(){
-        std::vector<double> ds;
+    std::vector<long double> integrate(){
+        std::vector<long double> ds;
         for(auto poly:polys){
             ds.push_back(poly.integrate());
         }
         return ds;
+    }
+    CompoundBoundedPolynomial derivative() const{
+        CompoundBoundedPolynomial ret;
+        for(auto p:polys)
+            ret.add(p.derivative());
+        return ret;
     }
     std::string str(){
         std::stringstream ss;
@@ -442,10 +462,10 @@ public:
             ss<<p.str()<<"\n";
         return ss.str();
     }
-    Vector2d span(){
+    Vector2<long double> span(){
         if(polys.size()==0) return {0,0};
-        double low=polys[0].bounds[0];
-        double high=polys[0].bounds[1];
+        long double low=polys[0].bounds[0];
+        long double high=polys[0].bounds[1];
         for(auto p:polys){
             if(p.bounds[0]<low) low=p.bounds[0];
             if(p.bounds[1]>high) high=p.bounds[1];
@@ -456,26 +476,40 @@ public:
     CompoundBoundedPolynomial<degree,Type> collapse(){
 
 
-        std::map<std::array<double,2>, Polynomial<degree,Type>> map;
+        std::map<std::array<long double,2>, Polynomial<degree,Type>> map;
         for(auto p:polys){
             // auto inserts zero
             map[p.bounds.std_array()] = map[p.bounds.std_array()] + p.p;
         }
         CompoundBoundedPolynomial<degree,Type> cbp;
         for(auto [b,p]:map){
-            cbp.add(BoundedPolynomial<degree,Type>(Vector2d(b[0],b[1]),p));
+            cbp.add(BoundedPolynomial<degree,Type>(Vector2<long double>(b[0],b[1]),p));
         }
         return cbp;
     }
+    CompoundBoundedPolynomial<degree,Type> bound(Vector2<long double> b){
+        CompoundBoundedPolynomial<degree,Type> ret;
+        for(auto p:polys){
+            auto a=p.bound(b);
+            if(a.good_bounds())
+                ret.add(a);
+        }
+        return ret;
+    }
 
-    Vector<double,degree+1> compute_bcoeffs(double t){
-        Vector<double,degree+1> x;
+    Vector<long double,degree+1> compute_bcoeffs(long double t){
+        Vector<long double,degree+1> x;
         for(uint i=0;i<x.rows();++i)
             x[i]=reparam(i)(t);
         return x;
     }
-
+    CompoundBoundedPolynomial& operator*=(long double d){
+        for(auto& p:polys)
+            p.p.coeffs*=Type(d);
+        return *this;
+    }
 };
+
 
 template<unsigned int A, unsigned int B,class Type>
 CompoundBoundedPolynomial<A+B,Type>

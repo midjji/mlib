@@ -34,7 +34,7 @@ class Fast2DQuery
 
 public:
     struct Data {
-        uint index;
+        int index;
         Vector2d x;
             };
 
@@ -47,16 +47,15 @@ public:
     void add(Data data);
 
 private:
-    std::tuple<int,double> find(Vector2d y, std::vector<Data>& datas, double max_radius_squared);
+    std::vector<Vector2i> query_locations(Vector2d y, double max_radius);
     /// lowest values
     Vector2d minv;
     /// highest values
     Vector2d maxv;
 
+
     /// bucket size x direction
-    double delta_x;
-    /// bucket size y direction
-    double delta_y;
+    Vector2d delta;
     /// grid matrix adapter
     MatrixAdapter<std::vector<Data>> grid;
     /// grid matrix data

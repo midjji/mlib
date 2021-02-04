@@ -138,6 +138,9 @@ public:
         T*  addr=(T*)(&data[row*stride +col*sizeof(T) ]);
         return addr[0];
     }
+    T& operator()(Vector2i index){
+        return this->operator()(index[0],index[1]);
+    }
 
     /**
      * @brief operator ()
