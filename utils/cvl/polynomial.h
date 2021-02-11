@@ -31,7 +31,7 @@ public:
     void zero_eps_coefficients(){
         if constexpr(std::is_floating_point<Type>()){
             for(auto& c:coeffs)
-                if(std::abs(c)<1e-15 && false)c=0;
+                if(std::abs(c)<1e-15 )c=0;
         }
     }
 
@@ -455,6 +455,13 @@ public:
         for(auto p:polys)
             ret.add(p.derivative());
         return ret;
+    }
+    CompoundBoundedPolynomial derivative(int N){
+        if(N==0) return *this;
+        if(N==1){
+            return derivative();
+        }
+        return derivative(N-1).derivative();
     }
     std::string str(){
         std::stringstream ss;

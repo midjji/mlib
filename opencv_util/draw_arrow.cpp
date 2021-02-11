@@ -64,4 +64,17 @@ void drawArrow(cv::Mat3b im, Vector2d from, Vector2d to, Color color, int thick,
     cv::line(im,cto,b,ccolor,thick);
 
 }
+
+void draw_legend(cv::Mat3b rgb, std::vector<std::tuple<std::string,Color>> labels){
+    int fontface = cv::FONT_HERSHEY_SIMPLEX;
+    double scale = 2;
+    int thickness = 2;
+    cv::Vec2i origin(100,100);
+    int i=0;
+    for(auto [str,col]:labels){
+
+        cv::putText(rgb, str, origin + cv::Vec2i(0,i++*50), fontface, scale, col.fliprb().toScalar<cv::Scalar>(), thickness, 8);
+    }
+    //cv::waitKey(0);
+}
 }

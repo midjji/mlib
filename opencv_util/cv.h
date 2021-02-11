@@ -158,6 +158,9 @@ std::stringstream ss;
     ss<<m.rows<<" "<<m.cols<<" "<<m.type()<<" which is: "<<get_mat_type<T>(m);
     return ss.str();
 }
+
+
+
 }// end namespace mlib
 
 

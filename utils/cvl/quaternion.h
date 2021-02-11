@@ -100,8 +100,7 @@ public:
     Quaternion ulog() const {
 
 
-        if(ceres::abs(q.squaredNorm()-T(1))>T(1e-10))
-            std::cout<<"ulog: "<<q.squaredNorm()<<std::endl;
+        //if(ceres::abs(q.squaredNorm()-T(1))>T(1e-10)) std::cout<<"ulog: "<<q.squaredNorm()<<std::endl;
 
         //Vector4<T> q=this->q;        if(q[0]<T(0))            q=-q;
 
@@ -156,8 +155,7 @@ public:
     //assumes unit quaternion,
     //since non unit quaternions technically have ambigious power
     Quaternion upow(double alpha) const{
-        if(ceres::abs(q.squaredNorm()-T(1))>T(1e-10))
-            std::cout<<"upow: "<<q.squaredNorm()<<std::endl;
+        //if(ceres::abs(q.squaredNorm()-T(1))>T(1e-10))std::cout<<"upow: "<<q.squaredNorm()<<std::endl;
 
         //return ulog().uexp(T(alpha));
 

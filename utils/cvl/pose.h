@@ -335,13 +335,15 @@ public:
         const T sin_theta = std::sqrt(sin_squared_theta);
         const T& cos_theta = q[0];
         const T theta =(cos_theta < T(0.0)) ? std::atan2(-sin_theta, -cos_theta)
-                                            : std::atan2(sin_theta, cos_theta);
+                                            : std::atan2(sin_theta, cos_theta);        
         return T(2.0)*theta;
 
         //if(std::abs(q[0]-1)<1e-6) return 0;        return 2.0*std::acos(q[0]);
     }
-    T getAngleDegrees(){
-        return getAngle()*180.0/3.14159265359;
+    T getAngleDegrees(){ // visualization only
+        double a=getAngle()*180.0/3.14159265359;
+        if(a<0) a+=360.0;
+        return a;
     }
 
     /// get the position of th     //time+=delta_t*0.5;e camera center in world coordinates

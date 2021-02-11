@@ -104,6 +104,7 @@ uint64_t  get_steady_now(){
 
 
 double Time::getSeconds(){double sec = double(ns)/1e9; return sec;}
+
 double Time::getMilliSeconds(){double sec = double(ns)/1e6; return sec;}
 void Time::setSeconds(double sec){this->ns = (long)(sec*1e9);}
 
