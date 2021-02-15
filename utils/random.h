@@ -97,7 +97,7 @@ template<int V>  void init_common_generator(){
  * @param high - included
  * @return random value according to compile time random value strategy
  */
-template<class T> T randu(T low=0, T high=1){
+template<class T=double> T randu(long double low=0, long double high=1){
     static_assert(std::is_floating_point<T>::value,          "template argument not a floating point type");
     random::init_common_generator<0>();
     std::uniform_real_distribution<T> rn(low,high);
@@ -120,7 +120,7 @@ template<class T> T randui(T low=0, T high=1){
  * @param sigma
  * @return random value drawn from normal distribution
  */
-template<class T> T randn(T mean=0, T sigma=1){
+template<class T=double> T randn(long double mean=0, long double sigma=1){
     static_assert(std::is_floating_point<T>::value,          "template argument not a floating point type");
     random::init_common_generator<0>();
     std::normal_distribution<T> rn(mean, sigma);

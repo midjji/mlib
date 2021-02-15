@@ -253,6 +253,9 @@ public:
     T geodesic(Quaternion<T> b){
         return ceres::sqrt((conj()*b).ulog().x().squaredNorm());
     }
+    Vector3<T> geodesic_vector(Quaternion<T> b){
+        return (conj()*b).ulog().x();
+    }
     T sign_minimizing_distance(Quaternion<T> b){
         T d0=(q - b.q).norm();
         T d1=(q + b.q).norm();

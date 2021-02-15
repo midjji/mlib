@@ -164,12 +164,7 @@ public:
                 tws(time-delta,derivative-1))/(2.0*delta);
     }
 
-    cvl::Vector6d imu(double t){
-        // ax,ay,az, gx,gy,gz
-        // accelerations are int
 
-
-    }
 
     PoseD pose(double time)
     {

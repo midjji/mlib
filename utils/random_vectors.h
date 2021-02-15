@@ -42,4 +42,5 @@ template<class T> cvl::Pose<T> getRandomPose(){
 return cvl::Pose<T>(getRandomUnitVector<T,4>(),getRandomUnitVector<T,3>()*randu<T>(0,10));
 
 }
+
 }
