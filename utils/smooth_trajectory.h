@@ -16,17 +16,11 @@ public:
     // this pose trajectory is smooth and has no fast changes
     virtual ~SmoothTrajectory(){}
 
-    std::vector<double> interior_times(int N=1000, int border=0) const{
-        std::vector<double> ts;ts.reserve(N);
-        double d = (t1()-t0())/double(N);
-        for(int i=border;i<N-border;++i)
-            ts.push_back(t0()+i*d);
-        return ts;
-    }
 
-    std::vector<PoseD>  display_poses(int N=1000, int border=0);
-    std::vector<double> interior_times(int N=1000, int border=0);
-    PoseD operator()(double time){
+
+    std::vector<PoseD>  display_poses(int N=1000, int border=0) const;
+    std::vector<double> interior_times(int N=1000, int border=0) const;
+    PoseD operator()(double time) const{
         return PoseD(qs(time, 0), ts(time,0));
     }
 
@@ -41,10 +35,13 @@ public:
     // interface...
     virtual double t0() const=0;
     virtual double t1() const=0;
-    double get_first_time(){return t0();}
-    double get_last_time(){return t1();}
-    double first_valid_time(){return t0();}
-    double last_valid_time(){return t1();}
+    double get_first_time() const{return t0();}
+    double get_last_time() const{return t1();}
+    double first_valid_time() const{return t0();}
+    double last_valid_time() const{return t1();}
+    // for stuff dependent on control point count!
+    int get_first([[maybe_unused]] double time) const{return 0;}
+    int get_last([[maybe_unused]] double time) const{return (t1()-t0());} // assume 1 per second.
 
     virtual Vector4d qs(double time, int derivative) const=0;
     virtual Vector3d ts(double time, int derivative) const=0;
@@ -58,14 +55,14 @@ public:
                                             qs(time,1),
                                             qs(time,2));
     }
-    Vector3d translation(double time, int derivative)
+    Vector3d translation(double time, int derivative) const
     {
         return ts(time,derivative);
     }
-    Vector<Vector3d,3> translations(double time){
+    Vector<Vector3d,3> translations(double time)const{
         return Vector<Vector3d,3>(ts(time,0),ts(time,1),ts(time,2));
     }
-    Vector<Vector3d,3> translation_world(double time){
+    Vector<Vector3d,3> translation_world(double time)const{
         return Vector<Vector3d,3>(tws(time,0),tws(time,1),tws(time,2));
     }
 
@@ -101,7 +98,7 @@ public:
         return angular_acceleration(qs);
     }
 
-    std::string display(){
+    std::string display() const{
         return "numerically generated smooth trajectory";
     }
 
@@ -183,6 +180,7 @@ public:
     // interface...
     double t0() const{return -60;}
     double t1() const{return 300;}
+    constexpr static int degree(){return 4;}
 
 
     std::vector<PoseD> display_poses(int N=1000, int border=0) const{

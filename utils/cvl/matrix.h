@@ -1640,12 +1640,3 @@ static_assert(std::is_trivial<Matrix<double,3,3>>(),"speed");
 
 
 } // namespace cvl
-
-
-
-
-
-
-
-
-

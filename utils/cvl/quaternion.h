@@ -47,14 +47,24 @@ template<class T>
 class Quaternion
 {
     // unit quaternion assumed!
-    double pi_d=double(3.141592653589793238462643383279502884L);
+
 public:
     Vector4<T> q;
     T& operator()(int i){ return q(i); }
     const T& operator()(int i) const{ return q(i); }
     Quaternion()=default;
 
-    Quaternion(Vector4<T> q):q(q){}
+    Quaternion(Vector4<T> q):q(q){
+
+        static_assert(std::is_trivially_destructible<Quaternion<double>>(),"speed");
+        static_assert(std::is_trivially_copyable<Quaternion<double>>(),"speed");
+        // the following constraints are good, but not critical
+        static_assert(std::is_trivially_assignable<Quaternion<double>,Quaternion<double>>(),"speed");
+        static_assert(std::is_trivially_copy_constructible<Quaternion<double>>(),"speed");
+        static_assert(std::is_trivially_constructible<Quaternion<double>>(),"speed");
+        static_assert(std::is_trivially_default_constructible<Quaternion<double>>(),"speed");
+        static_assert(std::is_trivial<Quaternion<double>>(),"speed");
+    }
     Quaternion(T w, Vector3<T> v):q(w,v[0],v[1],v[2]){}
     Quaternion(Vector3<T> x):q(Vector4<T>(T(0.0),x[0],x[1],x[2])){}
     Vector3<T> x(){
@@ -111,7 +121,7 @@ public:
 
         const T sin_squared_theta = q1 * q1 + q2 * q2 + q3 * q3;
 
-
+        double pi_d=double(3.141592653589793238462643383279502884L);
         if(!(sin_squared_theta>T(1e-10))){            
             return Vector4<T>(T(0),q1,q2,q3)*T(pi_d/2.0);
 

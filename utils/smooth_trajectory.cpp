@@ -6,7 +6,7 @@ namespace cvl{
 
 
 
-std::vector<double> SmoothTrajectory::interior_times(int N, int border){
+std::vector<double> SmoothTrajectory::interior_times(int N, int border) const{
     // from 0 to 1/normf in N steps, so delta is
     std::vector<double> ts;ts.reserve(N);
 
@@ -17,7 +17,8 @@ std::vector<double> SmoothTrajectory::interior_times(int N, int border){
     }
     return ts;
 }
-std::vector<PoseD> SmoothTrajectory::display_poses(int N, int border){
+
+std::vector<PoseD> SmoothTrajectory::display_poses(int N, int border) const{
     std::vector<PoseD> ps;ps.reserve(N);
     auto ts=interior_times(N,border);
 

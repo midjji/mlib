@@ -28,6 +28,7 @@
 
 #include <mlib/utils/cvl/matrix.h>
 #include <mlib/utils/cvl/rotation_helpers.h>
+#include <mlib/utils/cvl/quaternion.h>
 
 namespace cvl{
 
@@ -69,6 +70,7 @@ template<class T>
 class Pose {
 public:
 
+
     T& operator[](uint index){
         assert(index<8);
         if(index<4)
@@ -79,7 +81,18 @@ public:
     /**
          * @brief Pose initializes as a identity transform
          */
-    Pose():q{T(1.0),T(0.0),T(0.0),T(0.0)},t{T(0.0),T(0.0),T(0.0)}{  }
+    Pose():q{T(1.0),T(0.0),T(0.0),T(0.0)},t{T(0.0),T(0.0),T(0.0)}{
+        // if it wasnt because i rely on the pose() is identity in so many places, this would be a nice fix
+        static_assert(std::is_trivially_destructible<Pose<double>>(),"speed");
+        static_assert(std::is_trivially_copyable<Pose<double>>(),"speed");
+        // the following constraints are good, but not critical
+        //static_assert(std::is_trivially_default_constructible<Pose<double>>(),"speed");
+        static_assert(std::is_trivially_copy_constructible<Pose<double>>(),"speed");
+        //static_assert(std::is_trivially_constructible<Pose<double>>(),"speed");
+        static_assert(std::is_trivially_assignable<Pose<double>,Pose<double>>(),"speed");
+        //static_assert(std::is_trivial<Pose<double>>(),"speed");
+
+    }
     mlib_host_device_
     static Pose Identity(){return Pose();}
 
@@ -389,10 +402,16 @@ public:
         return angle;
     }
 
-    T geodesic(Pose<T> b){ // minimum geodesic on R, so less than 2pi, even if difference is larger?
-        Pose<T> P=b.inverse()*(*this);
+    T geodesic(Pose<T> b){
+        return geodesic_vector(b).norm();
+    }
+    Vector<T,6> geodesic_vector(Pose<T> b) // component wize makes it convenient as residual
+    {
+        Vector3<T> v=Quaternion<T>(q).geodesic_vector(b.q);
+        Vector3<T> p=(b.inverse()*(*this)).t; // could probably be computed faster...
+        return Vector<T,6>(v[0],v[1],v[2],
+                p[0],p[1],p[2]);
 
-        return P.getTinW().squaredNorm() + std::abs(P.getAngle());
     }
     /// returns true if no value is strange
     mlib_host_device_
@@ -494,6 +513,8 @@ template<class T>
 std::ostream& operator<<(std::ostream& os, const Pose<T>& pose){
     return os<<pose.str();
 }
+
+
 
 }// en<T> namespace cvl
 
