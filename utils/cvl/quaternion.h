@@ -261,6 +261,7 @@ public:
 
     // for rotations, the minimum distance!
     T geodesic(Quaternion<T> b){
+        // dont use this, use geodesic_vector instead!
         return ceres::sqrt((conj()*b).ulog().x().squaredNorm());
     }
     Vector3<T> geodesic_vector(Quaternion<T> b){

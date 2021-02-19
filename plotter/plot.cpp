@@ -19,11 +19,11 @@ public:
 
     void plot(const std::vector<double>& xs,
               const std::vector<double>& ys,
-              std::string title){
-        call_plot(xs,ys,title);
+              std::string title, std::string label){
+        call_plot(xs,ys,title, label);
     }
-    void plot(const std::vector<double>& ts, const std::map<std::string, std::vector<double>>& errs){
-        for(auto& [name,err]:errs) call_plot(ts,err,name);
+    void plot(const std::vector<double>& ts, const std::map<std::string, std::vector<double>>& errs, std::string title){
+        for(auto& [name,err]:errs) call_plot(ts,err,title, name);
     }
     static std::shared_ptr<Plotter> create() {
         auto plotter= std::shared_ptr<Plotter>(new Plotter);
@@ -38,12 +38,13 @@ private:
 
     void call_plot(std::vector<double> xs,
                    std::vector<double> ys,
-                   std::string title){
+                   std::string title,
+                   std::string label){
         // Here I know the plotter exists for as long as the        
         // capture this by reference, then run it in blocking mode, so the lambda finishes before the function returns        
        // actually opencv does not like blocking!
                 auto plotter=self.lock();
-        run_in_gui_thread(new QAppLambda([plotter,xs,ys,title](){plotter->plot_internal(xs,ys,title);}));
+        run_in_gui_thread(new QAppLambda([plotter,xs,ys,title,label](){plotter->plot_internal(xs,ys,title, label);}));
     }
 
 
@@ -51,7 +52,9 @@ private:
     std::mutex plot_internal_mtx; // protects the map
     void plot_internal(const std::vector<double>& xs,
                        const std::vector<double>& ys,
-                       std::string title){
+                       std::string title, // for the window
+                       std::string label // for this graph
+                       ){
 
         // Note must be run in the qapp thread, so call via the
         //first_plot=true;
@@ -64,6 +67,7 @@ private:
         }
 
         std::shared_ptr<JKQTPlotter> plot=plots[title];
+        plot->setWindowTitle(QString(title.c_str()));
 
         JKQTPDatastore* ds=plot->getDatastore();
 
@@ -91,16 +95,19 @@ private:
         JKQTPXYLineGraph* graph1=new JKQTPXYLineGraph(plot.get());
         graph1->setXColumn(columnX);
         graph1->setYColumn(columnY);
-        graph1->setTitle(QObject::tr(title.c_str()));
+        graph1->setTitle(QObject::tr(label.c_str()));
 
         // 5. add the graph to the plot, so it is actually displayed
         plot->addGraph(graph1);
+
 
         // 6. autoscale the plot so the graph is contained
         plot->zoomToFit();
 
         // show plotter and make it a decent size
+
         plot->show();
+
         plot->resize(600,400);
 
     }
@@ -121,12 +128,12 @@ std::shared_ptr<Plotter> plotter(){
 
 void plot(const std::vector<double>& xs,
           const std::vector<double>& ys,
-          std::string title){
-    plotter()->plot(xs,ys,title);
+          std::string title, std::string label){
+    plotter()->plot(xs,ys,title, label);
 }
-void plot(const std::vector<double>& xs, const std::map<std::string, std::vector<double>>& yss)
+void plot(const std::vector<double>& xs, const std::map<std::string, std::vector<double>>& yss, std::string title)
 {
-    plotter()->plot(xs,yss);
+    plotter()->plot(xs,yss, title);
 }
 void initialize_plotter(){
     plotter();
