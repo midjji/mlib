@@ -47,6 +47,7 @@ static_assert(__cplusplus>=201103L, " must be c++11 or greater");
 
 
 #define mlog() ::cvl::Logger(std::string(__PRETTY_FUNCTION__),std::string(__FILE__),__LINE__)
+#define mlogl() ::cvl::Logger("",std::string(__FILE__),__LINE__)
 
 
 
@@ -102,7 +103,7 @@ public:
     // a very rare exception to the the never use mutable rule.
     // Forced by the const reference returned to a temporary variable.
     // using the const reference like this is also strictly not undefined behaviour, but it certainly uncomfortably close.
-    // take extreme care when modifying this class.
+    // take extreme care when modifying this class.    
     mutable std::stringstream ss;
     mutable bool flush=false;
 private:
