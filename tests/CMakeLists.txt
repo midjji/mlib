@@ -3,14 +3,14 @@ cmake_minimum_required(VERSION 3.10)
 
 
 
-testit(matrix "mlib;doctest")
+#testit(matrix "mlib;doctest")
 #testit(triangulate_nl "mlib;doctest")
-testit(pose "mlib;doctest")
+#testit(pose "mlib;doctest")
 #testit(tensor "mlib;doctest")
 #testit(undistort "mlib;doctest")
 
-testit(serialize "mlib;doctest")
-testit(syncqueue "mlib;doctest")
+#testit(serialize "mlib;doctest")
+#testit(syncqueue "mlib;doctest")
 
 
 

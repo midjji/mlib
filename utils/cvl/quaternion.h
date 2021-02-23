@@ -68,6 +68,8 @@ public:
     Quaternion(T w, Vector3<T> v):q(w,v[0],v[1],v[2]){}
     Quaternion(Vector<T,7> qt):q(qt[0],qt[1],qt[2],qt[3]){}
     Quaternion(Vector3<T> x):q(Vector4<T>(T(0.0),x[0],x[1],x[2])){}
+    T real() const{return q[0];}
+
     Vector3<T> x(){
         // normalize?
         return Vector3<T>(q[1],q[2],q[3]);
@@ -99,6 +101,24 @@ public:
      */
     T theta_(T cos_theta, T abs_sin_theta) const
     {
+        T th=((cos_theta < T(0.0)) ?
+                  ceres::atan2(-abs_sin_theta, -cos_theta):
+                  ceres::atan2(abs_sin_theta, cos_theta));
+        return th;
+    }
+    /**
+     * @brief theta_
+     * @return
+     *
+     * Slightly slower, but more consistent to just use one?
+     */
+    T theta_() const
+    {
+        T sin_squared_theta = vec().squaredNorm();
+        T abs_sin_theta = ceres::sqrt(sin_squared_theta);
+        //cout<<"sin_theta: "<<sin_theta<<endl;
+        T cos_theta = real(); // note we dont use the /2 in the exponent etc.
+
         T th=((cos_theta < T(0.0)) ?
                   ceres::atan2(-abs_sin_theta, -cos_theta):
                   ceres::atan2(abs_sin_theta, cos_theta));
@@ -259,11 +279,14 @@ public:
         return q.squaredNorm();
     }
 
+    double geodesic_angle_degrees(Quaternion<double> b){
+        return (180.0/3.1415)*(conj()*b).theta_()/2.0; // the last /2.0 is to convert it to half sphere?
+    }
 
     // for rotations, the minimum distance!
-    T geodesic(Quaternion<T> b){
-        // dont use this, use geodesic_vector instead!
-        return ceres::sqrt((conj()*b).ulog().x().squaredNorm());
+    double geodesic(Quaternion<double> b){
+        // dont use this for ceres, use geodesic_vector instead!
+        return (conj()*b).ulog().x().norm();
     }
     Vector3<T> geodesic_vector(Quaternion<T> b){
         return (conj()*b).ulog().x();
