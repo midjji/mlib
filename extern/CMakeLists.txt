@@ -4,6 +4,8 @@ add_library(mlib-extern INTERFACE)
 
 # required but external
 add_subdirectory(convenient_multithreaded_qt_gui)
+add_subdirectory(ceres)
+target_link_libraries(mlib-extern INTERFACE ceres)
 
 target_link_libraries(mlib-extern INTERFACE mtgui)
 
