@@ -1,3 +1,4 @@
+#if 0
 #include <mlib/vis/nanipulator.h>
 #include <mlib/vis/convertosg.h>
 #include <mlib/utils/mlog/log.h>
@@ -174,3 +175,4 @@ bool FPS2::startAnimationByMousePointerIntersection(
 
 
 
+#endif
