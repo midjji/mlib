@@ -79,8 +79,9 @@ public:
     }
     mlib_host_device_
     /**
-         * @brief Pose initializes as a identity transform
+         * @brief Pose initializes as a identity transform, trouble, this prevents std::trivial!
          */
+
     Pose():q{T(1.0),T(0.0),T(0.0),T(0.0)},t{T(0.0),T(0.0),T(0.0)}{
         // if it wasnt because i rely on the pose() is identity in so many places, this would be a nice fix
         static_assert(std::is_trivially_destructible<Pose<double>>(),"speed");

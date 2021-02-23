@@ -224,9 +224,13 @@ public:
                 tws(time-delta,derivative-1))/(2.0*delta);
     }
 
-
-
     PoseD pose(double time) const
+    {
+        PoseD P0=pose2(0);
+        return P0.inverse()*pose2(time);
+    }
+
+    PoseD pose2(double time) const
     {
 
         time*=0.01;

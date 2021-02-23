@@ -210,9 +210,9 @@ Polynomial<std::max(A,B),Type> operator+(Polynomial<A,Type> a,
         if(i<a.coeffs.size())
             poly.coeffs[i]+=a.coeffs[i];
         if(i<b.coeffs.size())
-            poly.coeffs[i]+=b.coeffs[i];        
+            poly.coeffs[i]+=b.coeffs[i];
     }
-poly.zero_eps_coefficients();
+    poly.zero_eps_coefficients();
     return poly;
 }
 
@@ -238,7 +238,7 @@ Polynomial<std::max(A,B)> operator-(Polynomial<A,Type> a,
 
 template<unsigned int A, unsigned int B, class Type1, class Type2>
 auto operator*(Polynomial<A,Type1> a,
-                               Polynomial<B,Type2> b){
+               Polynomial<B,Type2> b){
     //cout<<"poly: "<<a<<" b: "<<b<<endl;
     using T=decltype(Type1(0) * Type2(0));
     Polynomial<A+B,T> poly;
@@ -314,10 +314,10 @@ public:
     }
 
     BoundedPolynomial bound(Vector2<long double> b){
-       BoundedPolynomial ret;
-       ret.p=p;
-       ret.bounds=Vector2<long double>(std::max(bounds[0],b[0]),std::min(bounds[1],b[1]));
-       return ret;
+        BoundedPolynomial ret;
+        ret.p=p;
+        ret.bounds=Vector2<long double>(std::max(bounds[0],b[0]),std::min(bounds[1],b[1]));
+        return ret;
     }
     bool zero(){
         return p.zero();
@@ -561,6 +561,8 @@ operator-(CompoundBoundedPolynomial<A,Type> a,
     out.collapse();
     return out;
 }
+
+
 
 
 template<unsigned int S, class Type>

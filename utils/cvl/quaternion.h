@@ -66,6 +66,7 @@ public:
         static_assert(std::is_trivial<Quaternion<double>>(),"speed");
     }
     Quaternion(T w, Vector3<T> v):q(w,v[0],v[1],v[2]){}
+    Quaternion(Vector<T,7> qt):q(qt[0],qt[1],qt[2],qt[3]){}
     Quaternion(Vector3<T> x):q(Vector4<T>(T(0.0),x[0],x[1],x[2])){}
     Vector3<T> x(){
         // normalize?
