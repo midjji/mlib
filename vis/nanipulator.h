@@ -1,3 +1,4 @@
+
 #pragma once
 #include <mlib/utils/cvl/pose.h>
 #include <osgGA/StandardManipulator>
@@ -44,5 +45,3 @@ class  FPS2 : public osgGA::StandardManipulator
         virtual bool startAnimationByMousePointerIntersection( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& us );
 
 };
-
-
