@@ -36,6 +36,7 @@ namespace mlib{
 
 template<class T> std::string getMatlabVector(std::vector<T> vs){
     std::stringstream ss;
+    ss<<std::setprecision(5);
     ss<<"[";
     for(uint i=0;i<vs.size();++i){
         ss<<vs[i];

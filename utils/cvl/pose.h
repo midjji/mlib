@@ -412,7 +412,6 @@ public:
         Vector3<T> p=(b.inverse()*(*this)).t; // could probably be computed faster...
         return Vector<T,6>(v[0],v[1],v[2],
                 p[0],p[1],p[2]);
-
     }
     /// returns true if no value is strange
     mlib_host_device_
