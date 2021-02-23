@@ -2,7 +2,7 @@
 #include <mlib/vis/nanipulator.h>
 #include <mlib/vis/convertosg.h>
 #include <mlib/utils/mlog/log.h>
- 
+
 
 using namespace osg;
 using namespace osgGA;
@@ -97,7 +97,9 @@ void FPS2::getTransformation( osg::Vec3d& eye, osg::Quat& rotation ) const
 
 
 // doc in parent
-void FPS2::setTransformation( const osg::Vec3d& eye, const osg::Vec3d& center, const osg::Vec3d& up )
+void FPS2::setTransformation( const osg::Vec3d& eye,
+                              const osg::Vec3d& center,
+                              const osg::Vec3d& up )
 {
 
     pose=cvl::lookAt(cvl::osg2cvl(center),cvl::osg2cvl(eye),cvl::osg2cvl(up));
@@ -109,7 +111,9 @@ void FPS2::setTransformation( const osg::Vec3d& eye, const osg::Vec3d& center, c
 
 
 // doc in parent
-void FPS2::getTransformation([[maybe_unused]] osg::Vec3d& eye,[[maybe_unused]] osg::Vec3d& center, osg::Vec3d& up ) const
+void FPS2::getTransformation([[maybe_unused]] osg::Vec3d& eye,
+[[maybe_unused]] osg::Vec3d& center,
+[[maybe_unused]] osg::Vec3d& up ) const
 {
 
 }
@@ -135,7 +139,8 @@ void FPS2::init( const GUIEventAdapter& ea, GUIActionAdapter& us )
 
 
 // doc in parent
-bool FPS2::handleMouseWheel([[maybe_unused]] const GUIEventAdapter& ea,[[maybe_unused]] GUIActionAdapter& us )
+bool FPS2::handleMouseWheel([[maybe_unused]] const GUIEventAdapter& ea,
+[[maybe_unused]] GUIActionAdapter& us )
 {
 
 
@@ -144,14 +149,19 @@ bool FPS2::handleMouseWheel([[maybe_unused]] const GUIEventAdapter& ea,[[maybe_u
 
 
 // doc in parent
-bool FPS2::performMovementLeftMouseButton([[maybe_unused]] const double /*eventTimeDelta*/,[[maybe_unused]] const double dx, const double dy )
+bool FPS2::performMovementLeftMouseButton(
+        [[maybe_unused]] const double /*eventTimeDelta*/,
+[[maybe_unused]] const double dx,
+[[maybe_unused]] const double dy )
 {
 
     return true;
 }
 
 
-bool FPS2::performMouseDeltaMovement([[maybe_unused]] const float dx,[[maybe_unused]] const float dy )
+bool FPS2::performMouseDeltaMovement(
+        [[maybe_unused]] const float dx,
+[[maybe_unused]] const float dy )
 {
 
     return true;
@@ -159,7 +169,9 @@ bool FPS2::performMouseDeltaMovement([[maybe_unused]] const float dx,[[maybe_unu
 
 
 
-void FPS2::applyAnimationStep([[maybe_unused]] const double currentProgress, [[maybe_unused]]const double /*prevProgress*/ )
+void FPS2::applyAnimationStep(
+        [[maybe_unused]] const double currentProgress,
+[[maybe_unused]]const double /*prevProgress*/ )
 {
 
 }
@@ -167,7 +179,8 @@ void FPS2::applyAnimationStep([[maybe_unused]] const double currentProgress, [[m
 
 // doc in parent
 bool FPS2::startAnimationByMousePointerIntersection(
-        [[maybe_unused]]const osgGA::GUIEventAdapter& ea,[[maybe_unused]] osgGA::GUIActionAdapter& us )
+        [[maybe_unused]]const osgGA::GUIEventAdapter& ea,
+[[maybe_unused]] osgGA::GUIActionAdapter& us )
 {
 
     return true;
