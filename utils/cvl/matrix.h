@@ -832,7 +832,7 @@ public:
     ///@return the inner product of this and another vector @param b
     template<unsigned int Rows2, unsigned int Cols2>
     mlib_host_device_
-    inline T dot(const Matrix<T, Rows2, Cols2>& b) const
+    T dot(const Matrix<T, Rows2, Cols2>& b) const
     {
         static_assert((Cols == 1 || Rows == 1),"The dot product is only defined for vectors.");
         static_assert( (Cols2 == 1 || Rows2 == 1),"The dot product is only defined for vectors.");

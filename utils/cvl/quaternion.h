@@ -89,6 +89,24 @@ public:
         return Vector4<T>(q[0],-q[1],-q[2],-q[3]);
     }
 
+    Vector3<T> imag_of_multiply(Quaternion b){
+        // this is for when you only want the imaginary part,
+        //like when you know the scalar part will be zero!
+        // such as for the second mult of unit rotate, or omega or alpha
+        Matrix<T,3,4> M(q(1),            q(0),        -q(3),         q(2),
+        q(2),           q(3),         q(0),        -q(1),
+        q(3),           -q(2),        q(1),         q(0));
+        return M*b.q;
+    }
+    Vector3<T> imag_of_multiply_b_conj(Quaternion b){ // multiply by conjugate of b
+        // this is for when you only want the imaginary part,
+        //like when you know the scalar part will be zero!
+        // such as for the second mult of unit rotate, or omega or alpha
+        Matrix<T,3,4> M(q(1),            -q(0),        q(3),         -q(2),
+        q(2),           -q(3),         -q(0),        +q(1),
+        q(3),           +q(2),        -q(1),         -q(0));
+        return M*b.q;
+    }
 
 
     /**
