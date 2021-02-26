@@ -100,6 +100,10 @@ std::string Symb::str(){
             ss<<v;
         ss<<sym.str();
     }
+    if(ss.str().size()==0)
+        ss<<"0";
+
+
     if(plus){
         std::stringstream ss2;
         ss2<<"("<<ss.str()<<")";
@@ -112,11 +116,16 @@ Symb& Symb::operator+=(Symb b){
     koeffs=c.koeffs;
     return *this;
 }
+Symb& Symb::operator*=(Symb b){
+    Symb c= *this * b;
+    koeffs=c.koeffs;
+    return *this;
+}
 
 Symb operator+(Symb a, Symb b){
 
     Symb c=a;
-    for(auto v:b.koeffs){
+    for(const auto& v:b.koeffs){
         c.koeffs[v.first]+=v.second; // get zero initialized
     }
     c.clear_zeros();
@@ -129,8 +138,8 @@ Symb operator*(Symb as, Symb bs)
     bs.clear_zeros();
     std::vector<Sym> ss;
     std::vector<double> ks;
-    for(auto a:as.koeffs)
-        for(auto b:bs.koeffs){
+    for(const auto& a:as.koeffs)
+        for(const auto& b:bs.koeffs){
             ss.push_back(a.first*b.first);
             ks.push_back(a.second*b.second);
         }

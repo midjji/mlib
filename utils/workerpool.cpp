@@ -55,10 +55,6 @@ void WorkerPool::work()
                 break;
             job->work();
         }
-        catch(std::logic_error le){
-            std::cerr<<"Error in workpool"<<std::endl;
-            stopped=true;
-        }
         catch(...){
             std::cerr<<"Other error in workpool"<<std::endl;
             stopped=true;

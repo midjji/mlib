@@ -78,6 +78,11 @@ public:
         return ss.str();
     }
 
+    std::string str2(){
+        std::stringstream ss;
+        ss<<coeffs;
+        return ss.str();
+    }
     Polynomial<std::max(0,int(degree)-1)> derivative() const{
         Polynomial<std::max(0,int(degree)-1)> poly;
 
@@ -165,7 +170,7 @@ public:
 
         for(uint i=0;i<coeffs.size();++i)
         {
-            Polynomial<20,Type> tmp=diff.pow_int2<20>(i)*coeffs[i];
+            Polynomial<20,Type> tmp=diff.pow_int2<20>(i)*Polynomial<0,Type>(coeffs[i]);
             //cout<<"reparam1: "<<diff.pow_int2<20>(i).str()<<": i is "<<i<<endl;
             out=out + tmp;
         }
@@ -313,11 +318,9 @@ public:
         return(bounds[0]<bounds[1]);
     }
 
-    BoundedPolynomial bound(Vector2<long double> b){
-        BoundedPolynomial ret;
-        ret.p=p;
-        ret.bounds=Vector2<long double>(std::max(bounds[0],b[0]),std::min(bounds[1],b[1]));
-        return ret;
+    void bound(Vector2<long double> b)
+    {
+        bounds=Vector2<long double>(std::max(bounds[0],b[0]),std::min(bounds[1],b[1]));
     }
     bool zero(){
         return p.zero();
@@ -344,6 +347,13 @@ public:
         return ss.str();
     }
 
+
+    std::string str2(){
+        std::stringstream ss;
+        ss<<"bounds: ["<<bounds[0]<<","<<bounds[1]<<") ";
+        ss<<p.str2();
+        return ss.str();
+    }
 
     auto unbounded(){
         return p;
@@ -376,6 +386,7 @@ public:
 
         return BoundedPolynomial(bounds,p. template pow<exp>());
     }
+
 
 
 };
@@ -469,6 +480,12 @@ public:
             ss<<p.str()<<"\n";
         return ss.str();
     }
+    std::string str2(){
+        std::stringstream ss;
+        for(auto p:polys)
+            ss<<p.str2()<<"\n";
+        return ss.str();
+    }
     Vector2<long double> span(){
         if(polys.size()==0) return {0,0};
         long double low=polys[0].bounds[0];
@@ -480,28 +497,26 @@ public:
         return {low,high};
     }
 
-    CompoundBoundedPolynomial<degree,Type> collapse(){
+    void collapse(){
+        // first remove any polys with invalid bounds,
+        std::vector<BoundedPolynomial<degree,Type>> ps;
+        for(auto p:polys)
+            if(p.good_bounds())
+                ps.push_back(p);
 
 
         std::map<std::array<long double,2>, Polynomial<degree,Type>> map;
-        for(auto p:polys){
+        for(auto p:ps)
+        {
             // auto inserts zero
             map[p.bounds.std_array()] = map[p.bounds.std_array()] + p.p;
         }
-        CompoundBoundedPolynomial<degree,Type> cbp;
+
+        polys.clear();
         for(auto [b,p]:map){
-            cbp.add(BoundedPolynomial<degree,Type>(Vector2<long double>(b[0],b[1]),p));
+            add(BoundedPolynomial<degree,Type>(Vector2<long double>(b[0],b[1]),p));
         }
-        return cbp;
-    }
-    CompoundBoundedPolynomial<degree,Type> bound(Vector2<long double> b){
-        CompoundBoundedPolynomial<degree,Type> ret;
-        for(auto p:polys){
-            auto a=p.bound(b);
-            if(a.good_bounds())
-                ret.add(a);
-        }
-        return ret;
+
     }
 
     Vector<long double,degree+1> compute_bcoeffs(long double t){
@@ -514,6 +529,16 @@ public:
         for(auto& p:polys)
             p.p.coeffs*=Type(d);
         return *this;
+    }
+    CompoundBoundedPolynomial& operator+=(CompoundBoundedPolynomial b){
+        for(auto p: b.polys)
+            add(p);
+    }
+    void bound(Vector2d bound){
+        std::vector<BoundedPolynomial<degree,Type>> ps;
+        for(auto& p:polys)
+            p.bound(bound);
+        collapse();
     }
 };
 
@@ -548,7 +573,7 @@ operator+(CompoundBoundedPolynomial<A,Type> a,
     CompoundBoundedPolynomial<(A<B)?B:A,Type> out;
     for(auto p:a.polys) out.add(p);
     for(auto p:b.polys) out.add(p);
-    out=out.collapse();
+    out.collapse();
     return out;
 }
 template<unsigned int A, unsigned int B,class Type>
@@ -567,6 +592,7 @@ operator-(CompoundBoundedPolynomial<A,Type> a,
 
 template<unsigned int S, class Type>
 std::ostream& operator<<(std::ostream& os, CompoundBoundedPolynomial<S,Type> poly){
+
     return os<<poly.str();
 }
 

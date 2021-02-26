@@ -36,8 +36,7 @@ cv::Mat1b KittiOdometrySample::greyb(uint id){
     cv::Mat1b out(rows(),cols());
     for(uint r=0;r<rows();++r)
         for(uint c=0;c<cols();++c){
-            auto v=in(r,c);
-            if(v<0) v=0;
+            auto v=in(r,c);            
             if(v>255)v=255;
             out(r,c)=uchar(v);
         }

@@ -6,7 +6,6 @@ add_library(mlib-extern INTERFACE)
 add_subdirectory(convenient_multithreaded_qt_gui)
 add_subdirectory(ceres EXCLUDE_FROM_ALL)
 target_link_libraries(mlib-extern INTERFACE ceres)
-
 target_link_libraries(mlib-extern INTERFACE mtgui)
 
 

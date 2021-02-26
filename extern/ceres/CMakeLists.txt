@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 option(BUILD_CERES "build CERES" ON)
 if(BUILD_CERES)
 if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ceres-solver/CMakeLists.txt")
-    message(FATAL_ERROR "ceres-solver not found, clone it here")
+    message(FATAL_ERROR "ceres-solver not found, clone it here: ${CMAKE_CURRENT_SOURCE_DIR}/")
 endif()
 
 
@@ -39,6 +39,6 @@ add_subdirectory(ceres-solver)
 else()
     # dont use internal ceres for debugging
      find_package(Ceres 2 REQUIRED)
-     message("ceres found instead?")
+
 endif()
 

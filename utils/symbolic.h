@@ -42,6 +42,7 @@ struct Symb{
     void clear_zeros();
     std::string str();
     Symb& operator+=(Symb b);
+    Symb& operator*=(Symb b);
 };
 Symb operator+(Symb a, Symb b);
 Symb operator*(Symb as, Symb bs);

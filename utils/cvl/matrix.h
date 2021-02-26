@@ -293,6 +293,8 @@ public:
     const T* end() const{
         return begin()+(Cols*Rows);
     }
+    T& back(){ return _data[Rows*Cols-1];}
+    const T& back() const{ return _data[Rows*Cols-1];}
 
     T* begin() {return &_data[0];}
     ///@return a pointer to the last element +1
@@ -415,6 +417,17 @@ public:
     mlib_host_device_
     ///@return (*this) point multiplied with another matrix
     Matrix& pointMultiply(const Matrix<S,Rows,Cols>& b  /** @param b */)
+    {
+        Matrix& a = *this;
+        for (unsigned int i = 0; i < Rows * Cols; ++i) {
+            a(i) *= T(b(i));
+        }
+        return a;
+    }
+    template<class S>
+    mlib_host_device_
+    ///@return (*this) point multiplied with another matrix
+    Matrix& point_multiply(const Matrix<S,Rows,Cols>& b  /** @param b */)
     {
         Matrix& a = *this;
         for (unsigned int i = 0; i < Rows * Cols; ++i) {
@@ -1238,7 +1251,13 @@ public:
 
 
 
-
+template<uint Rows, uint Cols, class T> Matrix<T, Rows, Cols>
+point_multiply(const Matrix<T, Rows, Cols>& a, const Matrix<T, Rows, Cols>& b){
+    Matrix<T, Rows, Cols> c;
+    for(uint i=0;i<Rows*Cols;++i)
+        c[i] = a[i]*b[i];
+    return c;
+}
 
 
 

@@ -25,7 +25,7 @@
 namespace mlib{
 /// Uniform distribution on the unit sphere
 template<class T,int R> cvl::Vector<T,R> getRandomUnitVector(){
-    static_assert(R>1, "not much of a vector otherwize... " );
+
     cvl::Vector<T,R> n;
 
     for(int i =0;i<R;++i)

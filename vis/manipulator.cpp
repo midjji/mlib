@@ -221,7 +221,7 @@ bool MainEventHandler::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIAction
 
 
 
-bool MainEventHandler::handleFrameEvent(const osgGA::GUIEventAdapter& ea){
+bool MainEventHandler::handleFrameEvent([[maybe_unused]]const osgGA::GUIEventAdapter& ea){
     return false;
     // should redraw?
 }
