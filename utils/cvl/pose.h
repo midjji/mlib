@@ -426,13 +426,9 @@ public:
         return QuaternionRotate(q(),x);
     }
 
-    // sizeof Vector3 is 4*sizeof(T)
-    //T filler=T(0.0);
-    Vector<T,7> getdata() const{return data;}
-
     std::string str() const{
         std::stringstream ss;
-        ss<<getdata();
+        ss<<data;
         return ss.str();
     }
     Vector4<T> q() const {return Vector4<T>(data[0],data[1],data[2],data[3]);}
