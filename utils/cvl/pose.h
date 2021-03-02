@@ -70,18 +70,18 @@ template<class T>
 class Pose {
     /// the unit quaternion representing the rotation, s,i,j,k
     /// the translation: x' = (R(q)x) +t
-    Vector<T,7> qt;
+    Vector<T,7> data; // q,t
 
 public:
 
 
-    T& operator[](uint index){ return qt[index];}
+    T& operator[](uint index){ return data[index];}
     mlib_host_device_
     /**
          * @brief Pose initializes as a identity transform, trouble, this prevents std::trivial!
          */
 
-    Pose():qt{T(1.0),T(0.0),T(0.0),T(0.0),T(0.0),T(0.0),T(0.0)}{
+    Pose():data{T(1.0),T(0.0),T(0.0),T(0.0),T(0.0),T(0.0),T(0.0)}{
         // if it wasnt because i rely on the pose() is identity in so many places, this would be a nice fix
         static_assert(std::is_trivially_destructible<Pose<double>>(),"speed");
         static_assert(std::is_trivially_copyable<Pose<double>>(),"speed");
@@ -102,8 +102,8 @@ public:
                              */
     template<class U>
     mlib_host_device_
-    Pose(const Pose<U>& p){qt(p.qt); }
-    Pose(Vector<T,7> v):qt(v){}
+    Pose(const Pose<U>& p){data(p.data); }
+    Pose(Vector<T,7> v):data(v){}
 
 
     mlib_host_device_
@@ -112,7 +112,7 @@ public:
                              * @param q_ unit quaternion
                              * @param t_
                              */
-    Pose(Vector4<T> q, Vector3<T> t):qt(q[0],q[1],q[2],q[3],t[0],t[1],t[2]){}
+    Pose(Vector4<T> q, Vector3<T> t):data(q[0],q[1],q[2],q[3],t[0],t[1],t[2]){}
 
     mlib_host_device_
     /**
@@ -121,16 +121,16 @@ public:
          * @param t_
          */
     explicit Pose(const T* q, const T* t, [[maybe_unused]] bool checked){
-        for(int i=0;i<4;++i){qt[i]=q[i];}
-        for(int i=0;i<3;++i){qt[4+i]=t[i];}
+        for(int i=0;i<4;++i){data[i]=q[i];}
+        for(int i=0;i<3;++i){data[4+i]=t[i];}
     }
     mlib_host_device_
     /**
          * @brief Pose copies
-         * @param qt
+         * @param data
          */
     explicit Pose(const T* ptr, [[maybe_unused]] bool checked){
-        for(int i=0;i<7;++i){qt[i]=ptr[i];}
+        for(int i=0;i<7;++i){data[i]=ptr[i];}
     }
 
     // user must verify that the matrix is a rotation separately
@@ -143,8 +143,8 @@ public:
     Pose(Matrix3<T> R, Vector3<T> t=Vector3<T>::Zero())
     {
         auto q=getRotationQuaternion(R).normalized();
-        for(int i=0;i<4;++i){qt[i]=q[i];}
-        for(int i=0;i<3;++i){qt[4+i]=t[i];}
+        for(int i=0;i<4;++i){data[i]=q[i];}
+        for(int i=0;i<3;++i){data[4+i]=t[i];}
     }
 
     // Rotation is i<T>entity
@@ -153,7 +153,7 @@ public:
          * @brief Pose identity rotation assumed
          * @param t_ translation vector
          */
-    Pose (const Vector3<T>& t):qt{T(1.0),T(0.0),T(0.0),T(0.0),t[0],t[1],t[2]}{}
+    Pose (const Vector3<T>& t):data{T(1.0),T(0.0),T(0.0),T(0.0),t[0],t[1],t[2]}{}
 
     mlib_host_device_
     /**
@@ -163,8 +163,8 @@ public:
     Pose (const Matrix34<T>& P){
         auto q=getRotationQuaternion(P.getRotationPart()).normalized();
         auto t=P.getTranslationPart();
-        for(int i=0;i<4;++i){qt[i]=q[i];}
-        for(int i=0;i<3;++i){qt[4+i]=t[i];}
+        for(int i=0;i<4;++i){data[i]=q[i];}
+        for(int i=0;i<3;++i){data[4+i]=t[i];}
     }
     mlib_host_device_
     /**
@@ -175,8 +175,8 @@ public:
     {
         auto q=getRotationQuaternion(P.getRotationPart()).normalized();
         auto t=P.getTranslationPart();
-        for(int i=0;i<4;++i){qt[i]=q[i];}
-        for(int i=0;i<3;++i){qt[4+i]=t[i];}
+        for(int i=0;i<4;++i){data[i]=q[i];}
+        for(int i=0;i<3;++i){data[4+i]=t[i];}
     }
 
 
@@ -187,21 +187,21 @@ public:
 
 
     mlib_host_device_
-    T* getRRef() {return qt.begin();}
+    T* getRRef() {return data.begin();}
     mlib_host_device_
     T* getTRef(){return t_begin();}
-    T* t_begin(){return &qt[4];}
-    T* begin(){return qt.begin();}
-    T* end(){return qt.end();}
+    T* t_begin(){return &data[4];}
+    T* begin(){return data.begin();}
+    T* end(){return data.end();}
 
     mlib_host_device_
-    void setT(Vector3<T> t){for(int i=0;i<3;++i) qt[4+i]=t[i];}
+    void setT(Vector3<T> t){for(int i=0;i<3;++i) data[4+i]=t[i];}
     mlib_host_device_
-    void setQuaternion(Vector4<T> q){for(int i=0;i<4;++i) qt[i]=q[i];}
+    void setQuaternion(Vector4<T> q){for(int i=0;i<4;++i) data[i]=q[i];}
     mlib_host_device_
-    void set_t(Vector3<T> t){for(int i=0;i<3;++i) qt[4+i]=t[i];}
+    void set_t(Vector3<T> t){for(int i=0;i<3;++i) data[4+i]=t[i];}
     mlib_host_device_
-    void set_q(Vector4<T> q){for(int i=0;i<4;++i) qt[i]=q[i];}
+    void set_q(Vector4<T> q){for(int i=0;i<4;++i) data[i]=q[i];}
 
 
 
@@ -255,7 +255,7 @@ public:
          * @return
          */
     void invert() {
-        qt=inverse().qt;
+        data=inverse().data;
     }
     mlib_host_device_
     /**
@@ -271,9 +271,9 @@ public:
          * @return
          */
     bool is_rotation() const{
-        if(qt[0]!=1) return false;
+        if(data[0]!=1) return false;
         for(int i=1;i<4;++i)
-            if(qt[i]!=0) return false;
+            if(data[i]!=0) return false;
         return true;
     }
     mlib_host_device_
@@ -282,8 +282,8 @@ public:
          * @return is the pose a identity transform
          */
     bool is_identity() const{
-        if(qt[0]!=1.0) return false;
-        for(int i=0;i<7;++i) if(qt[i]!=0.0) return false;
+        if(data[0]!=1.0) return false;
+        for(int i=0;i<7;++i) if(data[i]!=0.0) return false;
         return true;
     }
     mlib_host_device_
@@ -305,7 +305,7 @@ public:
          */
     void scaleT(T scale){
         for(int i=4;i<7;++i)
-        qt[i]*=scale;
+        data[i]*=scale;
     }
     mlib_host_device_
     /**
@@ -328,9 +328,9 @@ public:
     double angle() const
     {
         // assumes unit quaternion!
-        double sin_squared_theta = qt[1] * qt[1] + qt[2] * qt[2] + qt[3] * qt[3];
+        double sin_squared_theta = data[1] * data[1] + data[2] * data[2] + data[3] * data[3];
         double sin_theta = std::sqrt(sin_squared_theta);
-        double cos_theta = qt[0];
+        double cos_theta = data[0];
         double theta =(cos_theta < T(0.0)) ? std::atan2(-sin_theta, -cos_theta)
                                            : std::atan2(sin_theta, cos_theta);
         return T(2.0)*theta;
@@ -389,7 +389,7 @@ public:
     }
     Vector<T,6> geodesic_vector(Pose<T> b) // component wize makes it convenient as residual
     {
-        Vector3<T> v=Quaternion<T>(qt).geodesic_vector(b.qt);
+        Vector3<T> v=Quaternion<T>(data).geodesic_vector(b.data);
         Vector3<T> p=(b.inverse()*(*this)).t(); // could probably be computed faster...
         return Vector<T,6>(v[0],v[1],v[2],
                 p[0],p[1],p[2]);
@@ -401,7 +401,7 @@ public:
          * @return true if the pose contains no nans or infs and the quaternion is a unit quaternion
          */
     bool is_normal() const{
-        if (!qt.isnormal()) return false;
+        if (!data.isnormal()) return false;
         if(q().length()-1.0>1e-5) return false;
         return true;
     }
@@ -414,7 +414,7 @@ public:
         auto tmp=q();
         tmp.normalize();
         for(int i=0;i<4;++i)
-            qt[i] =tmp[i];
+            data[i] =tmp[i];
     }
     mlib_host_device_
     /**
@@ -428,15 +428,16 @@ public:
 
     // sizeof Vector3 is 4*sizeof(T)
     //T filler=T(0.0);
-    Vector<T,7> getqt() const{return qt;}
+    Vector<T,7> getdata() const{return data;}
 
     std::string str() const{
         std::stringstream ss;
-        ss<<getqt();
+        ss<<getdata();
         return ss.str();
     }
-    Vector4<T> q() const {return Vector4<T>(qt[0],qt[1],qt[2],qt[3]);}
-    Vector3<T> t() const {return Vector3<T>(qt[4],qt[5],qt[6]);}
+    Vector4<T> q() const {return Vector4<T>(data[0],data[1],data[2],data[3]);}
+    Vector3<T> t() const {return Vector3<T>(data[4],data[5],data[6]);}
+    Vector<T,7> qt() const{return data;}
 
 };
 
