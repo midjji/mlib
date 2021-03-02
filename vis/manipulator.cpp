@@ -39,7 +39,7 @@ void FPS::set_pose(cvl::PoseD Pcw)
     std::cout<<Pcw<<std::endl;
 
 
-    _rotation.set(Pcw.q[0],Pcw.q[1],Pcw.q[2],Pcw.q[3]);
+    _rotation.set(Pcw.q()[0],Pcw.q()[1],Pcw.q()[2],Pcw.q()[3]);
     _rotation.set(1.0/sqrt(2),0,0,1.0/sqrt(2));
 
     auto t=Pcw.getTinW();

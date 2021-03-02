@@ -63,8 +63,8 @@ void FPS2::setByMatrix( const Matrixd& matrix )
 {
 
     // set variables
-    pose.t=cvl::osg2cvl(matrix.getTrans());
-    pose.q=cvl::osg2cvl(matrix.getRotate());
+    pose.set_t(cvl::osg2cvl(matrix.getTrans()));
+    pose.set_q(cvl::osg2cvl(matrix.getRotate()));
 }
 
 
@@ -82,8 +82,8 @@ void FPS2::setTransformation(
 [[maybe_unused]]const osg::Quat& rotation )
 {
 
-    pose.t=cvl::osg2cvl(eye);
-    pose.q=cvl::osg2cvl(rotation);
+    pose.set_t(cvl::osg2cvl(eye));
+    pose.set_q(cvl::osg2cvl(rotation));
 }
 
 
@@ -91,8 +91,8 @@ void FPS2::setTransformation(
 void FPS2::getTransformation( osg::Vec3d& eye, osg::Quat& rotation ) const
 {
     //mlog()<<"\n";
-    eye=cvl::cvl2osg(pose.t);
-    rotation=cvl::cvl2osgq(pose.q);
+    eye=cvl::cvl2osg(pose.t());
+    rotation=cvl::cvl2osgq(pose.q());
 }
 
 

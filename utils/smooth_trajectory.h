@@ -197,7 +197,7 @@ public:
 
 
     virtual Vector4d qs(double time, int derivative) const{
-        if(derivative==0) return pose(time).q;
+        if(derivative==0) return pose(time).q();
 
         auto a=qs(time+delta,derivative-1);
         auto b=qs(time-delta,derivative-1);
@@ -206,7 +206,7 @@ public:
             qd=a+b;
         qd=qd/(2.0*delta);
         if(derivative==1){
-            Vector4d q = pose(time).q;
+            Vector4d q = pose(time).q();
             // make it orthogonal to q
             qd=qd - qd.dot(q)*q;
             if(std::abs(qd.dot(q))>1e-6) mlog()<<std::abs(qd.dot(q))<<std::endl;
@@ -214,7 +214,7 @@ public:
         return qd;
     }
     virtual Vector3d ts(double time, int derivative) const{
-        if(derivative==0) return pose(time).t;
+        if(derivative==0) return pose(time).t();
         return (ts(time+delta,derivative-1) -
                 ts(time-delta,derivative-1))/(2.0*delta);
     }
@@ -256,7 +256,8 @@ public:
         PoseD P=lookAt(center,
                        tinw(time),
                        (tinw(time)-tinw(time-0.01))).inverse();
-        P.t+=Vector3d(std::cos(time*0.1),-std::sin(time*0.1),std::cos(time*0.1))*1;
+
+        P.set_t(P.t()+Vector3d(std::cos(time*0.1),-std::sin(time*0.1),std::cos(time*0.1))*1);
 
         return P;
     }

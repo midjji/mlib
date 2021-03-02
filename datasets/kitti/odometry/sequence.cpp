@@ -94,7 +94,7 @@ std::vector<unsigned int> Sequence::getDistantFrames(){
         for(PoseD sol:solitaries){
             PoseD tmp=p.inverse()*sol;
             if(tmp.translation().length()<1) {solitary=false;break;}
-            if(tmp.getAngle()*180/3.14<10) {solitary=false;break;}
+            if(tmp.angle_degrees()<10) {solitary=false;break;}
         }
         if(solitary)
             solitaries.push_back(p);

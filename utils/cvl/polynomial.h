@@ -162,7 +162,7 @@ public:
 
 
 
-    // t=x+d;
+    // x=x-1
     Polynomial<degree,Type> reparam(long double d){
         Polynomial<20,Type> out;
         Polynomial<20,long double> diff(d,1);
@@ -468,6 +468,11 @@ public:
         return ret;
     }
     CompoundBoundedPolynomial derivative(int N){
+
+        if(N>degree){
+            CompoundBoundedPolynomial ret;
+            return ret;
+        }
         if(N==0) return *this;
         if(N==1){
             return derivative();

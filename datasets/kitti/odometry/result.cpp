@@ -148,7 +148,7 @@ void Result::evaluate(){
             PoseD pd=pa.inverse()*pb;
             PoseD d=gtd.inverse()*pd;
 
-            interframe_angle_error.push_back(d.getAngle()*180/3.14);
+            interframe_angle_error.push_back(d.angle_degrees());
             //  ts.push_back(100*d.getTinW().length());// the actual inter frame error but multiplied up by angle
 
             if(gtd.getTinW().length()>0.8)

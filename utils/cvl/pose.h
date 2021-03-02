@@ -68,21 +68,20 @@ namespace cvl{
 
 template<class T>
 class Pose {
+    /// the unit quaternion representing the rotation, s,i,j,k
+    /// the translation: x' = (R(q)x) +t
+    Vector<T,7> qt;
+
 public:
 
 
-    T& operator[](uint index){
-        assert(index<8);
-        if(index<4)
-            return q[index];
-        return t[index-4];
-    }
+    T& operator[](uint index){ return qt[index];}
     mlib_host_device_
     /**
          * @brief Pose initializes as a identity transform, trouble, this prevents std::trivial!
          */
 
-    Pose():q{T(1.0),T(0.0),T(0.0),T(0.0)},t{T(0.0),T(0.0),T(0.0)}{
+    Pose():qt{T(1.0),T(0.0),T(0.0),T(0.0),T(0.0),T(0.0),T(0.0)}{
         // if it wasnt because i rely on the pose() is identity in so many places, this would be a nice fix
         static_assert(std::is_trivially_destructible<Pose<double>>(),"speed");
         static_assert(std::is_trivially_copyable<Pose<double>>(),"speed");
@@ -98,22 +97,22 @@ public:
     static Pose Identity(){return Pose();}
 
     /**
-         * @brief Pose
-         * @param Pose<U> converting constructor
-         */
+                             * @brief Pose
+                             * @param Pose<U> converting constructor
+                             */
     template<class U>
     mlib_host_device_
-    Pose(const Pose<U>& p){        q=Vector4<T>(p.q);        t=Vector3<T>(p.t);    }
-    Pose(Vector<T,7> v):q(Vector4<T>(v[0],v[1],v[2],v[3])),t(Vector3<T>(v[4],v[5],v[6])){}
+    Pose(const Pose<U>& p){qt(p.qt); }
+    Pose(Vector<T,7> v):qt(v){}
 
 
     mlib_host_device_
     /**
-         * @brief Pose
-         * @param q_ unit quaternion
-         * @param t_
-         */
-    Pose(const Vector4<T>& q_, const Vector3<T>& t_):q(q_),t(t_){}
+                             * @brief Pose
+                             * @param q_ unit quaternion
+                             * @param t_
+                             */
+    Pose(Vector4<T> q, Vector3<T> t):qt(q[0],q[1],q[2],q[3],t[0],t[1],t[2]){}
 
     mlib_host_device_
     /**
@@ -121,16 +120,17 @@ public:
          * @param q_ unit quaternion pointer
          * @param t_
          */
-    explicit Pose(const T* q_, const T* t_, [[maybe_unused]] bool checked){
-        for(int i=0;i<4;++i){q[i]=q_[i];} for(int i=0;i<3;++i){t[i]=t_[i];}
+    explicit Pose(const T* q, const T* t, [[maybe_unused]] bool checked){
+        for(int i=0;i<4;++i){qt[i]=q[i];}
+        for(int i=0;i<3;++i){qt[4+i]=t[i];}
     }
     mlib_host_device_
     /**
          * @brief Pose copies
          * @param qt
          */
-    explicit Pose(const T* qt, [[maybe_unused]] bool checked){
-        for(int i=0;i<4;++i){q[i]=qt[i];} for(int i=0;i<3;++i){t[i]=qt[i+4];}
+    explicit Pose(const T* ptr, [[maybe_unused]] bool checked){
+        for(int i=0;i<7;++i){qt[i]=ptr[i];}
     }
 
     // user must verify that the matrix is a rotation separately
@@ -140,38 +140,44 @@ public:
          * @param R Rotation matrix
          * @param t_
          */
-    Pose (const Matrix3<T>& R, const Vector3<T>& t_):q(getRotationQuaternion(R).normalized()),t(t_){
-
-        assert(q.isnormal());
-        assert(t.isnormal());
-        assert(is_normal());
+    Pose(Matrix3<T> R, Vector3<T> t=Vector3<T>::Zero())
+    {
+        auto q=getRotationQuaternion(R).normalized();
+        for(int i=0;i<4;++i){qt[i]=q[i];}
+        for(int i=0;i<3;++i){qt[4+i]=t[i];}
     }
-    mlib_host_device_
-    /**
-         * @brief Pose translation 0
-         * @param R rotation matrix
-         */
-    Pose (const Matrix3<T>& R):q(getRotationQuaternion(R).normalized()),t{0.0,0.0,0.0}{ }
+
     // Rotation is i<T>entity
     mlib_host_device_
     /**
          * @brief Pose identity rotation assumed
          * @param t_ translation vector
          */
-    Pose (const Vector3<T>& t_):q{T(1.0),T(0.0),T(0.0),T(0.0)},t(t_){}
+    Pose (const Vector3<T>& t):qt{T(1.0),T(0.0),T(0.0),T(0.0),t[0],t[1],t[2]}{}
 
     mlib_host_device_
     /**
          * @brief Pose
          * @param P a 3x4 matrix with a top left part beeing a rotation matrix
          */
-    Pose (const Matrix34<T>& P):q(getRotationQuaternion(P.getRotationPart())),t(P.getTranslationPart()){}
+    Pose (const Matrix34<T>& P){
+        auto q=getRotationQuaternion(P.getRotationPart()).normalized();
+        auto t=P.getTranslationPart();
+        for(int i=0;i<4;++i){qt[i]=q[i];}
+        for(int i=0;i<3;++i){qt[4+i]=t[i];}
+    }
     mlib_host_device_
     /**
          * @brief Pose
          * @param P a 4x4 matrix with a top left part beeing a rotation matrix
          */
-    Pose (const Matrix4<T>& P):q(getRotationQuaternion(P.getRotationPart())),t(P.getTranslationPart()){}
+    Pose (const Matrix4<T>& P)
+    {
+        auto q=getRotationQuaternion(P.getRotationPart()).normalized();
+        auto t=P.getTranslationPart();
+        for(int i=0;i<4;++i){qt[i]=q[i];}
+        for(int i=0;i<3;++i){qt[4+i]=t[i];}
+    }
 
 
     mlib_host_device_
@@ -179,38 +185,23 @@ public:
         return Pose(Vector<T,4>(1.0,0.0,0.0,0.0),Vector<T,3>(0.0,0.0,0.0));
     }
 
-    /**
-         * @brief getRRef
-         * @return a pointer to the first element of the quaternion in the pose
-         */
+
     mlib_host_device_
-    /**
-         * @brief getRRef pointer to the quaternion
-         * @return
-         */
-    T* getRRef() {return &q[0];}
-    /**
-         * @brief getTRefJ
-         * @return a pointer to the first element of the translation in the pose
-         */
+    T* getRRef() {return qt.begin();}
     mlib_host_device_
-    /**
-         * @brief getTRef pointer to the translation
-         * @return
-         */
-    T* getTRef(){return &t[0];}
+    T* getTRef(){return t_begin();}
+    T* t_begin(){return &qt[4];}
+    T* begin(){return qt.begin();}
+    T* end(){return qt.end();}
+
     mlib_host_device_
-    /**
-         * @brief setT set the translation vector, note this is in the camera coordinate system
-         * @param t_
-         */
-    void setT(const Vector3<T>& t_){t=t_;}
+    void setT(Vector3<T> t){for(int i=0;i<3;++i) qt[4+i]=t[i];}
     mlib_host_device_
-    /**
-         * @brief setQuaternion set the quaternion, note t is in the new coordinate system
-         * @param q_
-         */
-    void setQuaternion(const Vector4<T>& q_){q=q_;}
+    void setQuaternion(Vector4<T> q){for(int i=0;i<4;++i) qt[i]=q[i];}
+    mlib_host_device_
+    void set_t(Vector3<T> t){for(int i=0;i<3;++i) qt[4+i]=t[i];}
+    mlib_host_device_
+    void set_q(Vector4<T> q){for(int i=0;i<4;++i) qt[i]=q[i];}
 
 
 
@@ -224,15 +215,14 @@ public:
          * based on the quaternion rotation of ceres, well why though? they basically just create a rotation matrix && apply it...
          */
     Vector3<T> operator*(const Vector3<T>& ins) const{
-        return QuaternionRotate(q,ins) + t;
+        return QuaternionRotate(q(),ins) + t();
     }
 
     Vector4<T> operator*(const Vector4<T>& ray){
         // fast variant would be
         //return get4x4()*(ray.dehom()).homogeneous();
         // correct variant would be
-        auto v3=QuaternionRotate(q,Vector3<T>(ray[0],ray[1],ray[2])) + ray[3]*t;
-        //auto v3=rotate(Vector3<T>(ray[0],ray[1],ray[2])) + ray[3]*t;
+        auto v3=QuaternionRotate(q(),Vector3<T>(ray[0],ray[1],ray[2])) + ray[3]*t();
         return {v3[0],v3[1],v3[2],ray[3]};
     }
 
@@ -242,10 +232,9 @@ public:
          * @param rhs
          * @return
          */
-    Pose<T> operator*(const Pose<T>& rhs) const{
-        //return Pose(get4x4()*rhs.get4x4());
-        return Pose(QuaternionProduct(q,rhs.q),
-                    QuaternionRotate(q,rhs.t)+t);
+    Pose<T> operator*(Pose<T> rhs) const{
+        return Pose(QuaternionProduct(q(),rhs.q()),
+                    QuaternionRotate(q(),rhs.t())+t());
     }
     mlib_host_device_
     /**
@@ -255,9 +244,9 @@ public:
     Pose<T> inverse() const{
         //assert(isnormal());
         //Matrix3<T> Ri=getR().transpose();
-        Vector<T,4> qi=conjugateQuaternion(q);
+        Vector<T,4> qi=conjugateQuaternion(q());
 
-        Vector3<T> ti=-QuaternionRotate(qi,t);
+        Vector3<T> ti=-QuaternionRotate(qi,t());
         return Pose(qi,ti);
     }
     mlib_host_device_
@@ -266,8 +255,7 @@ public:
          * @return
          */
     void invert() {
-        Pose<T> p=inverse();
-        q=p.q;        t=p.t;
+        qt=inverse().qt;
     }
     mlib_host_device_
     /**
@@ -275,24 +263,17 @@ public:
          * @return the rotation matrix
          */
     Matrix3<T> getR() const{
-
-        return getRotationMatrix(q);
+        return getRotationMatrix(q());
     }
-    mlib_host_device_
-    /**
-         * @brief rotation
-         * @return the rotation matrix
-         */
-    Matrix3<T> rotation() const{return getR();}
     mlib_host_device_
     /**
          * @brief noRotation is the rotation matrix identity
          * @return
          */
-    bool noRotation() const{
-        if(q[0]!=1) return false;
+    bool is_rotation() const{
+        if(qt[0]!=1) return false;
         for(int i=1;i<4;++i)
-            if(q[i]!=0) return false;
+            if(qt[i]!=0) return false;
         return true;
     }
     mlib_host_device_
@@ -300,10 +281,9 @@ public:
          * @brief isIdentity
          * @return is the pose a identity transform
          */
-    bool isIdentity() const{
-        if(!noRotation()) return false;
-        for(int i=0;i<3;++i)
-            if(t[i]!=0) return false;
+    bool is_identity() const{
+        if(qt[0]!=1.0) return false;
+        for(int i=0;i<7;++i) if(qt[i]!=0.0) return false;
         return true;
     }
     mlib_host_device_
@@ -311,19 +291,22 @@ public:
          * @brief getT
          * @return the translation
          */
-    Vector3<T> getT() const{return t;}
+    Vector3<T> getT() const{return t();}
     mlib_host_device_
     /**
          * @brief translation
          * @return the translation
          */
-    Vector3<T> translation() const{return t;}
+    Vector3<T> translation() const{return t();}
     mlib_host_device_
     /**
          * @brief scaleT applies a scaling to the translation
          * @param scale
          */
-    void scaleT(T scale){t*=scale;}
+    void scaleT(T scale){
+        for(int i=4;i<7;++i)
+        qt[i]*=scale;
+    }
     mlib_host_device_
     /**
          * @brief get3x4
@@ -340,24 +323,20 @@ public:
 
     /**
          * @brief getAngle
-         * @return the angle of the rotation in radians         
+         * @return the angle of the rotation in radians
          */
-    T getAngle() const
+    double angle() const
     {
         // assumes unit quaternion!
-        const T sin_squared_theta = q[1] * q[1] + q[2] * q[2] + q[3] * q[3];
-        const T sin_theta = std::sqrt(sin_squared_theta);
-        const T& cos_theta = q[0];
-        const T theta =(cos_theta < T(0.0)) ? std::atan2(-sin_theta, -cos_theta)
-                                            : std::atan2(sin_theta, cos_theta);        
+        double sin_squared_theta = qt[1] * qt[1] + qt[2] * qt[2] + qt[3] * qt[3];
+        double sin_theta = std::sqrt(sin_squared_theta);
+        double cos_theta = qt[0];
+        double theta =(cos_theta < T(0.0)) ? std::atan2(-sin_theta, -cos_theta)
+                                           : std::atan2(sin_theta, cos_theta);
         return T(2.0)*theta;
-
-        //if(std::abs(q[0]-1)<1e-6) return 0;        return 2.0*std::acos(q[0]);
     }
-    T getAngleDegrees(){ // visualization only
-        double a=getAngle()*180.0/3.14159265359;
-        if(a<0) a+=360.0;
-        return a;
+    T angle_degrees(){ // visualization only
+        return angle()*180.0/3.14159265359;
     }
 
     /// get the position of th     //time+=delta_t*0.5;e camera center in world coordinates
@@ -366,7 +345,7 @@ public:
          * @brief getTinW
          * @return the camera center in world coordinates
          */
-    Vector3<T> getTinW() const{        return inverse().t;            }
+    Vector3<T> getTinW() const{        return inverse().t();            }
 
     mlib_host_device_
     /**
@@ -388,16 +367,18 @@ public:
          * @param p
          * @return distance between two coordinate system centers
          */
-    T distance(const Pose<T>& p) const{
-        Pose<T> Pab=(*this)*p.inverse();return Pab.t.length();
+    double distance(const Pose<double>& p) const
+    {
+        Pose Pab=(*this)*p.inverse();
+        return Pab.t().length();
     }
     /**
          * @brief angleDistance
          * @param p
          * @return the positive angle between two coordinate systems
          */
-    T angleDistance(const Pose<T>& p) const{
-        Pose<T> Pab=(*this)*p.inverse();
+    double angleDistance(const Pose<double>& p) const{
+        Pose Pab=(*this)*p.inverse();
         double angle=Pab.getAngle();
         if(angle<0)return -angle;
         return angle;
@@ -408,8 +389,8 @@ public:
     }
     Vector<T,6> geodesic_vector(Pose<T> b) // component wize makes it convenient as residual
     {
-        Vector3<T> v=Quaternion<T>(q).geodesic_vector(b.q);
-        Vector3<T> p=(b.inverse()*(*this)).t; // could probably be computed faster...
+        Vector3<T> v=Quaternion<T>(qt).geodesic_vector(b.qt);
+        Vector3<T> p=(b.inverse()*(*this)).t(); // could probably be computed faster...
         return Vector<T,6>(v[0],v[1],v[2],
                 p[0],p[1],p[2]);
     }
@@ -420,36 +401,20 @@ public:
          * @return true if the pose contains no nans or infs and the quaternion is a unit quaternion
          */
     bool is_normal() const{
-        if (!q.isnormal()) return false;
-        if (!t.isnormal()) return false;
-        if(q.length()-1.0>1e-5) return false;
+        if (!qt.isnormal()) return false;
+        if(q().length()-1.0>1e-5) return false;
         return true;
     }
 
-
-    mlib_host_device_
-    /**
-         * @brief getQuaternion
-         * @return the quaternion
-         */
-    Vector4<T> getQuaternion() const{return q;}
     mlib_host_device_
     /**
          * @brief normalize ensures that the quaternion length is 1, helpful to counter numerical errors
          */
     void normalize(){
-        q.normalize();
-    }
-
-
-    mlib_host_device_
-    /**
-         * @brief rotateInplace rotates but does not translate the point
-         * @param x
-         */
-    void rotateInplace(Vector3<T>& x) const{
-        QuaternionRotate(q,x);
-        //auto R=getR();        x=R*x;
+        auto tmp=q();
+        tmp.normalize();
+        for(int i=0;i<4;++i)
+            qt[i] =tmp[i];
     }
     mlib_host_device_
     /**
@@ -458,25 +423,20 @@ public:
          * @return  the rotated but not translated vector
          */
     Vector3<T> rotate(const Vector3<T>& x) const{
-        return QuaternionRotate(q,x);
+        return QuaternionRotate(q(),x);
     }
 
-    //private:
-    /// the unit quaternion representing the rotation, s,i,j,k
-    Vector4<T> q;
-    /// the translation: x' = (R(q)x) +t
-    Vector3<T> t;
     // sizeof Vector3 is 4*sizeof(T)
     //T filler=T(0.0);
-    Vector<T,7> getqt() const{
-        return Vector<T,7>(q[0],q[1],q[2],q[3],t[0],t[1],t[2]);
-    }
+    Vector<T,7> getqt() const{return qt;}
 
     std::string str() const{
         std::stringstream ss;
         ss<<getqt();
         return ss.str();
     }
+    Vector4<T> q() const {return Vector4<T>(qt[0],qt[1],qt[2],qt[3]);}
+    Vector3<T> t() const {return Vector3<T>(qt[4],qt[5],qt[6]);}
 
 };
 

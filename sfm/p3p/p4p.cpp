@@ -81,7 +81,7 @@ PoseD p4p(const std::vector<cvl::Vector3d>& xs,
 
         if(max_angle<2*3.1415){
 
-            if((tmp*reference.inverse()).getAngle()>=max_angle) continue;
+            if((tmp*reference.inverse()).angle()>=max_angle) continue;
         }
 
         Vector3d xr=tmp*x;

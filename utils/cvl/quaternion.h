@@ -49,6 +49,10 @@ class Quaternion
     // unit quaternion assumed!
 
 public:
+    T& operator[](uint index){
+        assert(index<4);
+        return q[index];
+    }
     Vector4<T> q;
     T& operator()(int i){ return q(i); }
     const T& operator()(int i) const{ return q(i); }
@@ -79,7 +83,7 @@ public:
         Quaternion qxqc=(*this)*Quaternion(x)*conj();
         // simplify!
         ///TODO!
-//#warning "Simplify this eqn for a significant accuracy and speed boost!"
+        //#warning "Simplify this eqn for a significant accuracy and speed boost!"
 
         //assert((qxqc[0]-T(0.0))<1e-10);
         return qxqc.x();
@@ -94,8 +98,8 @@ public:
         //like when you know the scalar part will be zero!
         // such as for the second mult of unit rotate, or omega or alpha
         Matrix<T,3,4> M(q(1),            q(0),        -q(3),         q(2),
-        q(2),           q(3),         q(0),        -q(1),
-        q(3),           -q(2),        q(1),         q(0));
+                        q(2),           q(3),         q(0),        -q(1),
+                        q(3),           -q(2),        q(1),         q(0));
         return M*b.q;
     }
     Vector3<T> imag_of_multiply_b_conj(Quaternion b){ // multiply by conjugate of b
@@ -103,8 +107,8 @@ public:
         //like when you know the scalar part will be zero!
         // such as for the second mult of unit rotate, or omega or alpha
         Matrix<T,3,4> M(q(1),            -q(0),        q(3),         -q(2),
-        q(2),           -q(3),         -q(0),        +q(1),
-        q(3),           +q(2),        -q(1),         -q(0));
+                        q(2),           -q(3),         -q(0),        +q(1),
+                        q(3),           +q(2),        -q(1),         -q(0));
         return M*b.q;
     }
 
@@ -161,7 +165,7 @@ public:
         const T sin_squared_theta = q1 * q1 + q2 * q2 + q3 * q3;
 
         double pi_d=double(3.141592653589793238462643383279502884L);
-        if(!(sin_squared_theta>T(1e-10))){            
+        if(!(sin_squared_theta>T(1e-10))){
             return Vector4<T>(T(0),q1,q2,q3)*T(pi_d/2.0);
 
         }
