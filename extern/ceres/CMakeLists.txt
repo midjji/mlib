@@ -39,8 +39,7 @@ add_subdirectory(ceres-solver)
 else()
     # dont use internal ceres for debugging
      find_package(Ceres 2 REQUIRED)
-     #target_link_directories(ceres ${CERES_INCLUDE_DIRS})
-     #target_link_libraries(ceres ${CERES_LIBRARIES})
-
+     #target_link_directories(ceres INTERFACE ${CERES_INCLUDE_DIRS})
+     #target_link_libraries(ceres INTERFACE ${CERES_LIBRARIES})
 endif()
 
