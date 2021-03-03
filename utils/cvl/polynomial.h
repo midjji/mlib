@@ -116,7 +116,7 @@ public:
         }
         return poly;
     }
-    long double operator()(Type x){
+    long double operator()(Type x) const{
         long double v=coeffs[0];
         for(uint i=1;i<coeffs.size();++i){
             v+=coeffs[i]*std::pow(x,Type(i));
@@ -374,7 +374,7 @@ public:
 
 
     template<class T>
-    T operator()(T x){
+    T operator()(T x) const{
         if(x<bounds[0]) return T(0);
         if(!(x<bounds[1])) return T(0);
         return p(x);
@@ -435,9 +435,9 @@ class CompoundBoundedPolynomial
 public:
     std::vector<BoundedPolynomial<degree,Type>> polys;
     template<class T>
-    T operator()(T x){
+    T operator()(T x) const{
         T v=0;
-        for(auto p:polys)
+        for(const auto& p:polys)
             v+=p(x);
         return v;
     }
@@ -467,7 +467,7 @@ public:
             ret.add(p.derivative());
         return ret;
     }
-    CompoundBoundedPolynomial derivative(int N){
+    CompoundBoundedPolynomial derivative(uint N) const{
 
         if(N>degree){
             CompoundBoundedPolynomial ret;

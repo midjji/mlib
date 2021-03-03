@@ -42,6 +42,7 @@ public:
     // for stuff dependent on control point count!
     int get_first([[maybe_unused]] double time) const{return 0;}
     int get_last([[maybe_unused]] double time) const{return (t1()-t0());} // assume 1 per second.
+    int get_last2([[maybe_unused]] double time) const{return (t1()-t0());} // assume 1 per second.
 
     virtual Vector4d qs(double time, int derivative) const=0;
     virtual Vector3d ts(double time, int derivative) const=0;
