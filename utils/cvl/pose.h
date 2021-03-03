@@ -102,7 +102,7 @@ public:
                              */
     template<class U>
     mlib_host_device_
-    Pose(const Pose<U>& p){data(p.data); }
+    Pose(const Pose<U>& p):data(p.qt()){}
     Pose(Vector<T,7> v):data(v){}
 
 
