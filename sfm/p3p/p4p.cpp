@@ -94,7 +94,7 @@ PoseD p4p(const std::vector<cvl::Vector3d>& xs,
         }
 
         if(P.is_normal() && e<0.1)
-            actually_valid[i]=true;
+            actually_valid[v]=true;
     }
 
 
