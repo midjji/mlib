@@ -76,9 +76,6 @@ using std::endl;
 using namespace cvl;
 namespace mlib{
 
-
-
-
 PointCloudViewer::PointCloudViewer(){}
 PointCloudViewer::~PointCloudViewer(){
     close();
@@ -86,31 +83,51 @@ PointCloudViewer::~PointCloudViewer(){
 }
 
 void PointCloudViewer::setPointCloud(const std::vector<Vector3d>& xs,
-                                     const std::vector<Color>& cols){
-    setPointCloud(xs,cols,std::vector<PoseD>());
+                                     const std::vector<Color>& cols,
+                                     double coordinate_axis_length){
+
+    setPointCloud(xs,cols,std::vector<PoseD>(), coordinate_axis_length);
 }
-void PointCloudViewer::setPointCloud(const std::vector<PoseD>& poses){
+
+void PointCloudViewer::setPointCloud(const std::vector<PoseD>& poses, double coordinate_axis_length){
 
     std::vector<Vector3d> xs;
     std::vector<Color> cols;
-    setPointCloud(xs,cols,poses);
+    setPointCloud(xs,cols,poses, coordinate_axis_length);
 }
-void PointCloudViewer::setPointCloud(const std::vector<std::vector<PoseD>>& poses){
+
+void PointCloudViewer::setPointCloud(const std::vector<std::vector<PoseD>>& poses,
+                                     double coordinate_axis_length){
 
     std::vector<Color> cols;cols.reserve(poses.size());
 
     for(uint i=0;i<poses.size();++i){
         cols.push_back(Color::nr(i));
     }
-    setPointCloud(poses, cols);
+    setPointCloud(poses, cols, coordinate_axis_length);
 }
 
-void PointCloudViewer::setPointCloud(const std::vector<Vector3d>& xs, const std::vector<PoseD>& poses){
+void PointCloudViewer::setPointCloud(const std::vector<Vector3d>& xs, const std::vector<PoseD>& poses,
+                                     double coordinate_axis_length){
     std::vector<Color> cols;
     for(uint i=0;i<xs.size();++i)
         cols.push_back(Color::nr(i));
-    setPointCloud(xs,cols,poses);
+    setPointCloud(xs,cols,poses, coordinate_axis_length);
 }
+
+    void PointCloudViewer::setPointCloud(const std::vector<Vector3d>& xs, const std::deque<PoseD>& poses,
+                                         double coordinate_axis_length){
+        std::vector<Color> cols;
+        for(uint i=0;i<xs.size();++i)
+            cols.push_back(Color::nr(i));
+
+        std::vector<PoseD> pose_vector;
+        for(uint i=0;i<poses.size();++i)
+            pose_vector.push_back(poses[i]);
+
+        setPointCloud(xs,cols,pose_vector,coordinate_axis_length);
+    }
+
 void savePointCloud(const std::string& filename, std::vector<Vector3d>& Xs, std::vector<Vector3d>& colors, std::vector<PoseD>& Ps)
 {
     uint n;
@@ -159,8 +176,8 @@ void savePointCloud(const std::string& filename, std::vector<Vector3d>& Xs, std:
 
 void PointCloudViewer::setPointCloud(
         const std::vector<std::vector<PoseD>>& posess,
-        const std::vector<Color>& colors)
-{
+        const std::vector<Color>& colors,
+        double coordinate_axis_length){
 
     std::vector<osg::ref_ptr<osg::Node>> nodes;nodes.reserve(10000);
     assert(colors.size()==posess.size());
@@ -175,9 +192,10 @@ void PointCloudViewer::setPointCloud(
         osg::ref_ptr<osg::Vec3Array> points = new osg::Vec3Array;points->reserve(poses.size());
         osg::ref_ptr<osg::Vec3Array> colors = new osg::Vec3Array;colors->reserve(poses.size());
         for(const PoseD& pose:poses){
-            float len=1;
 
-            osg::ref_ptr<osg::Node> node=MakeAxisMarker(CvlToGl(pose.inverse()),len,1);// argh this kind of ref ptr is insane!
+            // argh this kind of ref ptr is insane!
+            osg::ref_ptr<osg::Node> node=MakeAxisMarker(CvlToGl(pose.inverse()),
+                                                        coordinate_axis_length,1);
             nodes.push_back(node);
 
             points->push_back(cvl2osg(pose.getTinW()));
@@ -220,7 +238,8 @@ void PointCloudViewer::set_pose(PoseD Pcw){
 
 void PointCloudViewer::setPointCloud(const std::vector<Vector3d>& xs,
                                      const std::vector<Color>& cols,
-                                     const std::vector<PoseD>& poses){
+                                     const std::vector<PoseD>& poses,
+                                     double coordinate_axis_length){
     std::vector<osg::ref_ptr<osg::Node>> nodes;
     nodes.reserve(1+poses.size());
     std::vector<Vector3d> xs2;
@@ -231,8 +250,6 @@ void PointCloudViewer::setPointCloud(const std::vector<Vector3d>& xs,
         assert(xs.size()==cols.size());
         osg::ref_ptr<osg::Vec3Array> points = new osg::Vec3Array;points->reserve(xs.size());
         osg::ref_ptr<osg::Vec3Array> colors = new osg::Vec3Array;colors->reserve(cols.size());
-
-
 
         for(uint i=0;i<xs.size();++i){
             if(!std::isnan(xs[i].sum())){
@@ -247,7 +264,7 @@ void PointCloudViewer::setPointCloud(const std::vector<Vector3d>& xs,
         osg::ref_ptr<osg::Node> node=MakePointCloud(points, colors, 5.0 * marker_scale);
         nodes.push_back(node);
     }
-    double len=1;
+    double len=coordinate_axis_length;
     for(PoseD pose:poses){
         osg::ref_ptr<osg::Node> node=MakeAxisMarker(CvlToGl(pose.inverse()),len, 4*marker_scale);// argh this kind of ref ptr is insane!
         nodes.push_back(node);

@@ -60,7 +60,7 @@ PoseD p4p(const std::vector<cvl::Vector3d>& xs,
     PoseD P=PoseD(); // identity
     double e0=std::numeric_limits<double>::max();
 
-
+    Vector4<bool> actually_valid(false,false,false,false);
     for(int v=0;v<valid;++v)
     {
         // the lambdatwist rotations have a problem with not quite beeing rotations... ???
@@ -85,25 +85,18 @@ PoseD p4p(const std::vector<cvl::Vector3d>& xs,
         }
 
         Vector3d xr=tmp*x;
-        if(xr[2]<0) continue;
+        if(xr[2]<=0) continue;
         double e=((Rs[v]*x + Ts[v]).dehom() - y).absSum();
         if (std::isnan(e)) continue;
         if (e<e0 ){
             P=tmp;
-            assert(P.is_normal());
             e0=e;
         }
-    }
-    assert(P.is_normal());
-    // check that all of them look ok...
 
-
-    double error=0;
-    for(int i=0;i<4;++i){
-        double err=((P*xs[indexes[i]]).dehom() - yns[indexes[i]]).squaredNorm();
-        error+=err;
+        if(P.is_normal() && e<0.1)
+            actually_valid[i]=true;
     }
-    assert(!std::isnan(error));
+
 
     return P;
 }

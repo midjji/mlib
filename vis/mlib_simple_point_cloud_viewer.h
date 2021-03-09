@@ -61,18 +61,31 @@ public:
     ~PointCloudViewer();
 
     void setPointCloud(const std::vector<cvl::Vector3d>& xs,
-                       const std::vector<Color>& cols);
+                       const std::vector<Color>& cols,
+                       double coordinate_axis_length=1);
+
     void setPointCloud(const std::vector<cvl::Vector3d>& xs,
                        const std::vector<Color>& cols,
-                       const std::vector<cvl::PoseD>& poses);
+                       const std::vector<cvl::PoseD>& poses,
+                       double coordinate_axis_length=1);
 
     void setPointCloud(const std::vector<cvl::Vector3d>& xs,
-                       const std::vector<cvl::PoseD>& poses);
+                       const std::vector<cvl::PoseD>& poses,
+                       double coordinate_axis_length=1);
 
-    void setPointCloud(const std::vector<cvl::PoseD>& poses);
-    void setPointCloud(const std::vector<std::vector<cvl::PoseD>>& poses);
+    void setPointCloud(const std::vector<cvl::Vector3d>& xs,
+                       const std::deque<cvl::PoseD>& poses,
+                       double coordinate_axis_length=1);
+
+    void setPointCloud(const std::vector<cvl::PoseD>& poses,
+                       double coordinate_axis_length=1);
+
     void setPointCloud(const std::vector<std::vector<cvl::PoseD>>& poses,
-                       const std::vector<Color>& colors);
+                       double coordinate_axis_length=1);
+
+    void setPointCloud(const std::vector<std::vector<cvl::PoseD>>& poses,
+                       const std::vector<Color>& colors,
+                       double coordinate_axis_length=1);
 
     void setMarkerSize(const float scale);
 

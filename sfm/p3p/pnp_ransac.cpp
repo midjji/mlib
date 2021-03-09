@@ -251,7 +251,7 @@ PoseD PNP::compute(){
     }
 
     total_iters=i;
-    cout<<"total_iters: "<<i<<" inliers: "<<best_inliers<<endl;
+    //cout << "pnp total_inliers: " << i << " inliers: " << best_inliers << endl;
 
 
     // refine pose, if possible...
@@ -306,8 +306,10 @@ void PNP::refine(){
         ceres::Solve(options, &problem, &summary);
         //cout<<"Report 1: \n"<<summary.FullReport()<<endl;
     }
+    /*
        std::cout<<"pnp_ransac refine inliers:"<<
                   evaluate_inlier_set(xs,yns,params.threshold,best_pose,best_inliers)<<endl;
+    */
     // check somehow if there is a big difference in the inliers?
 return;
 
