@@ -94,7 +94,7 @@ PoseD p4p(const std::vector<cvl::Vector3d>& xs,
             e0=e;
         }
     }
-    assert(P.is_normal());
+    //assert(P.is_normal());
     // check that all of them look ok...
 
 
@@ -103,7 +103,7 @@ PoseD p4p(const std::vector<cvl::Vector3d>& xs,
         double err=((P*xs[indexes[i]]).dehom() - yns[indexes[i]]).squaredNorm();
         error+=err;
     }
-    assert(!std::isnan(error));
+    //assert(!std::isnan(error));
 
     return P;
 }
