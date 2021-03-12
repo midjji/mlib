@@ -40,6 +40,8 @@ namespace cvl{
  *
  * This is suitable for low outlieratios, <50%, and low noise. Otherwize use something better...
  *
+ * Note, the three first points must be in a non degenerate configuration!
+ *
  */
 PoseD p4p(const std::vector<cvl::Vector3d>& xs,
          const std::vector<cvl::Vector2d>& yns,

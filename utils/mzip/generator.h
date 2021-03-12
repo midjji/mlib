@@ -10,65 +10,8 @@
  * - c++17
  * - no dependencies
  * - header only
- *
- * \todo
- * - add algorithm tests, probably does not work at all...
- *
- *
- * \example
- * std::vector<int> as{1,2},bs{1,2,3};
- * for(auto [index, a,b]: zip(as,bs)){
- *  a++;
- * }
- * cout<<as<<endl; // shows (2, 3)
- * works for any number
- *
- * zip returns tuples of references to the contents
- *
- *
- *
- *
- *
- *
- *
- *
- *
- * does not copy the containers
- * returns tuple of references to the containers content
- * iterates untill the first iterator hits end.
- * extends ownership to the end of the for loop, or untill zip goes out of scope.
- *
- * possibly risky behaviour on clang, gcc for fun(const zip& z) when called as fun(zip(a,b))
- *
- *
- * Depends on the following behaviour for for loops:
- *
- *   // in for(auto x:zip)
- *   // equiv:
- *  { // c++ 11+
- *      auto && __range = range_expression ;
- *          for (auto __begin = begin_expr, __end = end_expr; __begin != __end; ++__begin) {
- *          range_declaration = *__begin;
- *          loop_statement
- *      }
- *  }
- *
- *   { // in c++ 17
- *      auto && __range = range_expression ;
- *      auto __begin = begin_expr ;
- *      auto __end = end_expr ;
- *      for ( ; __begin != __end; ++__begin) {
- *          range_declaration = *__begin;
- *          loop_statement
- *      }
- *  }
- *
- *
- * \author   Mikael Persson
- * \date     2019-09-01
- ******************************************************************************/
+*/
 
-static_assert(__cplusplus>=201703L, " must be c++17 or greater"); // could be rewritten in c++11, but the features you must use will be buggy in an older compiler anyways.
 #include <sstream>
 #include <iostream>
 #include <tuple>
@@ -81,8 +24,24 @@ using namespace std;
 namespace cvl {
 
 
+template<class T=int> struct Range{ // this is an iterator!
+    T r0; // the first value
+    T delta;// the difference
+    T r1; // upper bound, note that for floating point types it is [r0,r1) ie less than r1!
+    mutable uint64_t index; // the current index!
+    uint64_t size; // the number of elements!
 
-namespace generators{ // this is pretty much c++ output iterators, but less wordy...
+
+    Range(T r0, T delta=T(1), T r1=std::numeric_limits<T>::max()):r0(r0),delta(delta),r1(r1), size((r1-r0)/delta){}
+    // forward iterable only, iterator is immedeatly invalidated on
+    const T* begin()     const{}
+    const T* end()       const{ return nullptr;}
+    const T* cbegin()    const{return begin();}
+    const T* cend()      const{ return end();}
+};
+
+
+
 class positive_numbers_mod_uintmax{
 public:
     positive_numbers_mod_uintmax(int index=0):index(index){}
@@ -303,12 +262,4 @@ class test{
 
 
 } // end namespace cvl
-
-
-
-
-
-
-
-
 #endif
