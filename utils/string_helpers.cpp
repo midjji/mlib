@@ -11,6 +11,12 @@ using namespace std;
 
 namespace mlib
 {
+std::string pad(std::string in, uint len){
+    while(in.size()<len)
+        in.push_back(' ');
+    return in;
+}
+
 // string helpers
 
 double str2double(char *str)

@@ -387,10 +387,15 @@ public:
     T geodesic(Pose<T> b){
         return geodesic_vector(b).norm();
     }
+    Vector<T,3> q_geodesic_vector(Pose<T> b) // component wize makes it convenient as residual
+    {
+        return Quaternion<T>(data).geodesic_vector(b.data);
+
+    }
     Vector<T,6> geodesic_vector(Pose<T> b) // component wize makes it convenient as residual
     {
         Vector3<T> v=Quaternion<T>(data).geodesic_vector(b.data);
-        Vector3<T> p=(b.inverse()*(*this)).t(); // could probably be computed faster...
+        Vector3<T> p=(b.inverse()*(*this)).t(); // think about this again...
         return Vector<T,6>(v[0],v[1],v[2],
                 p[0],p[1],p[2]);
     }

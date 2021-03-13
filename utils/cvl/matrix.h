@@ -980,6 +980,18 @@ public:
     {
         return hnormalized();
     }
+    mlib_host_device_
+    Matrix<T, Rows - 1, Cols> drop_first() const noexcept
+    {
+        Matrix< T, Rows - 1, Cols> b;
+        const Matrix& a = *this;
+        for (unsigned int col = 0; col < Cols; ++col) {
+            for (unsigned int row = 1; row < Rows ; ++row) {
+                b(row-1, col) = a(row, col);
+            }
+        }
+        return b;
+    }
 
     mlib_host_device_
     Matrix<T, Rows - 1, Cols> drop_last() const noexcept

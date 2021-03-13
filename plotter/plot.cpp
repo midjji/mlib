@@ -44,7 +44,7 @@ private:
         // capture this by reference, then run it in blocking mode, so the lambda finishes before the function returns        
        // actually opencv does not like blocking!
                 auto plotter=self.lock();
-        run_in_gui_thread(new QAppLambda([plotter,xs,ys,title,label](){plotter->plot_internal(xs,ys,title, label);}));
+        run_in_gui_thread_blocking(new QAppLambda([plotter,xs,ys,title,label](){plotter->plot_internal(xs,ys,title, label);}));
     }
 
 
@@ -128,11 +128,16 @@ std::shared_ptr<Plotter> plotter(){
 
 void plot(const std::vector<double>& xs,
           const std::vector<double>& ys,
-          std::string title, std::string label){
+          std::string title,
+          std::string label){
     plotter()->plot(xs,ys,title, label);
 }
-void plot(const std::vector<double>& xs, const std::map<std::string, std::vector<double>>& yss, std::string title)
+void plot(const std::vector<double>& xs,
+          const std::map<std::string, std::vector<double>>& yss,
+          std::string title)
 {
+    if(yss.size()==0)
+        std::cout<<"missing y values for plot!"<<std::endl;
     plotter()->plot(xs,yss, title);
 }
 void initialize_plotter(){

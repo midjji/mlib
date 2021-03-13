@@ -546,6 +546,13 @@ public:
         collapse();
     }
 };
+template< uint degree, class Type>
+CompoundBoundedPolynomial<degree,Type>
+operator*(CompoundBoundedPolynomial<degree,Type> cbp, long double d){
+    for(auto& p:cbp.polys)
+        p.p.coeffs*=Type(d);
+    return cbp;
+}
 
 
 template<unsigned int A, unsigned int B,class Type>

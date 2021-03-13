@@ -328,7 +328,7 @@ osg::ref_ptr<osg::Node> default_scene(){
     double N=1000;
     double r=10;
     double pi=3.1415;
-    for(double i=0;i<N;++i){
+    for(int i=0;i<N;++i){
         points->push_back(osg::Vec3d(r*cos(2*pi*i/N),0, r*sin(2*pi*i/N)));
 
         colors->push_back(osg::Vec3d(i/N,0,0));
@@ -399,10 +399,10 @@ void PointCloudViewer::run(){
                 assert(success);
                 if(!success) exit(1);
             }
-
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
         else{
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
     }
     que.stop();

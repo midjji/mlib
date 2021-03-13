@@ -218,7 +218,6 @@ public:
 
         if(alpha==0.0) return Vector4<T>(T(1.0),T(0),T(0),T(0));
         if(alpha==1.0) {
-
             return q;
         }
         // special case
@@ -282,6 +281,11 @@ public:
     // using inclass as alternative may provide unfortunate casts
     Quaternion operator+(Quaternion b){
         return q+b.q;
+    }
+    // using inclass as alternative may provide unfortunate casts
+    Quaternion& operator+=(Quaternion b){
+        q+=b.q;
+        return *this;
     }
     // using inclass as alternative may provide unfortunate casts
     Quaternion operator-(Quaternion b){
