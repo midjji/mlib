@@ -23,6 +23,8 @@ namespace cvl {
 void plot(const std::vector<double>& xs,
           const std::vector<double>& ys,
           std::string title="untitled plot", std::string label="unnamed graph");
+void plot(const std::vector<double>& ys,
+          std::string title="untitled plot", std::string label="unnamed graph");
 void plot(const std::vector<double>& xs, const std::map<std::string, std::vector<double>>& yss, std::string title="unnamed window");
 void initialize_plotter();
 

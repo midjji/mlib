@@ -42,7 +42,7 @@ private:
                    std::string label){
         // Here I know the plotter exists for as long as the        
         // capture this by reference, then run it in blocking mode, so the lambda finishes before the function returns        
-       // actually opencv does not like blocking!
+       // actually opencv does not like blocking! hmm???
                 auto plotter=self.lock();
         run_in_gui_thread_blocking(new QAppLambda([plotter,xs,ys,title,label](){plotter->plot_internal(xs,ys,title, label);}));
     }
@@ -73,12 +73,13 @@ private:
 
         // 2. now we create data for a simple plot (a sine curve)
         QVector<double> X, Y;
+        X.reserve(xs.size());
+        Y.reserve(ys.size());
         bool nansinplot=false;
         for (uint i=0;i<std::min(xs.size(),ys.size());++i) {
+            if(std::isnan(xs[i]+ys[i])){nansinplot=true; continue;}
             X<<xs[i];
             Y<<ys[i];
-            if(std::isnan(xs[i]+ys[i]))
-                nansinplot=true;
         }
         if(nansinplot)
             std::cout<<"nans in plot"<<std::endl;
@@ -125,7 +126,14 @@ std::shared_ptr<Plotter> plotter(){
 }
 
 
-
+void plot(const std::vector<double>& ys,
+          std::string title,
+          std::string label){
+    std::vector<double> indexes;indexes.reserve(ys.size());
+    for(uint i=0;i<ys.size();++i)
+        indexes.push_back(i);
+    plotter()->plot(indexes,ys,title, label);
+}
 void plot(const std::vector<double>& xs,
           const std::vector<double>& ys,
           std::string title,
