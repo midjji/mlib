@@ -78,8 +78,10 @@ namespace mlib{
 
 PointCloudViewer::PointCloudViewer(){}
 PointCloudViewer::~PointCloudViewer(){
+    cout<<"calling pcv destructor"<<endl;
     close();
     if(thr.joinable()) thr.join();
+    cout<<"calling pcv destructor joined"<<endl;
 }
 
 void PointCloudViewer::setPointCloud(const std::vector<Vector3d>& xs,
@@ -406,24 +408,19 @@ void PointCloudViewer::run(){
         }
     }
     que.stop();
+    running=false;
 }
 void PointCloudViewer::close(){
     running=false;
     viewer->setDone(true);
-    que.stop();
 }
 bool PointCloudViewer::is_running(){return running;}
 
 bool PointCloudViewer::isdone(){
-
-    if(viewer==nullptr)
-        return true;
-    if(viewer->done())
-        return true;
-    return false;
+return !is_running();
 }
 void PointCloudViewer::wait_for_done(){
-    while(true &&!isdone()){
+    while(is_running()){
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }

@@ -213,8 +213,13 @@ Vector3d AllRot2::p(double time) const{
     Vector3d x(0,std::cos(w*t),std::sin(w*t)); // rotate around x axis
 
 
+    // accellerating rotation around the y axis,
+    // also drop it in y a little bit after t==.
+    double f=10;
+    Vector3d y(std::cos(w*(t + f*s(t-4)*(t-5))),0.1*s(t-4)*(t-5),std::sin(w*(t + f*s(t-4)*(t-5)))); // rotate around y axis
 
-    Vector3d y(std::cos(w*t + s(t-4)*w*(t-6)),0,std::sin(w*t + s(t-4)*w*(t-6))); // rotate around y axis
+
+
 
     Vector3d center(0,0,0);
 
@@ -234,7 +239,7 @@ PoseD AllRot2::pose2(double time) const
         mlog()<<"bad... \n";
     }
     // two
-    double dt=0.01*(t1()-t0());
+    double dt=0.001*(t1()-t0());
     if((p(time+dt)-p(time-dt)).norm()<1e-4){
         mlog()<<"bad... "<<(p(time+dt)-p(time-dt)).norm()<<"\n";
     }
@@ -251,15 +256,12 @@ PoseD AllRot2::pose2(double time) const
 Vector4d AllRot2::qs(double time, int derivative) const {
     if(derivative==0) return pose(time).q();
 
+
     auto a=qs(time+delta,derivative-1);
     auto b=qs(time-delta,derivative-1);
     // this means we are currently rotating from b to a at a time of 2delta.
     // so if my q math is trust worthy, then q(t) \approx b(b^ca)^{2deltat}?
     // from which I can compute both omega etc...but maybe compare to this?
-
-
-
-
 
     Vector4d qd= a-b;
 

@@ -36,37 +36,44 @@ private:
 
     std::weak_ptr<Plotter> self;
 
+    std::mutex call_plot_mutex;
     void call_plot(std::vector<double> xs,
                    std::vector<double> ys,
                    std::string title,
-                   std::string label){
+                   std::string label)
+    {
+
+        std::unique_lock<std::mutex> ul(call_plot_mutex);
         // Here I know the plotter exists for as long as the        
         // capture this by reference, then run it in blocking mode, so the lambda finishes before the function returns        
        // actually opencv does not like blocking! hmm???
-                auto plotter=self.lock();
-        run_in_gui_thread_blocking(new QAppLambda([plotter,xs,ys,title,label](){plotter->plot_internal(xs,ys,title, label);}));
+        auto plotter=self.lock();
+        run_in_gui_thread_blocking(
+                    new QAppLambda([plotter,xs,ys,title,label](){
+            plotter->plot_internal(xs,ys,title, label);}));
     }
 
 
-    std::map<std::string, std::shared_ptr<JKQTPlotter>> plots;
+    std::map<std::string, std::shared_ptr<JKQTPlotter>> plots_;
+    std::shared_ptr<JKQTPlotter> named_plot(std::string name){
+        auto it=plots_.find(name);
+        if(it!=plots_.end()) return it->second;
+        plots_[name]=std::make_shared<JKQTPlotter>();
+        return plots_[name];
+    }
+
     std::mutex plot_internal_mtx; // protects the map
     void plot_internal(const std::vector<double>& xs,
                        const std::vector<double>& ys,
                        std::string title, // for the window
                        std::string label // for this graph
                        ){
-
-        // Note must be run in the qapp thread, so call via the
-        //first_plot=true;
+        // must be run in the event loop, so call via call_plot
         std::unique_lock<std::mutex> ul(plot_internal_mtx);
 
 
         // 1. create a plotter window and get a pointer to the internal datastore (for convenience)
-        if(!plots[title]){
-            plots[title]=std::make_shared<JKQTPlotter>();
-        }
-
-        std::shared_ptr<JKQTPlotter> plot=plots[title];
+        std::shared_ptr<JKQTPlotter> plot=named_plot(title);
         plot->setWindowTitle(QString(title.c_str()));
 
         JKQTPDatastore* ds=plot->getDatastore();
@@ -121,7 +128,6 @@ std::shared_ptr<Plotter> plotter(){
     std::unique_lock<std::mutex> ul(plotter_mtx);
     if(plotter_==nullptr)
         plotter_=Plotter::create();
-
     return plotter_;
 }
 
@@ -140,7 +146,8 @@ void plot(const std::vector<double>& xs,
           std::string label){
     plotter()->plot(xs,ys,title, label);
 }
-void plot(const std::vector<double>& xs,
+void plot(
+        const std::vector<double>& xs,
           const std::map<std::string, std::vector<double>>& yss,
           std::string title)
 {

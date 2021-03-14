@@ -451,7 +451,7 @@ template<class T> Pose<T> lookAt(Vector3<T> point,
     assert(from.isnormal());
     assert(up.isnormal());
     // opt axis is point
-               up.normalize();
+    up.normalize();
     Vector3<T> z=point -from;     z.normalize();
     Vector3<T> s=-z.cross(up);    s.normalize();
     Vector3<T> u=z.cross(s);     u.normalize();
@@ -499,7 +499,17 @@ template<class T>
 std::ostream& operator<<(std::ostream& os, const Pose<T>& pose){
     return os<<pose.str();
 }
-
+template<class T>
+void scale_translations(std::vector<Pose<T>>& ps, double scale){
+    for(auto& p:ps)
+        p.scaleT(scale);
+}
+template<class T>
+std::vector<Pose<T>> scaled_translations(const std::vector<Pose<T>>& ps, double scale){
+    std::vector<Pose<T>> ret=ps;
+    scale_translations(ret,scale);
+    return ret;
+}
 
 
 }// en<T> namespace cvl

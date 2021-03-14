@@ -19,7 +19,7 @@ public:
 
 
 
-    std::vector<double> interior_times(int N=1000, int border=0) const;
+    std::vector<double> interior_times(int samples_per_second=10, int border=0) const;
     PoseD operator()(double time) const;
     PoseD pose(double time) const;
 
@@ -107,7 +107,7 @@ public:
     }
 
 protected:
-    double delta=1e-2;
+    double delta=1e-3;
 
 };
 
