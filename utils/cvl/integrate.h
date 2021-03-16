@@ -45,7 +45,7 @@ long double integrate_accurate(const function& f, long double from, long double 
         long double time=from+(long double)(i)*delta;
         stepvs.push_back(f(time)*delta);
     }
-    std::sort(stepvs.begin(),stepvs.end());
+    std::sort(stepvs.begin(),stepvs.end(),[](double a, double b){return std::abs(a)<std::abs(b);});
     long double val=0;
     for(auto v:stepvs) val+=v;
     return val;

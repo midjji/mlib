@@ -46,7 +46,7 @@ template<class T> std::string getMatlabVector(std::vector<T> vs){
             if((i%50)==0)
             ss<<"\n";
     }
-    ss<<"];";
+    ss<<"]";
     return ss.str();
 }
 
