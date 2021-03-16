@@ -87,37 +87,35 @@ std::vector<std::vector<T>> slice(
     return ret;
 }
 template<class T>
-std::vector<std::vector<T>> slice_by_time(const std::vector<T>& ts, uint slices)
+std::vector<std::vector<T>> slice_by_time(std::vector<T> ts, uint slices)
 {
+    std::sort(ts.begin(),ts.end(),[](const T& a, const T& b){return a.time_seconds()<b.time_seconds();});
 
     if(ts.size()<2) return {ts};
     if(slices <2) return {ts};
-    std::set<double> utimes;    for(const auto& t:ts)        utimes.insert(t.time);
+    std::set<double> utimes;    for(const auto& t:ts)        utimes.insert(t.time_seconds());
 
 
     std::map<int, std::vector<T>> map;
     if(slices>=utimes.size()){
         for(auto& t:ts){
-            map[t.time].push_back(t);
+            map[t.time_seconds()].reserve(ts.size());
+            map[t.time_seconds()].push_back(t);
         }
     }
     else{
         // lets assume uniformely distributed...
-
-        double span=*utimes.rbegin() - *utimes.begin();
+        double t0=*utimes.begin();
+        double t1=*utimes.rbegin();
+        double span= t1- t0;
         double delta=span/slices;
         // lets assume roughly evenly spread measurements
         for(auto& t:ts){
-            auto& v=map[std::round((t.time - *utimes.begin())/delta)];
+            auto& v=map[std::round((t.time_seconds() - t0)/delta)];
             v.reserve(ts.size());
             v.push_back(t);
         }
     }
-    // sort them internally
-    for(auto& [key,val]: map){
-            std::sort(val.begin(),val.end(),[](const T& a, const T& b){return a.time<b.time;});
-    }
-
     std::vector<std::vector<T>> ret;
     for(auto& [key,val]: map)
         ret.push_back(val);
