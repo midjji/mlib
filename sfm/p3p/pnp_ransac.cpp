@@ -29,9 +29,7 @@ PoseD pnp_ransac(const std::vector<cvl::Vector4d>& xs,
     for(uint i=0;i<xs.size();++i)
     {
         assert(xs.size()==yns.size());
-        auto x=xs[i];
-        if(x[3]<0) x=-x;
-        if(x[2]<1e-4) continue;
+
         auto x3=xs[i].dehom();
 
         if(x3.isnormal())
@@ -251,7 +249,8 @@ PoseD PNP::compute(){
     }
 
     total_iters=i;
-    //cout << "pnp total_iters: " << i << " inlier ratio: " << best_inliers/double(xs.size()) <<" inliers "<<best_inliers<< endl;
+    if(best_inliers/double(xs.size())<0.5)
+        cout << "pnp total_iters: " << i << " inlier ratio: " << best_inliers/double(xs.size()) <<" inliers "<<best_inliers<< endl;
 
 
     // refine pose, if possible...
@@ -282,7 +281,7 @@ void PNP::refine(){
         inlier_yns.clear();
         for(uint i=0;i<xs.size();++i){
             auto x=best_pose*xs[i];
-            if(x[2]<1e-3) continue;
+            if(x[2]<1e-6) continue;
             if((x.dehom() - yns[i]).squaredNorm()>thr) continue;
             inlier_xs.push_back(xs[i]);
             inlier_yns.push_back(yns[i]);

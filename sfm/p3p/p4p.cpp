@@ -41,6 +41,7 @@ PoseD p4p(const std::vector<cvl::Vector3d>& xs,
 
 
 
+
     // check that all of them look ok...
     /*
     for(int v=0;v<valid;++v)
@@ -79,10 +80,7 @@ PoseD p4p(const std::vector<cvl::Vector3d>& xs,
         q.normalize();
         PoseD tmp(q,Ts[v]);
 
-        if(max_angle<2*3.1415){
 
-            if((tmp*reference.inverse()).angle()>=max_angle) continue;
-        }
 
         Vector3d xr=tmp*x;
         if(xr[2]<=0) continue;

@@ -96,17 +96,20 @@ std::vector<std::vector<T>> slice_by_time(std::vector<T> ts, uint slices)
     std::set<double> utimes;    for(const auto& t:ts)        utimes.insert(t.time_seconds());
 
 
-    std::map<int, std::vector<T>> map;
+    std::map<double, std::vector<T>> map;
     if(slices>=utimes.size()){
+        mlog()<<"split by tim\n";
         for(auto& t:ts){
             map[t.time_seconds()].reserve(ts.size());
             map[t.time_seconds()].push_back(t);
         }
     }
     else{
+         mlog()<<"split by tim\n";
         // lets assume uniformely distributed...
         double t0=*utimes.begin();
         double t1=*utimes.rbegin();
+        if(t1<=t0) mlog()<<"WTF?: "<<t0<<" "<<t1<<"\n";
         double span= t1- t0;
         double delta=span/slices;
         // lets assume roughly evenly spread measurements
