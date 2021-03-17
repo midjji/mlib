@@ -87,9 +87,26 @@ std::vector<std::vector<T>> slice(
     return ret;
 }
 template<class T>
+std::vector<std::vector<T>> slice(const std::vector<T>& ts, uint slices){
+    // assume sorted, assume even slices
+    if(slices <2) return {ts};
+    double delta=double(ts.size())/double(slices);
+    std::vector<std::vector<T>> out;
+    for(uint i=0;i<ts.size();++i){
+        uint index=i/delta;
+        if(index>=out.size()){
+            out.push_back({});
+            out.reserve(ts.size());
+        }
+        out.back().push_back(ts[i]);
+    }
+    return out;
+}
+
+template<class T>
 std::vector<std::vector<T>> slice_by_time(std::vector<T> ts, uint slices)
 {
-    std::sort(ts.begin(),ts.end(),[](const T& a, const T& b){return a.time_seconds()<b.time_seconds();});
+    //std::sort(ts.begin(),ts.end(),[](const T& a, const T& b){return a.time_seconds()<b.time_seconds();});
 
     if(ts.size()<2) return {ts};
     if(slices <2) return {ts};
@@ -98,18 +115,17 @@ std::vector<std::vector<T>> slice_by_time(std::vector<T> ts, uint slices)
 
     std::map<double, std::vector<T>> map;
     if(slices>=utimes.size()){
-        mlog()<<"split by tim\n";
+        mlog()<<"split by time\n";
         for(auto& t:ts){
             map[t.time_seconds()].reserve(ts.size());
             map[t.time_seconds()].push_back(t);
         }
     }
     else{
-         mlog()<<"split by tim\n";
+        mlog()<<"split by time\n";
         // lets assume uniformely distributed...
         double t0=*utimes.begin();
-        double t1=*utimes.rbegin();
-        if(t1<=t0) mlog()<<"WTF?: "<<t0<<" "<<t1<<"\n";
+        double t1=*utimes.rbegin();        
         double span= t1- t0;
         double delta=span/slices;
         // lets assume roughly evenly spread measurements

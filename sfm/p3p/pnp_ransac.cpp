@@ -5,7 +5,7 @@
 #include <mlib/utils/random.h>
 #include <mlib/sfm/p3p/pnp_ransac.h>
 #include <mlib/sfm/p3p/p4p.h>
- 
+
 #include <thread>
 
 
@@ -78,7 +78,7 @@ int evaluate_inlier_set(const std::vector<cvl::Vector3d>& xs,
         cvl::Vector4d X=xs[i].homogeneous(); // yes even with the extra cost here...
         //        Vector3d XR=(M*X).dehom(); // technically based on how 4x4 etc work, no dehom required
         Vector4d XR=(M*X);
-        assert(std::abs(XR[3]-1)<1e-12);
+
 
 
 
@@ -100,7 +100,7 @@ int evaluate_inlier_set(const std::vector<cvl::Vector3d>& xs,
         inliers += (err < threshold_squared) ? 1 : 0;
         //mle += std::min(errors[i],thr);// use this to compute mle instead...
         // highest number of inliers possible at this point. inliers + (xs.size()) -i
-        if(((xs.size()-i +inliers)<best_inliers)) break;
+        //if(((xs.size()-i +inliers)<best_inliers)) break;
     }
     return inliers;
 
@@ -305,14 +305,12 @@ void PNP::refine(){
         ceres::Solve(options, &problem, &summary);
         //cout<<"Report 1: \n"<<summary.FullReport()<<endl;
     }
-    {
-    double inliers=evaluate_inlier_set(xs,yns,params.threshold,best_pose,best_inliers);
-    if(inliers<10|| inliers<0.5*xs.size())
-       std::cout<<"pnp_ransac refine inliers:"<<inliers<< " ratio "<<inliers/ double(xs.size())<<endl;
-    }
+
+    double inliers_after_refine1=evaluate_inlier_set(xs,yns,params.threshold,best_pose,best_inliers);
+    int inliers_for_refine=inlier_xs.size();
 
     // check somehow if there is a big difference in the inliers?
-return;
+
 
     {
         // think about if you can use an explicit cutoff loss here...
@@ -335,10 +333,8 @@ return;
             return ;
         }
 
-
-        std::cout<<"refine:"<< evaluate_inlier_set(xs,yns,params.threshold,best_pose,best_inliers)<<"\n";
         // if to few changes hav occured, dont do a second refine...
-        if(double(deltas)<0.05*double(inlier_xs.size())) return;
+
         ceres::Problem problem;
 
         ceres::LossFunction* loss=nullptr;//
@@ -352,15 +348,21 @@ return;
 
         ceres::Solver::Options options;{
             options.linear_solver_type = ceres::DENSE_SCHUR;
-            options.max_num_iterations=3;
+            options.max_num_iterations=5;
         }
         ceres::Solver::Summary summary;
         ceres::Solve(options, &problem, &summary);
         //cout<<"Report 2: \n"<<summary.FullReport()<<endl;
     }
 
-    std::cout<<"refine2:"<<evaluate_inlier_set(xs,yns,params.threshold,best_pose,best_inliers)<<endl;
 
+    double final_inliers=evaluate_inlier_set(xs,yns,params.threshold,best_pose,best_inliers);
+    if(final_inliers<10|| final_inliers<0.5*xs.size()){
+        if(inliers_after_refine1<10|| inliers_after_refine1<0.5*xs.size()){
+            std::cout<<"pnp_ransac refine inliers:"<<inliers_after_refine1<< " ratio "<<inliers_after_refine1/ double(xs.size())<<" refine used "<<inliers_for_refine<<endl;
+            std::cout<<"pnp_ransac refine2 inliers:"<<final_inliers<< " ratio "<<final_inliers/ double(xs.size())<<"refine 2 used:"<<inlier_xs.size()<<endl;
+        }
+    }
 }
 
 
