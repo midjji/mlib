@@ -10,6 +10,19 @@
  * - can fail, returns identity pose if the data is degenerate, or asserts on incorrect data
  * - no throw
  *
+ * \todo
+ * - Warn on degenerate input. optional output?
+ * - for points that form an orthogonal vector pair, there is a simpler solution,
+ *  This configuration may also be a degenerate or semidegenerate case:
+ *  the solution comes from simplifying:
+ *  L^T(1 b01 b02;0 0 b12; 0 0 0)L =0
+ *  which comes from (x2-x0)^T(x1 - x0) = 0
+ *  Its unclear if it even is a degenerate case, or if lambdatwist could be modified accordingly since its probably just a permutation of the 3 points,
+ *  better yet, since this one takes four points, it should select the best combo of the four.
+ *  But detecting semi degeneracy is nearly impossible. Instead, perform the calculation and if it fails,
+ *  compute the pose for the special case and see if that works better, then if that fails vary their order.
+ *
+ *
  *
  *
  *

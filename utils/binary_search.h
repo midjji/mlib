@@ -15,7 +15,7 @@ template<class Above>
  * int res=binary_search(-5533, 11000001,[](int v){return v<500;},2000);
  */
 int binary_search(Above above,
-                  int min=std::numeric_limits<int>::min(),
+                  int min=std::numeric_limits<int>::lowest(),
                   int max=std::numeric_limits<int>::max(),
                   int current=0, int max_steps=65){
     if(current==max ||current ==min) return current;
@@ -27,6 +27,7 @@ int binary_search(Above above,
     // recursion is fine, it wont ever take longer than 64 tries
     // unless above is broken
     if(max_steps<0) return 0; // hang on this for broken above, or warn?
+    ///TODO: use std::midpoint!
     return binary_search(above,min, max,(max-min)/2 + min,max_steps--);
 }
 
