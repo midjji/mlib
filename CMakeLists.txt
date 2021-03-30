@@ -43,12 +43,16 @@ endif()
 
 add_subdirectory(utils)
 target_link_libraries(mlib INTERFACE mlib-utils)
+
 add_subdirectory(sfm)
 target_link_libraries(mlib INTERFACE mlib-sfm)
 
 
 add_subdirectory(opencv_util)
 target_link_libraries(mlib INTERFACE mlib-opencv-utils)
+
+add_subdirectory(stream)
+target_link_libraries(mlib INTERFACE mlib-stream)
 
 add_subdirectory(datasets)
 target_link_libraries(mlib INTERFACE mlib-datasets)

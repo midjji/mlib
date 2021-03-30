@@ -330,7 +330,6 @@ public:
     FlowViewer(std::string name):name(name){}
     ~FlowViewer(){
         stop();
-        que.stop();
         if(thr.joinable())
             thr.join();
     }
@@ -408,7 +407,6 @@ private:
                 running=false;
         }
         viewer.setDone(true);
-        que.stop();
     }
 };
 

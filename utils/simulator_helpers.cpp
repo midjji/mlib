@@ -1,9 +1,12 @@
+#include <set>
+
+
 #include "mlib/utils/simulator_helpers.h"
 #include "mlib/utils/random.h"
 #include "mlib/utils/cvl/rotation_helpers.h"
-#include "mlib/utils/constants.h"
 
-#include <set>
+
+
 
 #include <mlib/sfm/anms/grid.h>
 
@@ -24,7 +27,7 @@ Matrix3d getRandomRotation(){
 
 Matrix3d getRandomRotationInFirstOctant(){
     Vector4d q=getRandomUnitVector<double,4>();
-    while(std::acos(q[0])>pi_d/8.0){
+    while(std::acos(q[0])>3.1415/8.0){
         q=getRandomUnitVector<double,4>();
     }
 
@@ -60,10 +63,10 @@ Matrix3d getSmallRandomRotation(){
         v[1]=cap(randn<double>(0,1),-1,1);
         v[2]=cap(randn<double>(0,1),-1,1);
         v.normalize();
-        if(std::acos(v[0]*axis[0] + v[1]*axis[1] +v[2]*axis[2])<pi_d/4.0)
+        if(std::acos(v[0]*axis[0] + v[1]*axis[1] +v[2]*axis[2])<3.1415/4.0)
             break;
     }
-    double th=randu<double>(0,2*pi_d);
+    double th=randu<double>(0,2*3.1415);
     Matrix3d I,ux,uxu;
     I=Matrix3d(1,0,0,
                0,1,0,
@@ -79,7 +82,7 @@ Matrix3d getSmallRandomRotation(){
 
 Matrix3d getDefaultR(){
     Matrix3d R;
-    double th=0.1*pi_d;   // simple small rotation around z
+    double th=0.1*3.1415;   // simple small rotation around z
     R(0,0)=cos(th);      R(0,1)=-sin(th);     R(0,2)=0;
     R(1,0)=sin(th);      R(1,1)=cos(th);      R(1,2)=0;
     R(2,0)=0;            R(2,1)=0;            R(2,2)=1;

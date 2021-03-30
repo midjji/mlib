@@ -130,50 +130,6 @@ void PointCloudViewer::setPointCloud(const std::vector<Vector3d>& xs, const std:
         setPointCloud(xs,cols,pose_vector,coordinate_axis_length);
     }
 
-void savePointCloud(const std::string& filename, std::vector<Vector3d>& Xs, std::vector<Vector3d>& colors, std::vector<PoseD>& Ps)
-{
-    uint n;
-
-    std::ofstream file;
-
-    cout << "writing " << filename << endl;
-    file.open(filename, std::ios::binary | std::ios::out);
-
-    n = (uint)Xs.size();
-    file.write((char*)&n, sizeof(n));
-
-    printf("-----------------pcl_size:%d\n", n);
-
-    for (uint i = 0; i < n; i++) {
-        float px = Xs[i](0);
-        float py = Xs[i](1);
-        float pz = Xs[i](2);
-        file.write((char*)&px, sizeof(px));
-        file.write((char*)&py, sizeof(py));
-        file.write((char*)&pz, sizeof(pz));
-        unsigned char r = colors[i](0);
-        unsigned char g = colors[i](1);
-        unsigned char b = colors[i](2);
-        file.write((char*)&r, sizeof(r));
-        file.write((char*)&g, sizeof(g));
-        file.write((char*)&b, sizeof(b));
-    }
-
-    n = (uint)Ps.size();
-    file.write((char*)&n, sizeof(n));
-    printf("-----------------num_poses:%d\n", n);
-
-    for (uint i = 0; i < n; i++) {
-        const double *q = Ps[i].getRRef();
-        const double *t = Ps[i].getTRef();
-
-        file.write((char*)q, 4 *sizeof(q[0]));
-        file.write((char*)t, 3 * sizeof(t[0]));
-    }
-
-    file.close();
-
-}
 
 
 void PointCloudViewer::setPointCloud(
@@ -312,12 +268,6 @@ osg::ref_ptr<osg::Node> default_scene(){
         colors->push_back(osg::Vec3(1,1,1));
     }
 
-
-
-
-
-
-
     points->reserve(12000);
     colors->reserve(12000);
 
@@ -335,16 +285,6 @@ osg::ref_ptr<osg::Node> default_scene(){
 
         colors->push_back(osg::Vec3d(i/N,0,0));
     }
-
-
-
-
-
-
-
-
-
-
     osg::ref_ptr<osg::Node> node=MakePointCloud(points, colors, 5.0);
     return node;
 }
@@ -407,7 +347,6 @@ void PointCloudViewer::run(){
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
     }
-    que.stop();
     running=false;
 }
 void PointCloudViewer::close(){
