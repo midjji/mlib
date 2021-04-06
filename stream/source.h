@@ -48,7 +48,7 @@ protected:
         for(auto& wq:queues) {
             auto q=wq.lock();
             if(q) // !=nullptr
-                q->push(output);
+                q->sink(output);
             else
                 missing++;
         }
