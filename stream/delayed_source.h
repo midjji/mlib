@@ -9,11 +9,17 @@ class DelayedSource: public Node<Source<Output>,NoSink>{
     Iterable iterable;
 public:
 
-    DelayedSource(double framerate, Iterable& iterable):
-        framerate(framerate), Iterable(iterable){}
+    DelayedSource(double framerate,
+                  Iterable& iterable):
+        framerate(framerate),
+        Iterable(iterable){}
 
     virtual void loop() override
     {
+        while(!ready){
+            mlib::sleep_ms(10);
+        }
+
         for(Output& out:iterable){
             mlib::ScopedDelay sd(1e6/framerate);
             this->push_output(out);
@@ -22,7 +28,7 @@ public:
     }
     using Input = typename Node<Source<Output>,NoSink>::Input;
     virtual bool process([[maybe_unused]] Input& input,
-                         [[maybe_unused]] Output& output) override{};
+                         [[maybe_unused]] Output& output) override{return false;};
 
 };
 

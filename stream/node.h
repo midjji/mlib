@@ -113,7 +113,7 @@ public:
     start(Args... args) {
         std::shared_ptr<NodeType> ipp(new NodeType(args...));
         ipp->init();
-        ipp->self=ipp; // enable_shared_from_this is bugged in c++17
+        ipp->wp_self=ipp; // enable_shared_from_this is bugged in c++17
         // the node should not own itself. hence by reference, [&]
         ipp->node_thr=std::thread([&](){
             ipp->loop();
