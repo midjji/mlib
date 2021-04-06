@@ -191,11 +191,14 @@ std::ostream& operator<<(std::ostream& os,const Time& t){
 }
 
 
-ScopedDelay::ScopedDelay(double seconds){
+ScopedDelay::ScopedDelay(double min_delay_us):min_delay_us(min_delay_us){
     mark=mlibtime::clock.now();
 }
 ScopedDelay::~ScopedDelay(){
-    sleep_ns(std::chrono::duration_cast<std::chrono::nanoseconds>(mlibtime::clock.now() - mark));
+    double took=1000*(std::chrono::duration_cast<std::chrono::nanoseconds>(mlibtime::clock.now() - mark).count());
+    double delta=min_delay_us - took;
+    if(delta>0)
+        sleep_us(delta);
 }
 
 Timer::Timer(){

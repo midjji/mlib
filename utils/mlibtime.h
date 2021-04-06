@@ -251,16 +251,17 @@ struct TimeScope
 /**
  * @brief The ScopedDelay struct
  *
- * {ScopedDelay sd(10);
+ * {ScopedDelay sd(10*1e6);
  * dostuff...
  * } // if dostuff takes less than 10 seconds, we sleep 10-time(dostuff) afterwards
  *
- * So if a loop should run at 10 fps at most, add a ScopedDelay sd(10); to the start of it.
+ * So if a loop should run at 10 fps at most, add a ScopedDelay sd(1e5); to the start of it.
  *
  */
 struct ScopedDelay{
     std::chrono::time_point<std::chrono::steady_clock,std::chrono::nanoseconds > mark;
-    ScopedDelay(double seconds);
+    double min_delay_us;
+    ScopedDelay(double min_delay_us);
     ~ScopedDelay();
 };
 
