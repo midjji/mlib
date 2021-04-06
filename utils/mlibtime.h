@@ -233,7 +233,12 @@ void sleep_ms(double milliseconds);
 void sleep_us(double microseconds);
 
 
+
+
 template<class Timer>
+/**
+ * @brief The TimeScope struct
+ */
 struct TimeScope
 {
     Timer* timer; // does not take ownership!
@@ -241,6 +246,22 @@ struct TimeScope
         timer->tic();
     }
     ~TimeScope(){        timer->toc();    }
+};
+
+/**
+ * @brief The ScopedDelay struct
+ *
+ * {ScopedDelay sd(10);
+ * dostuff...
+ * } // if dostuff takes less than 10 seconds, we sleep 10-time(dostuff) afterwards
+ *
+ * So if a loop should run at 10 fps at most, add a ScopedDelay sd(10); to the start of it.
+ *
+ */
+struct ScopedDelay{
+    std::chrono::time_point<std::chrono::steady_clock,std::chrono::nanoseconds > mark;
+    ScopedDelay(double seconds);
+    ~ScopedDelay();
 };
 
 /**
@@ -348,6 +369,8 @@ public:
 
 
 };
+
+
 
 
 class NamedTimerPack{

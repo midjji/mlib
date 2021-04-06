@@ -191,7 +191,12 @@ std::ostream& operator<<(std::ostream& os,const Time& t){
 }
 
 
-
+ScopedDelay::ScopedDelay(double seconds){
+    mark=mlibtime::clock.now();
+}
+ScopedDelay::~ScopedDelay(){
+    sleep_ns(std::chrono::duration_cast<std::chrono::nanoseconds>(mlibtime::clock.now() - mark));
+}
 
 Timer::Timer(){
     ts.reserve(8*256);
