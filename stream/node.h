@@ -85,7 +85,7 @@ namespace cvl{
 
 
 
-template<class Source=NoSource, class Sink>
+template<class Source=NoSource, class Sink=NoSink>
 /**
  * @brief The Node class, see top of file!
  *
@@ -117,8 +117,12 @@ public:
         ipp->wp_self=ipp; // enable_shared_from_this is bugged in c++17
         // the node should not own itself. hence by reference, [&]
         ipp->node_thr=std::thread([&](){
+            mlog().set_thread_name(ipp->node_name());
+            ipp->running=true;
+            std::unique_lock<std::mutex> ul(ipp->start_mutex);
+            ipp->cv.wait(ul, [&](){return ipp->ready || !ipp->running;});
             ipp->loop();
-
+            ipp->running=false;
         });
         return ipp;
     }
@@ -129,24 +133,32 @@ public:
 
     // by default the node does not process input untill you tell it to start
     // this is to make sure you can setup all listeners first.
-
+    void start(){
+        //must use a lock despite the variable beeing atomic for the cv to work properly, its a bug in the standard
+        std::unique_lock<std::mutex> ul(start_mutex);
+        ready=true;
+        ul.unlock();
+        start_cv.notify_one();
+    }
 
 protected:
-    Node(){}
-    virtual bool process(Input& input,
-                         Output& output) =0;
+    std::mutex start_mutex;
+    std::condition_variable start_cv;
 
+    Node(){}
+    //override process to do stuff
+    virtual bool process([[maybe_unused]] Input& input,
+    [[maybe_unused]] Output& output){return false;};
+
+    // override for things like a max size
     virtual void sink_(Input& input){        input_queue.push(input);    }
 
     virtual std::string node_name(){ return "Node";}
     virtual void init(){
         this->Sink::init();
         this->Source::init();
-        running=true;
+
     };
-
-
-
 
     /**
      * @brief loop
@@ -155,12 +167,7 @@ protected:
      */
     virtual void loop()
     {
-        mlog().set_thread_name(node_name());
         while(running) {
-            if(!ready){
-                mlib::sleep_ms(10);
-                continue;
-            }
             Input in;
             auto stop=[&](){return !running;};
             if(!input_queue.blocking_pop(in,stop)) break;
@@ -168,9 +175,8 @@ protected:
             if(!process(in, out)) continue;// may have sideeffects
             this->push_output(out);
         }
-        running=false;
     }
-    std::atomic<bool> running;
+    std::atomic<bool> running{false};
     std::atomic<bool> ready{false};
     SyncQue<Input> input_queue;
 private:

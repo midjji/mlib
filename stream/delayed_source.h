@@ -14,24 +14,12 @@ public:
         framerate(framerate),
         Iterable(iterable){}
 
-    virtual void loop() override
-    {
-        while(!ready){
-            mlib::sleep_ms(10);
-        }
-
+    virtual void loop() override  {
         for(Output& out:iterable){
             //mlib::ScopedDelay sd(1e6/framerate);
-
             this->push_output(out);
         }
-        Node<Source<Output>,NoSink>::running=false;
-    }
-    using Input = typename Node<Source<Output>,NoSink>::Input;
-    virtual bool process([[maybe_unused]] Input& input,
-                         [[maybe_unused]] Output& output) override{return false;};
-    std::atomic<bool> ready{false};
-
+    }        
 };
 
 }
