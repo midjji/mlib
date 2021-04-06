@@ -20,8 +20,9 @@ public:
         }
         Node<Source<Output>,NoSink>::running=false;
     }
-    virtual bool process(Input& input,
-                         Output& output) override{};
+    using Input = typename Node<Source<Output>,NoSink>::Input;
+    virtual bool process([[maybe_unused]] Input& input,
+                         [[maybe_unused]] Output& output) override{};
 
 };
 
