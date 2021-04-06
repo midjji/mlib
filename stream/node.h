@@ -139,7 +139,6 @@ protected:
         }
         if(missing>10 && missing*2 >queues.size())
             clear_missing();
-
     }
 private:
     void clear_missing()    {
