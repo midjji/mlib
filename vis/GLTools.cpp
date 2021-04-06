@@ -42,10 +42,6 @@ osg::ref_ptr<osg::Node> MakePointCloud(osg::ref_ptr<osg::Vec3Array> vertices,
 
     osg::Group* group=new osg::Group();
     group->addChild(geode);
-    group->addChild(MakeAxisMarker(0.5,0.5,cvl::cvl2osg(cvl::PoseD().get4x4())));
-
-
-
     return group;
 }
 

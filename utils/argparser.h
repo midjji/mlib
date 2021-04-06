@@ -82,6 +82,9 @@ public:
     bool is_set(std::string name);
     std::vector<std::string> get_args(std::string name);
     std::string get_arg(std::string name);
+    double get_double_arg(std::string name);
+    bool get_bool_arg(std::string name);
+
     // next parameter, either as double or str,
     uint parameter_index=1; // program name not included!
     double param_double();

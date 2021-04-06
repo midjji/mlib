@@ -84,9 +84,10 @@ public:
     }
 
     void push(const T& t){
+        if(slumbering) return;
         //std::cout<<"name: "<<name <<" push "<<n++<<std::endl;
         std::unique_lock<std::mutex> ul(mtx); // locks, unlocked as it goes out of scope
-        if(slumbering) return;
+
         que.push_back(t);
         ul.unlock();
         cv.notify_one();

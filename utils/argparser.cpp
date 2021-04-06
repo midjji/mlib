@@ -109,6 +109,18 @@ std::vector<std::string> ArgParser::get_args(std::string name){
 std::string ArgParser::get_arg(std::string name){
     return get_args(name).at(0);
 }
+double ArgParser::get_double_arg(std::string name){
+    auto it=options.find(name);
+    if(it==options.end())
+        mlog()<<"option not found: "+name<<endl;
+    return it->second.to_double();
+}
+bool ArgParser::get_bool_arg(std::string name){
+    auto it=options.find(name);
+    if(it==options.end())
+        mlog()<<"option not found: "+name<<endl;
+    return it->second.to_bool();
+}
 double ArgParser::param_double(){
     if(!args_parsed) {std::cerr<<"asking for args without having parsed any!"<<endl;exit(1);}
     Command cmd=parameters.at(parameter_index++);

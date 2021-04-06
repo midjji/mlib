@@ -25,8 +25,15 @@
 #include "mlib/utils/cvl/syncque.h"
 #include "mlib/utils/cvl/pose.h"
 #include <mlib/utils/colormap.h>
-#include <osgViewer/Viewer>
 
+
+
+namespace osg{
+class Group;
+}
+namespace osgViewer {
+class Viewer;
+}
 
 namespace mlib{
 
@@ -34,11 +41,27 @@ class PointCloudViewer;
 typedef std::shared_ptr<PointCloudViewer> sPointCloudViewer;
 
 
+
 class PC{
 public:
     std::vector<cvl::Vector3d> xs;
-    std::vector<Color>& cols;
+    std::vector<Color> xs_cols;
     std::vector<cvl::PoseD> ps;
+    std::vector<std::vector<cvl::PoseD>> posess;
+    std::vector<Color> pose_colors;
+    double coordinate_axis_length;
+};
+struct Groupable{
+    virtual ~Groupable(){}
+    virtual osg::Group* group(double marker_scale)=0;
+    // if true, the old scene is removed first.
+    // otherwize we just add the new group
+    bool clear_scene=false;
+};
+struct PCGroupable:public Groupable{
+    PCGroupable(PC& pc):pc(pc){}
+    PC pc;
+    osg::Group* group(double marker_scale) override;
 };
 
 
@@ -54,9 +77,6 @@ public:
  */
 class PointCloudViewer{
 public:
-
-    int frame_count;
-
     PointCloudViewer();
     ~PointCloudViewer();
 
@@ -86,19 +106,18 @@ public:
     void setPointCloud(const std::vector<std::vector<cvl::PoseD>>& poses,
                        const std::vector<Color>& colors,
                        double coordinate_axis_length=1);
-
-    void setMarkerSize(const float scale);
-
+    void set_point_cloud(PC pc);
+    void set_marker_size(double scale);
     void set_pose(cvl::PoseD Pcw);
-
     static sPointCloudViewer start(std::string name="Point Cloud Viewer(wasdqe,mouse)");
-    bool isdone();
+
     void wait_for_done();
     void close();
     bool is_running();
 private:
 
-    float marker_scale = 1.0;
+    // scales the points
+    std::atomic<double> marker_scale{5.0f};
 
     void init(std::string name);
     void run();
@@ -107,13 +126,11 @@ private:
     std::thread thr;
 
 
-    std::vector<osg::ref_ptr<osg::Node>> ns;
-    cvl::SyncQue<std::vector<osg::ref_ptr<osg::Node>>> que;
 
 
-
-    osg::ref_ptr<osgViewer::Viewer> viewer=nullptr;
-    osg::ref_ptr<osg::Group> scene = new osg::Group;
+    cvl::SyncQue<std::shared_ptr<Groupable>> queue;
+    osgViewer::Viewer* viewer=nullptr;
+    osg::Group* scene = nullptr;
 
 };
 

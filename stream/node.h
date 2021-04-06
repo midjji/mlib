@@ -75,6 +75,7 @@
 #include <memory>
 #include <mlib/utils/cvl/syncque.h>
 #include <mlib/utils/mlog/log.h>
+#include <mlib/utils/mlibtime.h>
 #include <mlib/stream/sink.h>
 #include <mlib/stream/source.h>
 
@@ -84,7 +85,7 @@ namespace cvl{
 
 
 
-template<class Source=NoSource, class Sink=NoSink>
+template<class Source=NoSource, class Sink>
 /**
  * @brief The Node class, see top of file!
  *
@@ -101,7 +102,7 @@ public:
     using Input=typename Sink::Input;
     using Output= typename Source::Output;
 
-    Node(){}
+
     virtual ~Node() {
         running=false;
         if(node_thr.joinable())
@@ -110,13 +111,14 @@ public:
     // must be templated on the node type,
     // since static does not know
     template<class NodeType, class... Args> static std::shared_ptr<NodeType>
-    start(Args... args) {
+    create(Args... args) {
         std::shared_ptr<NodeType> ipp(new NodeType(args...));
         ipp->init();
         ipp->wp_self=ipp; // enable_shared_from_this is bugged in c++17
         // the node should not own itself. hence by reference, [&]
         ipp->node_thr=std::thread([&](){
             ipp->loop();
+
         });
         return ipp;
     }
@@ -125,15 +127,26 @@ public:
     std::shared_ptr<Sink> get_sink(){return wp_self.lock();}
     std::shared_ptr<Source> get_source(){return wp_self.lock();}
 
+    // by default the node does not process input untill you tell it to start
+    // this is to make sure you can setup all listeners first.
+
+
 protected:
+    Node(){}
+    virtual bool process(Input& input,
+                         Output& output) =0;
+
+    virtual void sink_(Input& input){        input_queue.push(input);    }
+
     virtual std::string node_name(){ return "Node";}
     virtual void init(){
         this->Sink::init();
         this->Source::init();
         running=true;
     };
-    virtual bool process(Input& input,
-                         Output& output) =0;
+
+
+
 
     /**
      * @brief loop
@@ -144,16 +157,22 @@ protected:
     {
         mlog().set_thread_name(node_name());
         while(running) {
+            if(!ready){
+                mlib::sleep_ms(10);
+                continue;
+            }
             Input in;
             auto stop=[&](){return !running;};
-            if(!this->input->blocking_pop(in,stop)) break;
+            if(!input_queue.blocking_pop(in,stop)) break;
             Output out;
             if(!process(in, out)) continue;// may have sideeffects
             this->push_output(out);
         }
         running=false;
     }
-std::atomic<bool> running;
+    std::atomic<bool> running;
+    std::atomic<bool> ready{false};
+    SyncQue<Input> input_queue;
 private:
 
     std::thread node_thr;

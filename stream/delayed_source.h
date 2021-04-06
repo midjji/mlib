@@ -21,7 +21,8 @@ public:
         }
 
         for(Output& out:iterable){
-            mlib::ScopedDelay sd(1e6/framerate);
+            //mlib::ScopedDelay sd(1e6/framerate);
+
             this->push_output(out);
         }
         Node<Source<Output>,NoSink>::running=false;

@@ -36,7 +36,6 @@ public:
     // really need decorators for that...
     void sink(Input& input){        if(!slumbering)            sink_(input);}
     void set_slumbering(bool slumber){        slumbering=slumber;    }
-
     virtual ~Sink(){}
 protected:
     virtual void init(){}

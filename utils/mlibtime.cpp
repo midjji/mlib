@@ -190,17 +190,15 @@ std::ostream& operator<<(std::ostream& os,const Time& t){
     return os;
 }
 
+TimeScope::TimeScope(Timer* timer):timer(timer){    timer->tic();}
+TimeScope::~TimeScope(){        timer->toc();    }
 
-ScopedDelay::ScopedDelay(double min_delay_us):min_delay_us(min_delay_us){
-    mark=mlibtime::clock.now();
+ScopedDelay::ScopedDelay(double min_delay_us){
+    mark=mlibtime::clock.now() + std::chrono::microseconds(int(1e6*min_delay_us));
 }
-ScopedDelay::~ScopedDelay(){
-    double took=1000*(std::chrono::duration_cast<std::chrono::nanoseconds>(mlibtime::clock.now() - mark).count());
-    double delta=min_delay_us - took;
-    cout<<"min_delay_us"<<min_delay_us<<", "<<took<<endl;
-    cout<<"delta: "<<delta<<endl;
-    if(delta>0)
-        sleep_us(delta);
+
+ScopedDelay::~ScopedDelay(){    
+    std::this_thread::sleep_until(mark);
 }
 
 Timer::Timer(){
@@ -243,7 +241,7 @@ Time Timer::toc(){
     return d;
 }
 
-
+TimeScope Timer::time_scope(){return TimeScope(this);}
 
 namespace local{
 template<class T> std::string toStr(const T& t){

@@ -235,17 +235,14 @@ void sleep_us(double microseconds);
 
 
 
-template<class Timer>
+class Timer;
 /**
  * @brief The TimeScope struct
  */
-struct TimeScope
-{
+struct TimeScope{
     Timer* timer; // does not take ownership!
-    TimeScope(Timer* timer):timer(timer){
-        timer->tic();
-    }
-    ~TimeScope(){        timer->toc();    }
+    TimeScope(Timer* timer);
+    ~TimeScope();
 };
 
 /**
@@ -260,7 +257,6 @@ struct TimeScope
  */
 struct ScopedDelay{
     std::chrono::time_point<std::chrono::steady_clock,std::chrono::nanoseconds > mark;
-    double min_delay_us;
     ScopedDelay(double min_delay_us);
     ~ScopedDelay();
 };
@@ -276,10 +272,12 @@ struct ScopedDelay{
  *
  *
  * DISCUSS: Should it be atomic? - No.
- * Thread safety when possible is a good idea, but multiple threads using one timer is just wrong.
+ * Thread safety when possible is a good idea,
+ *  but multiple threads using one timer is just wrong.
  * The locking takes time which may confuse results with timers in inner loops.
  *
  * Is there a way to ensure the timer isnt called from multiple threads?
+ * no no fast way
  *
  */
 class Timer{
@@ -321,7 +319,7 @@ public:
      * it uh almost guaranteed? yes clang gcc msvc etc all do since 1981
      * yeah, but ugly as sin...
      */
-    TimeScope<Timer> time_scope(){return TimeScope<Timer>(this);}
+    TimeScope time_scope();
     //TimeScope<Timer>&& time_scope(){return std::forward<TimeScope<Timer>>(TimeScope<Timer>(this));    }
 
 

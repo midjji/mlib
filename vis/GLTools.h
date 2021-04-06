@@ -5,7 +5,8 @@
 #include <opencv2/core/mat.hpp>
 
 /*********************************************************************************************/
-osg::ref_ptr<osg::Node> MakePointCloud(osg::ref_ptr<osg::Vec3Array> vertices, osg::ref_ptr<osg::Vec3Array> colors, float ptSize);
+osg::ref_ptr<osg::Node> MakePointCloud(osg::ref_ptr<osg::Vec3Array> vertices,
+                                       osg::ref_ptr<osg::Vec3Array> colors, float ptSize);
 template<class PointType>
 
 osg::ref_ptr<osg::Node> MakeGenericPointCloud(const std::vector<PointType>& points,

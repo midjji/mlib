@@ -44,7 +44,7 @@ protected:
     virtual void init(){}
     void push_output(Output& output)    {
         std::unique_lock<std::mutex> ul(node_mtx);
-        int missing=0;
+        uint missing=0;
         for(auto& wq:queues) {
             auto q=wq.lock();
             if(q) // !=nullptr
