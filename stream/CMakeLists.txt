@@ -12,8 +12,7 @@ add_library(${PROJECT_NAME} ${stream-srcs} ${stream-headers})
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 target_configure_warnings(${PROJECT_NAME})
 
-# We need this directory, and users of our library will need it too, do not use .. in paths, it confuses ides
-target_include_directories(${PROJECT_NAME} PUBLIC "${MLIB_TOP_PATH}")
+target_link_libraries(mlib-stream PUBLIC mlib-utils)
 
 
 
