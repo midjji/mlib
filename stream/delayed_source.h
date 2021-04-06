@@ -18,8 +18,10 @@ public:
             mlib::ScopedDelay sd(1e6/framerate);
             this->push_output(out);
         }
-        running=false;
+        Node<Source<Output>,NoSink>::running=false;
     }
+    virtual bool process(Input& input,
+                         Output& output) override{};
 
 };
 
