@@ -1,4 +1,5 @@
 #include <mlib/utils/argparser.h>
+#include <mlib/utils/mlog/log.h>
 #include <iostream>
 #include <assert.h>
 #include <queue>
@@ -90,7 +91,14 @@ void ArgParser::add_option(std::string name,
 
 
 bool ArgParser::is_set(std::string name){
-    return options.find(name)!=options.end();
+
+    auto it=options.find(name);
+    if(it==options.end()){
+        mlog()<<"Warning: Asked for non existent command line option: \""<<name<<"\""<<endl;
+        return false;
+    }
+
+    return (it->second.num_times_in_cmd_line>0);
 }
 
 std::vector<std::string> ArgParser::get_args(std::string name){
@@ -138,6 +146,14 @@ bool ArgParser::parse_args(std::vector<std::string> args){
         if(search==options.end()){
             cout<<"argument: "<<arg<<" not found"<<endl; continue;
         }
+        if(search->second.num_times_in_cmd_line++>1){
+            mlog()<<"Warning: duplicate option in command line \""<<arg<<"\". Overiding earlier values"<<endl;
+            return false;
+        }
+
+
+
+
 
         std::vector<std::string> cmd_args;
         // found the command, get number of args.
@@ -160,6 +176,7 @@ bool ArgParser::parse_args(std::vector<std::string> args){
     }
     // check that all required args are found!
 
+    // all options have a default.
 
     bool good=true;
     for(const auto& opt:options){
