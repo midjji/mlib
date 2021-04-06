@@ -29,6 +29,7 @@ public:
     using Input = typename Node<Source<Output>,NoSink>::Input;
     virtual bool process([[maybe_unused]] Input& input,
                          [[maybe_unused]] Output& output) override{return false;};
+    std::atomic<bool> ready{false};
 
 };
 
