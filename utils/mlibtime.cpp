@@ -197,6 +197,7 @@ ScopedDelay::ScopedDelay(double min_delay_us):min_delay_us(min_delay_us){
 ScopedDelay::~ScopedDelay(){
     double took=1000*(std::chrono::duration_cast<std::chrono::nanoseconds>(mlibtime::clock.now() - mark).count());
     double delta=min_delay_us - took;
+    cout<<"delta: "<<delta<<endl;
     if(delta>0)
         sleep_us(delta);
 }
