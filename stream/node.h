@@ -1,5 +1,4 @@
 #pragma once
-/********************************** FILE ************************************/
 /** \file    node.h
  *
  * \brief The node class represents the nodes of a thread safe asynchronous processing stream/graph.
@@ -113,23 +112,25 @@ public:
     template<class NodeType, class... Args> static std::shared_ptr<NodeType>
     create(Args... args) {
         std::shared_ptr<NodeType> ipp(new NodeType(args...));
-        ipp->init();
         ipp->wp_self=ipp; // enable_shared_from_this is bugged in c++17
+
+
         // the node should not own itself. hence by reference, [&]
         ipp->node_thr=std::thread([&](){
             mlog().set_thread_name(ipp->node_name());
             ipp->running=true;
             std::unique_lock<std::mutex> ul(ipp->start_mutex);
-            ipp->cv.wait(ul, [&](){return ipp->ready || !ipp->running;});
+            ipp->start_cv.wait(ul, [&](){return ipp->ready || !ipp->running;});
+            ipp->init();
             ipp->loop();
             ipp->running=false;
         });
         return ipp;
     }
 
-    std::shared_ptr<Node> get_node(){return wp_self.lock();}
-    std::shared_ptr<Sink> get_sink(){return wp_self.lock();}
-    std::shared_ptr<Source> get_source(){return wp_self.lock();}
+    std::shared_ptr<Node> get_node(){return std::shared_ptr<Sink>(wp_self.lock());}
+    std::shared_ptr<Sink> get_sink(){return std::shared_ptr<Sink>(wp_self.lock());}
+    std::shared_ptr<Source> get_source(){return std::shared_ptr<Sink>(wp_self.lock());}
 
     // by default the node does not process input untill you tell it to start
     // this is to make sure you can setup all listeners first.
@@ -144,20 +145,20 @@ public:
 protected:
     std::mutex start_mutex;
     std::condition_variable start_cv;
-
     Node(){}
     //override process to do stuff
     virtual bool process([[maybe_unused]] Input& input,
     [[maybe_unused]] Output& output){return false;};
 
     // override for things like a max size
-    virtual void sink_(Input& input){        input_queue.push(input);    }
+    virtual void sink_(Input& input) override{
+        input_queue.push(input);
+    }
 
     virtual std::string node_name(){ return "Node";}
     virtual void init(){
         this->Sink::init();
         this->Source::init();
-
     };
 
     /**

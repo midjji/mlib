@@ -27,7 +27,7 @@ template<class T> std::string toStr(T t, unsigned int res=0){
         ss << std::setprecision(res) << t;
     return ss.str();
 }
-std::string pad(std::string in, uint len);
+std::string pad(std::string in, uint len, char key=' ');
 
 
 std::vector<std::string> split_lines(std::string s, char delim='\n');

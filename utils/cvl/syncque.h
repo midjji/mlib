@@ -63,28 +63,13 @@ private:
     std::deque<T> que;
     std::mutex mtx;
     std::condition_variable cv;
-    std::atomic<bool> slumbering{false};
-
 public:    
 
     SyncQue& operator = (SyncQue&) = delete;
     std::shared_ptr<SyncQue<T>> create(){
         return std::make_shared<SyncQue<T>>();
     }
-    void set_slumbering(bool slumber_val, bool clear_queue=true){
-        std::unique_lock<std::mutex> ul(mtx); // locks, unlocked as it goes out of scope
-        slumbering = slumber_val;
-        if (clear_queue) que.clear();
-        ul.unlock();
-        cv.notify_one();
-    }
-    bool is_slumbering(){
-        //std::unique_lock<std::mutex> ul(mtx); // locks, unlocked as it goes out of scope
-        return slumbering;
-    }
-
-    void push(const T& t){
-        if(slumbering) return;
+    void push(const T& t){        
         //std::cout<<"name: "<<name <<" push "<<n++<<std::endl;
         std::unique_lock<std::mutex> ul(mtx); // locks, unlocked as it goes out of scope
 
@@ -97,7 +82,8 @@ public:
     void blocking_push(const T& t,
                        StopCondition stop,
                        uint max_size=std::numeric_limits<uint>::max()){
-        std::unique_lock<std::mutex> ul(mtx); // locks, unlocked as it goes out of scope
+        std::unique_lock<std::mutex> ul(mtx); // locks, unlocked as it goes out of scope        
+
         cv.wait(ul, [&](){return que.size()<max_size || stop();});
         que.push_back(t);
         ul.unlock();
@@ -119,15 +105,19 @@ public:
         //  std::cout<<"name: "<<name <<" pop "<<k++<<std::endl;
         std::unique_lock<std::mutex> ul(mtx); // locks
         cv.wait(ul, [&](){return !que.empty() || stop();});
+
         if(!que.empty())
         {
             t = que.front();
             que.pop_front();
+            ul.unlock();
+            cv.notify_all();
+            return true;
         }
         ul.unlock();
         cv.notify_all();
         // std::cout<<"pop done"<<std::endl;
-        return true;
+        return false;
     }
 
     uint size(){

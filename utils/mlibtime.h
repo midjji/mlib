@@ -245,6 +245,7 @@ struct TimeScope{
     ~TimeScope();
 };
 
+
 /**
  * @brief The ScopedDelay struct
  *

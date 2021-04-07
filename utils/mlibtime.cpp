@@ -87,10 +87,10 @@ std::string getNospaceIsoDateTimeofStart(){
 
 namespace mlibtime{
 // for once we actually want this to be created on startup and not on demand
-static std::chrono::steady_clock clock;
+std::chrono::steady_clock clock;
 
 // more or less when the program starts... well not long after atleast
-static std::chrono::time_point<std::chrono::steady_clock,std::chrono::nanoseconds > start=clock.now();
+std::chrono::time_point<std::chrono::steady_clock,std::chrono::nanoseconds > start=clock.now();
 // this is the only place I will ever allow myself to do this! Never anywhere else.
 //Still bad things could creep in, so beware the static initialization order fiasco.
 
@@ -240,6 +240,10 @@ Time Timer::toc(){
     ts.push_back(d);
     return d;
 }
+
+
+
+
 
 TimeScope Timer::time_scope(){return TimeScope(this);}
 

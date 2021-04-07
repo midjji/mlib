@@ -35,15 +35,20 @@ public:
     virtual ~Source(){}
     virtual void add_sink(std::shared_ptr<Sink<Output>> queue) {
         if(queue==nullptr) return;
-        std::unique_lock<std::mutex> ul(node_mtx);
+        std::unique_lock<std::mutex> ul(source_mtx);
         queues.reserve(100);
         queues.push_back(queue);
+    }
+    uint listeners(){
+        std::unique_lock<std::mutex> ul(source_mtx);
+        return queues.size();
     }
 
 protected:
     virtual void init(){}
     void push_output(Output& output)    {
-        std::unique_lock<std::mutex> ul(node_mtx);
+        // guarantee push order
+        std::unique_lock<std::mutex> ul(source_mtx);
         uint missing=0;
         for(auto& wq:queues) {
             auto q=wq.lock();
@@ -65,7 +70,7 @@ private:
     }
     // changes are rare, insert cheap, removal expensive
     std::vector<std::weak_ptr<Sink<Output>>> queues;
-    std::mutex node_mtx;
+    std::mutex source_mtx;
 };
 
 struct NoSource:public Source<int>{
