@@ -1,17 +1,3 @@
-/**
- * @file
- * @author Mikael Persson <mikael.p.persson@gmail.com>
- * @version 1.0
- * \date 2013-05-10:13-45-43
- * @section LICENSE Mit licence
- *
- * Copyright Mikael Persson.
- *
- * @section DESCRIPTION
- * Header for the configuration class
- *
- */
-
 #pragma once
 
 #include <string>
@@ -20,8 +6,8 @@
 #include <assert.h>
 #include <iostream>
 #include <sstream>
-#include <fstream>
-#include <exception>
+
+
 
 
 
@@ -62,9 +48,6 @@ class Configuration {
 public:
 
     Configuration(std::string configurationfile="configuration.ini");
-
-    std::string get(std::string name, const char* val, std::string comment="");
-
 
     /**
  * @brief get
