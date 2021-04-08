@@ -94,7 +94,7 @@ std::set<uint> EssentialMatrixSolverBase::getUniqueRandomInts(int minval, int ma
 	std::set<uint> v;
 
 	while (v.size() < n) {
-        v.insert(mlib::randu<double>(minval, maxval));
+        v.insert(mlib::randu(minval, maxval));
 	}
 
 	return v;
@@ -198,11 +198,11 @@ uint EssentialMatrixSolver::estimateFromMinimal(const std::vector<Vector2d>& y1n
 	set<uint> test_set; // Index set of points used to select the correct E candidate
 
 	while (estimation_set.size() < 5) {
-        estimation_set.insert(mlib::randu<double>(0, num_points - 1));
+        estimation_set.insert(mlib::randu(0, num_points - 1));
 	}
 
 	while (test_set.size() < p.minimal_test_sz){
-        int i = mlib::randu<double>(0, num_points - 1);
+        int i = mlib::randu(0, num_points - 1);
 		if (estimation_set.find(i) != estimation_set.end()) continue; // Avoid points in the estimation set.
 		test_set.insert(i);
 	}

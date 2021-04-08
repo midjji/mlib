@@ -12,14 +12,15 @@
 using std::cout; using std::endl;
 namespace mlib{
 
+// some implementations may be missing this,
+// but it works for clang 9+ and gcc 8+, c++11
+static_assert (sizeof(float128) >=16, "long float128 implementation is missing" );
 
-
-
-void sleep(double seconds){
+void sleep(float128 seconds){
     if(seconds<0) return;
     std::this_thread::sleep_for(std::chrono::milliseconds((int)(1000*seconds)));}
-void sleep_ms(double milliseconds){if(milliseconds<0) return;std::this_thread::sleep_for(std::chrono::milliseconds((int)milliseconds));}
-void sleep_us(double microseconds){if(microseconds<0) return;std::this_thread::sleep_for(std::chrono::microseconds((int)microseconds));}
+void sleep_ms(float128 milliseconds){if(milliseconds<0) return;std::this_thread::sleep_for(std::chrono::milliseconds((int)milliseconds));}
+void sleep_us(float128 microseconds){if(microseconds<0) return;std::this_thread::sleep_for(std::chrono::microseconds((int)microseconds));}
 
 std::string getIsoDate(){
     std::string datetime=getIsoDateTime();
@@ -95,7 +96,7 @@ std::chrono::time_point<std::chrono::steady_clock,std::chrono::nanoseconds > sta
 //Still bad things could creep in, so beware the static initialization order fiasco.
 
 }// end time
-uint64_t  get_steady_now(){
+float128  get_steady_now(){
      return (mlibtime::clock.now()-mlibtime::start).count();
 }
 
@@ -103,98 +104,61 @@ uint64_t  get_steady_now(){
 
 
 
-double Time::getSeconds(){double sec = double(ns)/1e9; return sec;}
+float128 Time::seconds(){return ns/1e9L;}
+float128 Time::milli_seconds(){return ns/1e6L;}
 
-double Time::getMilliSeconds(){double sec = double(ns)/1e6; return sec;}
-void Time::setSeconds(double sec){this->ns = (long)(sec*1e9);}
 
-Time::Time(long double d,TIME_TYPE type){
-
-    switch(type){
-    case TIME_S:
-        ns=(long)(d*1e9);
-        break;
-    case TIME_MS:
-        ns = (long)(d * 1e6);
-        break;
-    case TIME_US:
-        ns = (long)(d * 1e3);
-        break;
-    case TIME_NS:
-        ns = (long)d;
-        break;
-    default:
-        ns = (long)d;
-        break;
-    }
-}
-
-Time& Time::operator+=(const Time& rhs){
+Time& Time::operator+=(Time rhs){
     ns+=rhs.ns;
     return *this;
 }
-Time& Time::operator/=(const Time& rhs){
+Time& Time::operator/=(Time rhs){
     ns/=rhs.ns;
     return *this;
 }
-bool operator==(const Time& lhs, const Time& rhs){ return lhs.ns==rhs.ns; }
-bool operator!=(const Time& lhs, const Time& rhs){return !operator==(lhs,rhs);}
-bool operator< (const Time& lhs, const Time& rhs){ return lhs.ns<rhs.ns; }
-bool operator> (const Time& lhs, const Time& rhs){return  operator< (rhs,lhs);}
-bool operator<=(const Time& lhs, const Time& rhs){return !operator> (lhs,rhs);}
-bool operator>=(const Time& lhs, const Time& rhs){return !operator< (lhs,rhs);}
+bool operator==(Time lhs, Time rhs){ return lhs.ns==rhs.ns; }
+bool operator!=(Time lhs, Time rhs){return !operator==(lhs,rhs);}
+bool operator< (Time lhs, Time rhs){ return lhs.ns<rhs.ns; }
+bool operator> (Time lhs, Time rhs){return  operator< (rhs,lhs);}
+bool operator<=(Time lhs, Time rhs){return !operator> (lhs,rhs);}
+bool operator>=(Time lhs, Time rhs){return !operator< (lhs,rhs);}
 
-Time operator+ (const Time& lhs,const Time& rhs){
+Time operator+ (Time lhs,Time rhs){
     return Time(lhs.ns+rhs.ns);
 }
-Time operator- (const Time& lhs,const Time& rhs){
+Time operator- (Time lhs,Time rhs){
     return Time(lhs.ns-rhs.ns);
 }
 
-
-std::string Time::toStr(TIME_TYPE type) const{
-    long double d =ns;
-    std::stringstream ss;
-    switch(type){
-    case TIME_S: {  ss<<std::round(d/1000000000L)<<"s";         return ss.str();}
-    case TIME_MS:{  ss<<std::round(d/1000000L)   <<"ms";        return ss.str();}
-    case TIME_US:{  ss<<std::round(d/1000L)      <<"us";        return ss.str();}
-    case TIME_NS:{  ss<<std::round(d)            <<"ns";        return ss.str();}
-    default:
-        assert(false && "unsupported value");
-        return "time error";
-
-    }
-}
-std::string Time::toStr() const{
+std::string Time::str() const{
 
     std::stringstream ss;
-    if(double(ns)<1e3){    // less than two microseconds as ns
-        ss<<round(double(ns))<<"ns";
+    if(float128(ns)<1e3){    // less than two microseconds as ns
+        ss<<std::round(float128(ns))<<"ns";
         return ss.str();
     }
-    if(double(ns)<1e6){ // less than two milliseconds as us
-        ss<<round(double(ns)/1e3)<<"us";
+    if(float128(ns)<1e6){ // less than two milliseconds as us
+        ss<<std::round(float128(ns)/1e3)<<"us";
         return ss.str();
     }
-    if(double(ns)<1e9){ // less than two seconds as ms
-        ss<<round(double(ns)/1e6)<<"ms";
+    if(float128(ns)<1e9){ // less than two seconds as ms
+        ss<<std::round(float128(ns)/1e6)<<"ms";
         return ss.str();
     }
-    ss<<round(double(ns)/1e9)<<"s";return ss.str();
+    ss<<std::round(float128(ns)/1e9)<<"s";return ss.str();
 }
 
 
-std::ostream& operator<<(std::ostream& os,const Time& t){
-    os<<t.toStr();
+std::ostream& operator<<(std::ostream& os,Time t){
+    os<<t.str();
     return os;
 }
 
 TimeScope::TimeScope(Timer* timer):timer(timer){    timer->tic();}
 TimeScope::~TimeScope(){        timer->toc();    }
 
-ScopedDelay::ScopedDelay(double min_delay_us){
-    mark=mlibtime::clock.now() + std::chrono::microseconds(int(1e6*min_delay_us));
+ScopedDelay::ScopedDelay(float128 delay_ns){
+    mark=mlibtime::clock.now() + std::chrono::nanoseconds(uint64_t(delay_ns));
 }
 
 ScopedDelay::~ScopedDelay(){    
@@ -248,20 +212,20 @@ Time Timer::toc(){
 TimeScope Timer::time_scope(){return TimeScope(this);}
 
 namespace local{
-template<class T> std::string toStr(const T& t){
+template<class T> std::string str(const T& t){
     std::ostringstream ss("");
     ss << t;
     return ss.str();
 }
 template<class T>
-uint64_t getStringWidth(const T& obj){
+float128 getStringWidth(const T& obj){
     std::stringstream ss;
     ss<<obj;
     return ss.str().size();
 }
 template<class T>
-std::vector<uint64_t> getStringWidths(const std::vector<T>& objs){
-    std::vector<uint64_t> ws;ws.reserve(objs.size());
+std::vector<float128> getStringWidths(const std::vector<T>& objs){
+    std::vector<float128> ws;ws.reserve(objs.size());
     for(const T& obj:objs)
         ws.push_back(getStringWidth(obj));
     return ws;
@@ -294,9 +258,9 @@ std::string DisplayTable(std::vector<std::string> headers,
     while(rownames.size()<rows.size()+1)
         rownames.push_back("");
 
-    uint64_t min_header_width=7;
-    std::vector<uint64_t> widths=getStringWidths(headers);
-    for(uint64_t& w:widths){w=std::max(min_header_width,w);}
+    float128 min_header_width=7;
+    std::vector<float128> widths=getStringWidths(headers);
+    for(float128& w:widths){w=std::max(min_header_width,w);}
 
 
 
@@ -308,7 +272,7 @@ std::string DisplayTable(std::vector<std::string> headers,
     }
     // now check that no row exceeds 150
     for(auto w:widths)
-        if(w>50) return std::string("broken table")+toStr(w);
+        if(w>50) return std::string("broken table")+str(w);
 
 
 
@@ -373,18 +337,22 @@ std::vector<std::string> Timer::toStrRow() const{
     if(ts.size()==0)
         row={name,"-","-","-","-","-"};
     else
-        row={name,local::toStr(getSum()),local::toStr(getMean()),local::toStr(getMedian()),local::toStr(getMin()),local::toStr(getMax()),local::toStr(ts.back()),local::toStr(ts.size())};
+        row={name,local::str(sum()),local::str(mean()),
+             local::str(median()),local::str(min()),
+             local::str(max()),local::str(ts.back()),
+             local::str(ts.size())};
     return row;
 }
 
 
-std::string Timer::toStr() const{
+std::string Timer::str() const{
     if(ts.size()==0){
         std::stringstream ss;
         ss<<"Timer: name: "<< "No Beats";
         return ss.str();
     }
-    std::vector<std::string> headers={"Timer","Total",  "Mean", "Median","Min", "Max","Latest", "Samples"};
+    std::vector<std::string> headers=
+    {"Timer","Total",  "Mean", "Median","Min", "Max","Latest", "Samples"};
     std::vector<std::string> row=toStrRow();
     std::vector<std::vector<std::string>> rows={row};
     return local::DisplayTable(headers,rows);
@@ -392,24 +360,29 @@ std::string Timer::toStr() const{
 
 void Timer::clear(){ts.clear();}
 
-
-template<class T> T sum(const std::vector<T>& xs){     T r=0;       for(auto x:xs) r+=x;               return r;}
-template<class T> T mean(const std::vector<T>& xs){    T r=0;       for(auto x:xs) r+=x; r/=xs.size(); return r;}
-template<class T> T min(const std::vector<T>& xs){     T r=xs.at(0);for(auto x:xs) r= (x<r) ? x:r;     return r;}
-template<class T> T max(const std::vector<T>& xs){     T r=xs.at(0);for(auto x:xs) r= (x>r) ? x:r;     return r;}
-template<class T> T median(std::vector<T> xs){    std::sort(xs.begin(),xs.end()); return xs.at((xs.size() -1)/2);}
-
-
-
-
-std::vector<Time> Timer::getTimes(){
-    return ts;
+namespace  {
+template<class T> T sum_(const std::vector<T>& xs){
+    T r=0;       for(auto x:xs) r+=x;               return r;}
+template<class T> T mean_(const std::vector<T>& xs){
+    T r=0;       for(auto x:xs) r+=x; r/=xs.size(); return r;}
+template<class T> T min_(const std::vector<T>& xs){
+    T r=xs.at(0);for(auto x:xs) r= (x<r) ? x:r;     return r;}
+template<class T> T max_(const std::vector<T>& xs){
+    T r=xs.at(0);for(auto x:xs) r= (x>r) ? x:r;     return r;}
+template<class T> T median_(std::vector<T> xs){
+    if(xs.size()<1) return T(0);
+    std::sort(xs.begin(),xs.end()); return xs.at((xs.size() -1)/2);}
 }
-Time Timer::getSum()    const{return sum<Time>(ts);}
-Time Timer::getMedian() const{return median<Time>(ts);}
-Time Timer::getMean()   const{return mean<Time>(ts);}
-Time Timer::getMax()    const{return max<Time>(ts);}
-Time Timer::getMin()    const{return min<Time>(ts);}
+
+
+
+std::vector<Time> Timer::times() const{    return ts;}
+uint64_t Timer::samples() const{return ts.size();}
+Time Timer::sum()    const{return sum_<Time>(ts);}
+Time Timer::median() const{return median_<Time>(ts);}
+Time Timer::mean()   const{return mean_<Time>(ts);}
+Time Timer::max()    const{return max_<Time>(ts);}
+Time Timer::min()    const{return min_<Time>(ts);}
 
 
 Timer& NamedTimerPack::make_or_get(std::string name){
@@ -428,12 +401,13 @@ std::ostream& operator<<(std::ostream &os, NamedTimerPack ntp){
     return os<<ts;
 }
 std::ostream& operator<<(std::ostream &os, const Timer& t){
-    return os<<t.toStr();
+    return os<<t.str();
 }
 std::ostream& operator<<(std::ostream &os,const std::vector<Timer>& ts){
     if(ts.size()==0)
         cout<<"Empty timer list";
-    std::vector<std::string> headers={"Timer","Total",  "Mean", "Median","Min", "Max", "Samples"};
+    std::vector<std::string> headers=
+    {"Timer","Total",  "Mean", "Median","Min", "Max", "Samples"};
     std::vector<std::vector<std::string>> rows;
     for(const Timer& timer:ts){
         rows.push_back(timer.toStrRow());

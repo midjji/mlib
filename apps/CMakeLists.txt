@@ -19,7 +19,9 @@ list(APPEND apps "vis_manip.cpp")
 
 list(APPEND apps "mysql.cpp")
 list(APPEND apps "verified_write2file.cpp")
-#list(APPEND apps "spline_product.cpp")
+
+
+
 
 
 
@@ -34,6 +36,7 @@ foreach(item ${apps})
         target_configure_warnings(${name})
     endif()
 endforeach()
+
 
 
 

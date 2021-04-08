@@ -100,8 +100,8 @@ public:
 std::vector<Sample> get_samples(uint p,uint N, double sigma=1e-2){
     std::vector<Sample> samples;samples.reserve(N);
     for(uint i=0;i<N;++i){
-        Vector2d y(randu<double>(-1,1),randu<double>(-1,1));
-        Vector3d x=randu<double>(1,100)*(y.homogeneous()); // means most will be far away...
+        Vector2d y(randu(-1,1),randu(-1,1));
+        Vector3d x=randu(1,100)*(y.homogeneous()); // means most will be far away...
         std::vector<Vector2d> ys;ys.reserve(p);
         std::vector<PoseD> ps;ps.reserve(p);
         for(uint i=0;i<p;++i){

@@ -271,8 +271,8 @@ PC default_scene(){
 
 
     for(uint i=0;i<1000;++i){
-        pc.xs.push_back(cvl::Vector3d(mlib::randu<double>(-1,1),mlib::randu<double>(-1,1),mlib::randu<double>(-1,1)));
-        pc.xs_cols.push_back(mlib::Color(mlib::randu<double>(0,1),mlib::randu<double>(0,1),mlib::randu<double>(0,1)));
+        pc.xs.push_back(cvl::Vector3d(mlib::randu(-1,1),mlib::randu(-1,1),mlib::randu(-1,1)));
+        pc.xs_cols.push_back(mlib::Color(mlib::randu(0,1),mlib::randu(0,1),mlib::randu(0,1)));
     }
 
     // far away circle of red by angle

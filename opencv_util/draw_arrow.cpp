@@ -71,8 +71,7 @@ void draw_legend(cv::Mat3b rgb, std::vector<std::tuple<std::string,Color>> label
     int thickness = 2;
     cv::Vec2i origin(100,100);
     int i=0;
-    for(auto [str,col]:labels){
-
+    for(const auto& [str,col]:labels){
         cv::putText(rgb, str, origin + cv::Vec2i(0,i++*50), fontface, scale, col.fliprb().toScalar<cv::Scalar>(), thickness, 8);
     }
     //cv::waitKey(0);

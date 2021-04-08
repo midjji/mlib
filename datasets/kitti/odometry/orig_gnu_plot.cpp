@@ -34,7 +34,7 @@ void write_error_data(std::vector<KittiError>& es, std::string output_path, std:
         }
     }
     // for each driving speed do (in m/s)
-    for (double speed=2; speed<25; speed+=2) {
+    for (int speed=2; speed<25; speed+=2) {
 
         double t_err = 0;
         double r_err = 0;

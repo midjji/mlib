@@ -288,7 +288,7 @@ template<class... T>
 std::string str_t(T... t) {
     std::stringstream ss;
     std::vector<std::string> strs{str(t)...};
-    for(auto s:strs)
+    for(const auto& s:strs)
         ss<<s<<", ";
     std::string s=ss.str();
     if(s.size()<2) return s;

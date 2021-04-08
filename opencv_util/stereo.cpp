@@ -26,10 +26,10 @@ std::vector<Vector4<int>> comparisons(){
         int span=20;
         if(i<size*0.25)
             span=10;
-        comps.push_back(Vector4<int>(mlib::randu<float>(-span,span),
-                                     mlib::randu<float>(-span,span),
-                                     mlib::randu<float>(-span,span),
-                                     mlib::randu<float>(-span,span)));
+        comps.push_back(Vector4<int>(mlib::randu(-span,span),
+                                     mlib::randu(-span,span),
+                                     mlib::randu(-span,span),
+                                     mlib::randu(-span,span)));
     }
 
     // lets try grid to grid instead.

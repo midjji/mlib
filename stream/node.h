@@ -95,7 +95,7 @@ template<class Source=NoSource, class Sink=NoSink>
  *
  *
  */
-class Node : public Sink, public Source
+class Node :  public Source, public Sink
 {
 public:
     using Input=typename Sink::Input;
@@ -128,9 +128,9 @@ public:
         return ipp;
     }
 
-    std::shared_ptr<Node> get_node(){return std::shared_ptr<Sink>(wp_self.lock());}
-    std::shared_ptr<Sink> get_sink(){return std::shared_ptr<Sink>(wp_self.lock());}
-    std::shared_ptr<Source> get_source(){return std::shared_ptr<Sink>(wp_self.lock());}
+    std::shared_ptr<Node> get_node(){wp_self.lock();}
+    std::shared_ptr<Sink> get_sink(){return std::static_pointer_cast<Sink>(wp_self.lock());}
+    std::shared_ptr<Source> get_source(){return std::static_pointer_cast<Source>(wp_self.lock());}
 
     // by default the node does not process input untill you tell it to start
     // this is to make sure you can setup all listeners first.

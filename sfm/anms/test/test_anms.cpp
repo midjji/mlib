@@ -23,21 +23,21 @@ using namespace cvl;
 
 int id=0;
 anms::Data getRandomData(){
-    return anms::Data(mlib::randu<double>(-10,10),mlib::randu<double>(0,1280),mlib::randu<double>(0,800),id++);
+    return anms::Data(mlib::randu(-10,10),mlib::randu(0,1280),mlib::randu(0,800),id++);
 }
 
 std::vector<anms::Data> getRandomDatas(int Clusters,int per_cluster){
     std::vector<Vector2f> clusters;clusters.reserve(Clusters);
     // clusters span the whole image
     for(int i=0;i<Clusters;++i)
-        clusters.push_back(Vector2f(mlib::randu<double>(100,1180),mlib::randu<double>(100,700)));
+        clusters.push_back(Vector2f(mlib::randu(100,1180),mlib::randu(100,700)));
 
     // samples span +- 30 of the cluster
 
     std::vector<anms::Data> datas;datas.reserve(Clusters*per_cluster);
     for(Vector2f cluster:clusters)
         for(int i=0;i<per_cluster;++i){
-            datas.push_back(anms::Data(mlib::randui(-10,10),mlib::randn<double>(cluster[0],15),mlib::randn<double>(cluster[1],15),id++));
+            datas.push_back(anms::Data(mlib::randui(-10,10),mlib::randn(cluster[0],15),mlib::randn(cluster[1],15),id++));
         }
     // show(datas);
     return datas;
@@ -119,7 +119,7 @@ TEST_CASE("ANMS,BASE_IMPLEMENTATION"){
         // all between the old
         auto grid2=grid;grid2.reserve(grid2.size()*3);
         for(int i=0;i<100;++i){
-            grid2.push_back(anms::Data(-1,randu<double>(1,8),randu<double>(1,8),101+i));
+            grid2.push_back(anms::Data(-1,randu(1,8),randu(1,8),101+i));
         }
         random::shuffle(grid2);
 

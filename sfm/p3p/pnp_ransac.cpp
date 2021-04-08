@@ -197,7 +197,7 @@ Vector4<uint> get4RandomInRange0(uint max){
     if(max<4)
         std::cout<<"called pnp with less than 4 points, something is wrong!"<<std::endl;
     while(set.size()<4)
-        set.insert(mlib::randui<int>(0,max-1));
+        set.insert(mlib::randui(0,max-1));
     int n=0;
     for(uint i:set){
         indexes[n++]=i;

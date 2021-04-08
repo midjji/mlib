@@ -33,11 +33,11 @@ class Source {
 public:
     using Output=Output_;
     virtual ~Source(){}
-    virtual void add_sink(std::shared_ptr<Sink<Output>> queue) {
-        if(queue==nullptr) return;
+    virtual void add_sink(std::shared_ptr<Sink<Output>> sink) {
+        if(sink==nullptr) return;
         std::unique_lock<std::mutex> ul(source_mtx);
         queues.reserve(100);
-        queues.push_back(queue);
+        queues.push_back(sink);
     }
     uint listeners(){
         std::unique_lock<std::mutex> ul(source_mtx);

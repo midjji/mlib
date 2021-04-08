@@ -70,7 +70,7 @@ Symb::Symb(Sym a, double k){
 void Symb::clear_zeros(){
 
     std::map<Sym,double> ks;
-    for(auto k:koeffs)
+    for(const auto& k:koeffs)
         if(k.second!=0.0)
             ks[k.first]=k.second;
     koeffs=ks;
@@ -84,7 +84,7 @@ std::string Symb::str(){
     std::stringstream ss;
     bool first=true;
     bool plus=false;
-    for(auto [sym,k]:koeffs){
+    for(const auto &[sym,k]:koeffs){
         double v=k;
         if(!first){plus=true;
             if(k>0)

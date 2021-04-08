@@ -313,7 +313,7 @@ osg::MatrixTransform *MakeAxisMarker(const osg::Matrixd& pose, float axis_length
 osg::Group* MakeTrajectory(const std::vector<osg::Matrixd>& poses, float length,float width)
 {
     osg::Group* group=new osg::Group();
-    for(auto pose:poses)
+    for(const auto& pose:poses)
         group->addChild(MakeAxisMarker(length,width,pose));
     return group;
 }

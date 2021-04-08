@@ -43,7 +43,7 @@ template<class T> Vector4<T> getRandomRotationQuaternion(double angle/* in radia
 template<class T>
 Vector4<T> getRandomRotation2(T angle_min, T angle_max){
     Vector3<T> n=mlib::getRandomUnitVector<T,3>();
-    T angle=mlib::randu<T>(angle_min,angle_max);
+    T angle=mlib::randu(angle_min,angle_max);
     T q0=cos(angle/2);
     T s=std::sqrt(1-q0*q0);
     n*=s;
@@ -138,7 +138,7 @@ std::vector<cvl::Vector3d> getRandomPointsInfrontOfTwoCamera(cvl::PoseD Pc1w, cv
  * y=Pcw*x
  * yr=Prl*Pcw*x
  *
- * Outliers are y+u*randu<double>(..) where u is a random unit vector
+ * Outliers are y+u*randu(..) where u is a random unit vector
  *
  * Good for testing pnp & pnpd
  *

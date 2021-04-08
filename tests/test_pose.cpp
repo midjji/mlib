@@ -366,7 +366,7 @@ TEST_CASE("QUATERION,RANDOM"){
     int N=1000;
     std::vector<Vector3d> xs;xs.reserve(N);
     for(int i=0;i<N;++i)
-        xs.push_back(getRandomUnitVector<double,3>()*randn<double>(0,1));
+        xs.push_back(getRandomUnitVector<double,3>()*randn(0,1));
     for(auto x:xs){
         PoseD p=getRandomPose();
         p.getTRef()[0]=0;

@@ -97,7 +97,7 @@ public:
         for(Flow f:ff->flows)
             flows.push_back(f);
         points.append(ff->points);
-        for(auto tr:ff->trajectories)
+        for(const auto& tr:ff->trajectories)
             trajectories.push_back(tr);
     }
 

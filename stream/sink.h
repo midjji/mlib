@@ -71,7 +71,7 @@ private:
 template<class T>
 struct QueueSink:public Sink<T> {
     using Input=T;
-  void sink_([[maybe_unused]] Input& input) override{
+  void sink_(Input& input) override{
       queue.push(input);
   }
   SyncQue<T> queue;

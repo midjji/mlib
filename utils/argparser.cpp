@@ -215,13 +215,13 @@ bool ArgParser::parse_args(int argc, char** argv){
 void ArgParser::help(){
     //
     cout<<"Available commands"<<endl;
-    for(auto cmd:options)
+    for(const auto& cmd:options)
         //cout<<"    "<<cmd.first<< " "<<cmd.second<<endl;
         cout<<" "<<cmd.second<<endl;
     cout<<"got commands: "<<endl;
-    for(auto cmd:options){
+    for(const auto& cmd:options){
         //cout<<"    "<<cmd.first;
-        for(auto arg:cmd.second.inputs)
+        for(const auto& arg:cmd.second.inputs)
             cout<<" "<<arg;
         cout<<endl;
     }

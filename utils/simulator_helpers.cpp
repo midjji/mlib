@@ -37,12 +37,12 @@ Matrix3d getRandomRotationInFirstOctant(){
 
 PoseD getRandomPose(){
 
-    return PoseD(getRandomUnitVector<double,4>(),getRandomUnitVector<double,3>()*randn<double>(0.1,10));
+    return PoseD(getRandomUnitVector<double,4>(),getRandomUnitVector<double,3>()*randn(0.1,10));
 }
 std::vector<Vector3d> getRandomPointCloud(uint size){
     std::vector<Vector3d> xs;xs.reserve(500);
     for(uint i=0;i<size;++i)
-        xs.push_back(Vector3d(randu<double>(-1,1),randu<double>(-1,1),randu<double>(-1,1)));
+        xs.push_back(Vector3d(randu(-1,1),randu(-1,1),randu(-1,1)));
     return xs;
 }
 Matrix3d getDefaultIntrinsics(){
@@ -59,14 +59,14 @@ Matrix3d getSmallRandomRotation(){
     Vector3d axis(1,1,1);
     axis.normalize();
     while(true){
-        v[0]=cap(randn<double>(0,1),-1,1);
-        v[1]=cap(randn<double>(0,1),-1,1);
-        v[2]=cap(randn<double>(0,1),-1,1);
+        v[0]=cap(randn(0,1),-1,1);
+        v[1]=cap(randn(0,1),-1,1);
+        v[2]=cap(randn(0,1),-1,1);
         v.normalize();
         if(std::acos(v[0]*axis[0] + v[1]*axis[1] +v[2]*axis[2])<3.1415/4.0)
             break;
     }
-    double th=randu<double>(0,2*3.1415);
+    double th=randu(0,2*3.1415);
     Matrix3d I,ux,uxu;
     I=Matrix3d(1,0,0,
                0,1,0,
@@ -117,9 +117,9 @@ Vector3d getRandomPointOnPlane(const  Vector4d& n){
     N.normalize();
     assert(N.isnormal());
     double x,y,z;
-    x=500*randu<double>(-1,1);
-    y=500*randu<double>(-1,1);
-    z=500*randu<double>(-1,1);
+    x=500*randu(-1,1);
+    y=500*randu(-1,1);
+    z=500*randu(-1,1);
 
     if(fabs(N[0])>1e-6){
         x=(N[3] - N[2]*z - N[1]*y)/N[0];
@@ -162,13 +162,13 @@ PointCloudWithNoisyMeasurements::PointCloudWithNoisyMeasurements(uint N,double p
         uint outliers=uint(xs.size()*outlier_ratio);
         for(uint i=0;i<outliers;++i){
             // exact ratio is not needed
-            uint index=randui<uint>(0,yns.size()-1);
+            uint index=randui(0,yns.size()-1);
 
             auto y=yns[index];
-            if(randu<double>(0,1)>0.5) // and something to really mess with things that dont cut
+            if(randu(0,1)>0.5) // and something to really mess with things that dont cut
                 y+=getRandomUnitVector<double,2>();
             while(((Pcw*xs[index]).dehom() - y).norm() < 0.002 + pixel_sigma*0.001*3)
-                y+=getRandomUnitVector<double,2>()*0.1*randu<double>(3,10);
+                y+=getRandomUnitVector<double,2>()*0.1*randu(3,10);
             yns.at(index)=y; // near but not close enough for a missleading match
         }
     }
@@ -194,7 +194,7 @@ void MultipleCamerasObservingOnePointCloud::init(int cameras){
     }
     {// init the points and measurements
         while(xs.size()<500){
-            Vector3d x(randu<double>(-9,9),randu<double>(-9,9),randu<double>(-9,9));
+            Vector3d x(randu(-9,9),randu(-9,9),randu(-9,9));
 
             std::vector<Vector2d> yns;
             for(PoseD P:Pcws){
@@ -229,7 +229,7 @@ void NMovingCamerasObservingOnePointCloud::init(int cameras){
     }
     {// init the points and measurements
         while(xs.size()<500){
-            Vector3d x(randu<double>(-9,9),randu<double>(-9,9),randu<double>(-9,9));
+            Vector3d x(randu(-9,9),randu(-9,9),randu(-9,9));
 
             std::vector<Vector2d> yns;
             for(PoseD P:Pcws){
@@ -250,8 +250,8 @@ void NMovingCamerasObservingOnePointCloud::init(int cameras){
 cvl::Vector3d getRandomPointInfrontOfCamera(cvl::PoseD Pcw){
     // reduce the odds that it just cycles!
     PoseD Pwc=Pcw.inverse();
-    Vector2d yn=Vector2d(randu<double>(-1,1),randu<double>(-1,1));
-    double distance =randu<double>(0.1,100); // about 0.1 to 1000 m(if 0,7)
+    Vector2d yn=Vector2d(randu(-1,1),randu(-1,1));
+    double distance =randu(0.1,100); // about 0.1 to 1000 m(if 0,7)
     Vector3d xc=(yn.homogeneous()*distance);
     return Pwc*xc;
 }
@@ -261,8 +261,8 @@ std::vector<Vector3d> getRandomPointsInfrontOfCamera(PoseD Pcw,
     std::vector<Vector3d> xs;xs.reserve(N);
     PoseD Pwc=Pcw.inverse();
     while(xs.size()<N){
-        Vector2d yn=Vector2d(randu<double>(-1,1),randu<double>(-1,1));
-        double distance =randu<double>(0.1,100); // about 0.1 to 1000 m(if 0,7)
+        Vector2d yn=Vector2d(randu(-1,1),randu(-1,1));
+        double distance =randu(0.1,100); // about 0.1 to 1000 m(if 0,7)
         Vector3d xc=(yn.homogeneous()*distance);
         xs.push_back(Pwc*xc);
     }
@@ -275,8 +275,8 @@ std::vector<Vector3d> getRandomPointsInfrontOfTwoCameras(PoseD Pc1w, PoseD Pc2w,
     std::vector<Vector3d> xs;xs.reserve(N);
     PoseD Pwc1=Pc1w.inverse();
     while(xs.size()<N){
-        Vector2d yn=Vector2d(randu<double>(-1,1),randu<double>(-1,1));
-        double distance =randu<double>(0.1,100); // about 0.1 to 1000 m(if 0,7)
+        Vector2d yn=Vector2d(randu(-1,1),randu(-1,1));
+        double distance =randu(0.1,100); // about 0.1 to 1000 m(if 0,7)
         Vector3d xc=(yn.homogeneous()*distance);
         Vector3d xw=Pwc1*xc;
         Vector2d yn2=(Pc2w*xw).dehom();
