@@ -1,63 +1,17 @@
-#include "mlib/vis/manipulator.h"
 #include <assert.h>
 #include <iostream>
 #include <sstream>
- 
+
+
+#include <osgViewer/Viewer>
 #include <mlib/vis/nanipulator.h>
+#include "mlib/vis/manipulator.h"
+
 using std::cout;using std::endl;
 namespace mlib{
-void FPS::move(double x, double y, double z){
-    moveForward(z);
-    moveRight(x);
-    moveUp(y);
-}
 
-void FPS::reset(){
-    show_state();
-    _eye.set(0.5, -2.94161, 0.5);
-    _rotation.set(1.0/sqrt(2),0,0,1.0/sqrt(2));
-}
-
-std::string str(osg::Vec3d v){
-    std::stringstream ss;
-    ss<<"("<<v[0]<< ", "<<v[1]<<", "<<v[2]<<")";
-    return ss.str();
-}
-std::string str(osg::Quat v){
-    std::stringstream ss;
-    ss<<"("<<v[0]<< ", "<<v[1]<<", "<<v[2]<<", "<<v[3]<<")";
-    return ss.str();
-}
-void FPS::show_state(){
-    cout<<"eye: "<<str(_eye)<<endl;
-    cout<<"rot: "<<str(_rotation)<<endl;
-}
-void FPS::set_pose(cvl::PoseD Pcw)
-{
-    show_state();
-    Pcw.normalize();
-    std::cout<<Pcw<<std::endl;
-
-
-    _rotation.set(Pcw.q()[0],Pcw.q()[1],Pcw.q()[2],Pcw.q()[3]);
-    _rotation.set(1.0/sqrt(2),0,0,1.0/sqrt(2));
-
-    auto t=Pcw.getTinW();
-
-    _eye.set(t[0],t[1],t[2]);
-
-}
-
-
-
-
-
-
-MainEventHandler::MainEventHandler(osg::ref_ptr<osgViewer::Viewer> viewer)
-    : osgGA::GUIEventHandler(), viewer(viewer){
-
-
-}
+MainEventHandler::MainEventHandler(osgViewer::Viewer* viewer)
+    : osgGA::GUIEventHandler(), viewer(viewer){}
 
 bool MainEventHandler::handleKeyEvent(const osgGA::GUIEventAdapter& ea){
     assert(ea.getEventType()==osgGA::GUIEventAdapter::KEYDOWN);

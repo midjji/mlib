@@ -2,7 +2,7 @@
 #include <osg/Matrixd>
 #include <osg/Image>
 
-#include <opencv2/core.hpp>
+#include <opencv2/core/mat.hpp>
 #include <mlib/utils/cvl/pose.h>
 #pragma GCC diagnostic push
 #include <Eigen/Core>

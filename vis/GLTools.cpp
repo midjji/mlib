@@ -9,41 +9,12 @@
 #include <osg/LineWidth>
 #include <cassert>
 
-#include "mlib/vis/GLTools.h"
+#include "mlib/vis/axis_marker.h"
 #include <mlib/vis/CvGL.h>
 #include <mlib/vis/convertosg.h>
 
-osg::ref_ptr<osg::Node> MakePointCloud(osg::ref_ptr<osg::Vec3Array> vertices,
-                                       osg::ref_ptr<osg::Vec3Array> colors,
-                                       float ptSize)
-{
-	assert(vertices->size() == colors->size());
-    osg::ref_ptr<osg::Geometry> geo = new osg::Geometry;
-	geo->setVertexArray(vertices);
-    osg::ref_ptr<osg::Vec3Array> normals = new osg::Vec3Array;
-	normals->push_back(osg::Vec3(0, 0, 0)); // Dummy value (necessary when using BIND_OFF?)
-	geo->setNormalArray(normals, osg::Array::BIND_OFF);
-	geo->setColorArray(colors, osg::Array::BIND_PER_VERTEX);
-	geo->addPrimitiveSet(new osg::DrawArrays(GL_POINTS, 0, vertices->size()));
-
-    osg::ref_ptr<osg::Geode> geode = new osg::Geode;
-	geode->addDrawable(geo);
-
-	osg::PolygonMode *pm = new osg::PolygonMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::POINT);
-    osg::Point *psz = new osg::Point(ptSize);
-
-	osg::StateSet *state = geode->getOrCreateStateSet();
-	state->setAttributeAndModes(psz, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
-	state->setAttributeAndModes(pm, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
-	state->setMode(GL_LIGHTING, osg::StateAttribute::PROTECTED | osg::StateAttribute::OFF);
-    //state->setMode(GL_POINT_SMOOTH, osg::StateAttribute::ON);
-    //state->setMode(GL_BLEND, osg::StateAttribute::ON);
 
 
-    osg::Group* group=new osg::Group();
-    group->addChild(geode);
-    return group;
-}
 
 osg::Geode *MakeImagePlane(osg::Image *img)
 {
@@ -213,110 +184,11 @@ osg::MatrixTransform *MakeCameraIcon(osg::ref_ptr<osg::Image> photo, int width, 
     return model;
 }
 
-osg::Node *MakeAxisMarker(float axis_length, float line_width, const osg::Matrix& pose)
-{
-    osg::Vec3Array *vertices = new osg::Vec3Array;
-    vertices->push_back(osg::Vec3(0,0,0));
-    vertices->push_back(osg::Vec3(axis_length,0,0));
-    vertices->push_back(osg::Vec3(0,0,0));
-    vertices->push_back(osg::Vec3(0,axis_length,0));
-    vertices->push_back(osg::Vec3(0,0,0));
-    vertices->push_back(osg::Vec3(0,0,axis_length));
-
-    osg::Vec3Array *colors = new osg::Vec3Array;
-    colors->push_back(osg::Vec3(1,0,0));
-    colors->push_back(osg::Vec3(0,1,0));
-    colors->push_back(osg::Vec3(0,0,1));
-
-    osg::Geometry *lines = new osg::Geometry;
-    lines->setVertexArray(vertices);
-    lines->setColorArray(colors, osg::Array::BIND_PER_PRIMITIVE_SET);
-    lines->addPrimitiveSet(new osg::DrawArrays(GL_LINES, 0, 2));
-    lines->addPrimitiveSet(new osg::DrawArrays(GL_LINES, 2, 2));
-    lines->addPrimitiveSet(new osg::DrawArrays(GL_LINES, 4, 2));
-
-    osg::Geode *marker_geode = new osg::Geode;
-    marker_geode->addDrawable(lines);
-
-    osg::PolygonMode *pm = new osg::PolygonMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::LINE);
-    osg::LineWidth *lw = new osg::LineWidth(line_width);
-
-    osg::StateSet *state = marker_geode->getOrCreateStateSet();
-    state->setAttributeAndModes(lw, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
-    state->setAttributeAndModes(pm, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
-    state->setMode(GL_LIGHTING, osg::StateAttribute::PROTECTED | osg::StateAttribute::OFF);
-    state->setMode(GL_LINE_SMOOTH, osg::StateAttribute::ON);
-    state->setMode(GL_BLEND, osg::StateAttribute::ON);
-
-    osg::MatrixTransform *marker_tform = new osg::MatrixTransform;
-    marker_tform->setMatrix(pose);
-    marker_tform->addChild(marker_geode);
-
-    return marker_tform;
-}
-
-
-osg::Geode *MakeAxisMarker(float axis_length, float line_width)
-{
-    osg::Vec3Array *vertices = new osg::Vec3Array;
-    vertices->push_back(osg::Vec3(0,0,0));
-    vertices->push_back(osg::Vec3(axis_length,0,0));
-    vertices->push_back(osg::Vec3(0,0,0));
-    vertices->push_back(osg::Vec3(0,axis_length,0));
-    vertices->push_back(osg::Vec3(0,0,0));
-    vertices->push_back(osg::Vec3(0,0,axis_length));
-
-    osg::Vec3Array *colors = new osg::Vec3Array;
-    colors->push_back(osg::Vec3(1,0,0));
-    colors->push_back(osg::Vec3(0,1,0));
-    colors->push_back(osg::Vec3(0,0,1));
-
-    osg::Geometry *lines = new osg::Geometry;
-    lines->setVertexArray(vertices);
-    lines->setColorArray(colors, osg::Array::BIND_PER_PRIMITIVE_SET);
-    lines->addPrimitiveSet(new osg::DrawArrays(GL_LINES, 0, 2));
-    lines->addPrimitiveSet(new osg::DrawArrays(GL_LINES, 2, 2));
-    lines->addPrimitiveSet(new osg::DrawArrays(GL_LINES, 4, 2));
-
-    osg::Geode *marker = new osg::Geode;
-    marker->addDrawable(lines);
-
-    osg::PolygonMode *pm = new osg::PolygonMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::LINE);
-    osg::LineWidth *lw = new osg::LineWidth(line_width);
-
-    osg::StateSet *state = marker->getOrCreateStateSet();
-    state->setAttributeAndModes(lw, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
-    state->setAttributeAndModes(pm, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
-    state->setMode(GL_LIGHTING, osg::StateAttribute::PROTECTED | osg::StateAttribute::OFF);
-    state->setMode(GL_LINE_SMOOTH, osg::StateAttribute::OFF);
-    state->setMode(GL_BLEND, osg::StateAttribute::ON);
-
-    return marker;
-}
-
-osg::MatrixTransform *MakeAxisMarker(const osg::Matrixd& pose, float axis_length, float line_width)
-{
-    osg::Geode *marker0 = MakeAxisMarker(axis_length, line_width);
-    osg::MatrixTransform *marker = new osg::MatrixTransform;
-    marker->setMatrix(pose);
-    marker->addChild(marker0);
-    return marker;
-}
 
 
 
 
 
-
-
-
-osg::Group* MakeTrajectory(const std::vector<osg::Matrixd>& poses, float length,float width)
-{
-    osg::Group* group=new osg::Group();
-    for(const auto& pose:poses)
-        group->addChild(MakeAxisMarker(length,width,pose));
-    return group;
-}
 
 osg::Node *MakeGrid(int num_squares, float side_length, const osg::Vec3& color, const osg::Matrix& pose)
 {

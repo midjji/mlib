@@ -14,7 +14,7 @@ public:
                    Args... args):
         offset(offset),ds(std::make_shared<Dataset>(args...)){
         running=true;
-        thread=std::thread([&] { loop(); });
+        thread=std::thread([&] { loop(); running=false;});
     }
     ~BufferedStream(){
 
@@ -26,7 +26,8 @@ public:
     sample_type next()
     {
         sample_type sd=nullptr;
-        queue.blocking_try_pop(sd); // return value ignored...
+        auto stop=[&](){return !running;};
+        queue.blocking_pop(sd, stop); // return value ignored...
         return sd; // may return nullptr if stream stopped!
     }
 
@@ -49,7 +50,7 @@ private:
             running && index<ds->samples();
             ++index)
         {
-            queue.wait_for_size_less_than(5);
+            while(queue.size()>5 && running)    mlib::sleep_ms(10);
             if(!running)
                 break;
             loadtimer.tic();
@@ -61,3 +62,4 @@ private:
     }
 };
 }// end namespace cvl
+

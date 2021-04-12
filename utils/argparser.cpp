@@ -34,7 +34,10 @@ Command::Command(std::string name,
                  std::string Default,
                  std::string desc,
                  bool required):
-    name(name),desc(desc), count(count),required(required),inputs(split(Default)){}
+    name(name),desc(desc), count(count),required(required),inputs(split(Default)){
+    //cout<<"default: "<<Default<<split(Default).size()<<endl;
+
+}
 bool Command::to_bool(){
     std::string str=inputs[0];
     // techincally covered in lower case by ss if configured right, but lets be clear
@@ -102,11 +105,11 @@ bool ArgParser::is_set(std::string name){
 }
 
 std::vector<std::string> ArgParser::get_args(std::string name){
-    assert(is_set(name));
-    if(!is_set(name)) return std::vector<std::string>();
+
     return options.find(name)->second.inputs;
 }
 std::string ArgParser::get_arg(std::string name){
+
     return get_args(name).at(0);
 }
 double ArgParser::get_double_arg(std::string name){
@@ -123,12 +126,14 @@ bool ArgParser::get_bool_arg(std::string name){
 }
 double ArgParser::param_double(){
     if(!args_parsed) {std::cerr<<"asking for args without having parsed any!"<<endl;exit(1);}
+    if(!(parameter_index<parameters.size())){cout<<"too few parameters, asking for double: "<<parameter_index<<" of "<<parameters.size()<<endl;}
     Command cmd=parameters.at(parameter_index++);
     return cmd.to_double();
 
 }
 bool ArgParser::param_bool(){
     if(!args_parsed) {std::cerr<<"asking for args without having parsed any!"<<endl;exit(1);}
+    if(!(parameter_index<parameters.size())){cout<<"too few parameters, asking for bool: "<<parameter_index<<" of "<<parameters.size()<<endl;}
     Command cmd=parameters.at(parameter_index++);
     return cmd.to_bool();
 }

@@ -37,7 +37,9 @@ void FPS2::reset(){
 
 /// Constructor.
 FPS2::FPS2( int flags )
-    : StandardManipulator( flags ){}
+    : StandardManipulator( flags ){
+    setVerticalAxisFixed(false);
+}
 
 
 /** Get the position of the manipulator as 4x4 matrix.*/
@@ -61,17 +63,18 @@ Matrixd FPS2::getInverseMatrix() const {
 /** Set the position of the manipulator using a 4x4 matrix.*/
 void FPS2::setByMatrix( const Matrixd& matrix )
 {
-
+cout<<"set by matrix"<<endl;
     // set variables
     pose.set_t(cvl::osg2cvl(matrix.getTrans()));
     pose.set_q(cvl::osg2cvl(matrix.getRotate()));
+    //pose=pose.inverse();
 }
 
 
 /** Set the position of the manipulator using a 4x4 matrix.*/
 void FPS2::setByInverseMatrix( const Matrixd& matrix )
 {
-
+cout<<"set by inv matrix"<<endl;
     setByMatrix( Matrixd::inverse( matrix ) );
 }
 
@@ -81,7 +84,7 @@ void FPS2::setTransformation(
         [[maybe_unused]] const osg::Vec3d& eye,
 [[maybe_unused]]const osg::Quat& rotation )
 {
-
+cout<<"set transformation"<<endl;
     pose.set_t(cvl::osg2cvl(eye));
     pose.set_q(cvl::osg2cvl(rotation));
 }
@@ -90,6 +93,7 @@ void FPS2::setTransformation(
 // doc in parent
 void FPS2::getTransformation( osg::Vec3d& eye, osg::Quat& rotation ) const
 {
+    cout<<"get transformation"<<endl;
     //mlog()<<"\n";
     eye=cvl::cvl2osg(pose.t());
     rotation=cvl::cvl2osgq(pose.q());
@@ -105,7 +109,7 @@ void FPS2::setTransformation( const osg::Vec3d& eye,
     pose=cvl::lookAt(cvl::osg2cvl(center),cvl::osg2cvl(eye),cvl::osg2cvl(up));
 
     //cout<<pose<<endl;
-    pose=PoseD();
+    //pose=PoseD();
 
 }
 
@@ -146,7 +150,7 @@ bool FPS2::handleMouseWheel([[maybe_unused]] const GUIEventAdapter& ea,
 
     return true;
 }
-
+PoseD FPS2::getPose() const{return pose;}
 
 // doc in parent
 bool FPS2::performMovementLeftMouseButton(
@@ -154,7 +158,12 @@ bool FPS2::performMovementLeftMouseButton(
 [[maybe_unused]] const double dx,
 [[maybe_unused]] const double dy )
 {
-
+    /*
+    cout<<dx<< " "<<dy<<endl;
+    cvl::Vector3d forward=getPose()*cvl::Vector3d(dx,dy,1);
+    cvl::Vector3d up(0,1,0);
+    pose=cvl::lookAt(forward,cvl::Vector3d(0,0,0),up);
+    */
     return true;
 }
 

@@ -25,6 +25,10 @@
 #include "mlib/utils/cvl/syncque.h"
 #include "mlib/utils/cvl/pose.h"
 #include <mlib/utils/colormap.h>
+#include <mlib/stream/sink.h>
+#include <mlib/vis/order.h>
+#include <mlib/vis/pc_order.h>
+#include <mlib/vis/flow_field.h>
 
 
 
@@ -39,30 +43,10 @@ namespace mlib{
 
 class PointCloudViewer;
 typedef std::shared_ptr<PointCloudViewer> sPointCloudViewer;
+class MainEventHandler;
 
 
 
-class PC{
-public:
-    std::vector<cvl::Vector3d> xs;
-    std::vector<Color> xs_cols;
-    std::vector<cvl::PoseD> ps;
-    std::vector<std::vector<cvl::PoseD>> posess;
-    std::vector<Color> pose_colors;
-    double coordinate_axis_length;
-};
-struct Groupable{
-    virtual ~Groupable(){}
-    virtual osg::Group* group(double marker_scale)=0;
-    // if true, the old scene is removed first.
-    // otherwize we just add the new group
-    bool clear_scene=false;
-};
-struct PCGroupable:public Groupable{
-    PCGroupable(PC& pc):pc(pc){}
-    PC pc;
-    osg::Group* group(double marker_scale) override;
-};
 
 
 /**
@@ -75,9 +59,11 @@ struct PCGroupable:public Groupable{
  * que a new point cloud for display with setPointCloud
  *
  */
-class PointCloudViewer{
+class PointCloudViewer :public cvl::Sink<std::shared_ptr<Order>>{
 public:
-    PointCloudViewer();
+        static sPointCloudViewer start(std::string name="Point Cloud Viewer(wasdqe,mouse)");
+
+    PointCloudViewer(std::string name);
     ~PointCloudViewer();
 
     void setPointCloud(const std::vector<cvl::Vector3d>& xs,
@@ -106,20 +92,25 @@ public:
     void setPointCloud(const std::vector<std::vector<cvl::PoseD>>& poses,
                        const std::vector<Color>& colors,
                        double coordinate_axis_length=1);
+
+    void set(vis::FlowField& ff);
     void set_point_cloud(PC pc);
+
+
+
     void set_marker_size(double scale);
     void set_pose(cvl::PoseD Pcw);
-    static sPointCloudViewer start(std::string name="Point Cloud Viewer(wasdqe,mouse)");
+
 
     void wait_for_done();
     void close();
     bool is_running();
 private:
+    void sink_(std::shared_ptr<Order>& pc) override;
 
     // scales the points
     std::atomic<double> marker_scale{5.0f};
 
-    void init(std::string name);
     void run();
     std::atomic<bool> running;
 
@@ -128,9 +119,10 @@ private:
 
 
 
-    cvl::SyncQue<std::shared_ptr<Groupable>> queue;
+    cvl::SyncQue<std::shared_ptr<Order>> queue;
     osgViewer::Viewer* viewer=nullptr;
     osg::Group* scene = nullptr;
+    mlib::MainEventHandler* meh =nullptr;
 
 };
 

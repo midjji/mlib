@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 project(mlib-opencv-utils VERSION 1.0
     DESCRIPTION "Very nice project"
     LANGUAGES CXX)
@@ -13,6 +13,7 @@ target_configure_warnings(mlib-opencv-utils)
 
 # find opencv and add it
 find_package( OpenCV 4 REQUIRED)
+message("OpenCV_INCLUDE_DIRS: ${OpenCV_INCLUDE_DIRS}")
 target_include_directories(mlib-opencv-utils SYSTEM PUBLIC ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(mlib-opencv-utils PUBLIC ${OpenCV_LIBS})
 target_link_libraries(mlib-opencv-utils PUBLIC mlib-utils)

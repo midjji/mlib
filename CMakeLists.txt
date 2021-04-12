@@ -41,6 +41,9 @@ if(build_mlib_tests)
     include(CTest)
 endif()
 
+add_subdirectory(stream)
+target_link_libraries(mlib INTERFACE mlib-stream)
+
 add_subdirectory(utils)
 target_link_libraries(mlib INTERFACE mlib-utils)
 
@@ -51,8 +54,6 @@ target_link_libraries(mlib INTERFACE mlib-sfm)
 add_subdirectory(opencv_util)
 target_link_libraries(mlib INTERFACE mlib-opencv-utils)
 
-add_subdirectory(stream)
-target_link_libraries(mlib INTERFACE mlib-stream)
 
 add_subdirectory(datasets)
 target_link_libraries(mlib INTERFACE mlib-datasets)
