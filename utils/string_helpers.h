@@ -27,7 +27,7 @@ template<class T> std::string toStr(T t, unsigned int res=0){
         ss << std::setprecision(res) << t;
     return ss.str();
 }
-std::string pad(std::string in, uint len);
+std::string pad(std::string in, uint len, char key=' ');
 
 
 std::vector<std::string> split_lines(std::string s, char delim='\n');
@@ -116,13 +116,14 @@ template<class T> std::vector<std::string>  toStrVec(std::vector<T> elements){
     return strs;
 }
 
-template<class T> std::vector<std::vector<std::string>> toStrMat(std::vector<std::vector<T>> rows){
+template<class T> std::vector<std::vector<std::string>>
+toStrMat(std::vector<std::vector<T>> rows){
     std::vector<std::vector<std::string>> strrows;strrows.reserve(rows.size());
     for(std::vector<T> e:rows)
         strrows.push_back(toStrVec(e));
     // verify all rows have the same length by adding empty
     uint values=0;
-    for(std::vector<std::string> row:strrows)
+    for(const std::vector<std::string>& row:strrows)
         values=std::max(values,(uint)row.size());
 
     for(uint i=0;i<strrows.size();++i)

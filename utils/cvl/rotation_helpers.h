@@ -251,6 +251,9 @@ mlib_host_device_
  * @brief getRotationQuaternion
  * @param R rotation matrix
  * @return
+ *
+ *
+ * //TODO: check with klas for the special cases, they are all written there...
  */
 Vector4<T> getRotationQuaternion(const Matrix3<T>& R){
     static_assert(std::is_floating_point<T>::value,          "template argument not a floating point type");

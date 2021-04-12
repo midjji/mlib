@@ -39,16 +39,18 @@ public:
             std::string desc="",
             bool required=false);
     std::string name="";
-
     std::string desc="";
-    int count=0;
+    int count=0; // number of arguments
+    int num_times_in_cmd_line=0;
     bool required=false;
     type t;
+
 // what the user provided or default
     std::vector<std::string> inputs;
 
     bool to_bool();
     double to_double();
+
 
 };
 
@@ -72,12 +74,17 @@ public:
 
     // program parameter0 parameter1 ... --option0 sdf sdf --option2 one
     std::vector<Command> parameters;
+    // all options can always be queried,
+    // unless provided, they give the default!
     std::map<std::string, Command> options;
     std::string program_name;
 
     bool is_set(std::string name);
     std::vector<std::string> get_args(std::string name);
     std::string get_arg(std::string name);
+    double get_double_arg(std::string name);
+    bool get_bool_arg(std::string name);
+
     // next parameter, either as double or str,
     uint parameter_index=1; // program name not included!
     double param_double();

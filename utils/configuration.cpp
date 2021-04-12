@@ -1,4 +1,4 @@
-#include "configuration.h"
+#include "mlib/utils/configuration.h"
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -38,9 +38,7 @@ std::string Configuration::getStr(std::string name, std::string value, std::stri
     params[name]=value;
     return value;
 }
-std::string Configuration::get(std::string name, const char* val, std::string comment){
-    return get<std::string>(name,std::string(val),comment);
-}
+
 
 void Configuration::init()
 {

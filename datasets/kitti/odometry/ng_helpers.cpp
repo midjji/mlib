@@ -231,7 +231,7 @@ void writeNgSequence(const Sequence& seq,std::string outputpath){
             // write log file
 
             timer.toc();
-            cout<<"img: "<<i<<" of "<<seq.images<<" of sequence "<<seq.name <<" time: "<<timer.getMedian()<<endl;
+            cout<<"img: "<<i<<" of "<<seq.images<<" of sequence "<<seq.name <<" time: "<<timer.median()<<endl;
             timer.tic();
         }
 

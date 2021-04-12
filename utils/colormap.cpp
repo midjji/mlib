@@ -85,11 +85,14 @@ Color Color::yellow() { return Color(255, 255, 0); }
 
 Color Color::random()
 {
-    auto x=random_unit_vector<double,3>();
+    auto x=random::random_unit_vector<3>();
+    // relies on wraparound
     return Color(uint8_t(x[0]*255), uint8_t(x[1]*255), uint8_t(x[2]*255));
 }
+namespace  {
 
-static std::vector<Color> colors = {
+
+std::vector<Color> colors = {
     Color::red(),
     Color::green(),
     Color::blue(),
@@ -98,11 +101,10 @@ static std::vector<Color> colors = {
     Color::white(),
     //Color::gray(),
     Color::pink(),
-
     //Color::random(),
 };
 
-static std::vector<Color> distinctColors={
+std::vector<Color> distinctColors={
 
     //#000000// black is reserved!
 
@@ -173,7 +175,7 @@ static std::vector<Color> distinctColors={
 
 };
 
-static std::vector<Color> brights={
+std::vector<Color> brights={
     Color(255,0,0),
     Color(0,255,0),
     Color(0,0,255),
@@ -238,7 +240,7 @@ static std::vector<Color> brights={
     Color(0,155,255),
     Color(232,94,190),
 };
-
+}
 
 Color Color::nr(int i)
 {
@@ -255,7 +257,7 @@ Color Color::next()
 {
     return Color::nr(counter++);
 }
-Color Color::fliprb(){return Color((std::uint8_t)rgb[2],(std::uint8_t)rgb[1],(std::uint8_t)rgb[0]);}
+Color Color::fliprb() const{return Color((std::uint8_t)rgb[2],(std::uint8_t)rgb[1],(std::uint8_t)rgb[0]);}
 
 Color Color::codeDepthRedToDarkGreen(double depth, double mindepth, double maxdepth)
 {
@@ -268,24 +270,22 @@ Color Color::codeDepthRedToDarkGreen(double depth, double mindepth, double maxde
     return Color((uint8_t)r, (uint8_t)g, (uint8_t)b);
 }
 
-int Color::getR()
+int Color::getR()  const
 {
     return rgb[0];
 }
 
-int Color::getG()
+int Color::getG() const
 {
     return rgb[1];
 }
 
-int Color::getB()
+int Color::getB() const
 {
     return rgb[2];
 }
 // member variable access
-int & Color::operator()( const int& i )    { return rgb[i]; }
-int & Color::operator[]( const int& i )    { return rgb[i]; }
-const int & Color::operator()( const int& i ) const    {return rgb[i]; }
-const int & Color::operator[]( const int& i ) const    {return rgb[i]; }
+int& Color::operator[]( int i )    { return rgb[i]; }
+const int& Color::operator[]( int i ) const    {return rgb[i]; }
 
 }// end namespace mlib

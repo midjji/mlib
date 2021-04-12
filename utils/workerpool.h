@@ -37,37 +37,25 @@ public:
 };
 
 
-
+/**
+ * @brief The WorkerPool class
+ *
+ * Beware of jobs that block a thread infinitely... the threads do a job untill its done...
+ */
 class WorkerPool{
 public:
-    WorkerPool(){}
-
-    // num_threads 0 means as many as are comfortably available to the cpu
-    /**
-     * @brief create
-     * @param num_threads 0 means as many as are comfortably available to the cpu, probably use less than this if you use multiple pools
-     * @param queue_size 0 means infinite size,
-     * @return
-     *
-     * Jobs can block a thread infinitely... So make sure they are short, or that you count on this...
-     * the workerpool  will drop jobs if the queue grows too large.
-     */
-    static std::shared_ptr<WorkerPool> create(uint num_threads = 0);
-    void init(uint num_threads);
-
+    static std::shared_ptr<WorkerPool> create(uint num_threads =  std::thread::hardware_concurrency());
     void add_job(std::shared_ptr<Job> job);
-
+    WorkerPool(uint num_threads =  std::thread::hardware_concurrency());
     ~WorkerPool();
-
-
 private:
 
     void work();
 
-    std::shared_ptr<cvl::SyncQue<std::shared_ptr<Job>>> job_queue;
+    cvl::SyncQue<std::shared_ptr<Job>> job_queue;
     std::vector<std::thread> threads;
     // must be atomic to prevent caching optimization mutithread errors.
-    std::atomic<bool> stopped;
+    std::atomic<bool> stopped{false};
 };
 
 /**

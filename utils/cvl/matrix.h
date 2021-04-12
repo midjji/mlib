@@ -50,9 +50,6 @@
 #include <iostream>
 #include <sstream>
 
-
-
-
 /**
  * \namespace cvl
  * \brief The cvl namespace contains the cuda enabled templated algebra library developed at cvl and various converters

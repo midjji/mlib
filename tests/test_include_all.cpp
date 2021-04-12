@@ -69,7 +69,7 @@
 #include "mlib/utils/mlog/log.h"
 #include "mlib/utils/continuous_image.h"
 #include "mlib/utils/histogram.h"
-#include "mlib/utils/constants.h"
+
 #include "mlib/utils/string_helpers.h"
 #include "mlib/utils/mzip/generator.h"
 #include "mlib/utils/mzip/range.h"
@@ -102,7 +102,8 @@
 #include "mlib/utils/configuration.h"
 #include "mlib/utils/sys.h"
 #include "mlib/utils/matlab_helpers.h"
-#include "mlib/utils/syncmap.h"
+#include "mlib/utils/cvl/syncmap.h"
+#include "mlib/utils/cvl/sync_priority_queue.h"
 #include "mlib/utils/limited_history.h"
 #include "mlib/utils/argparser.h"
 #include "mlib/utils/binary_search.h"

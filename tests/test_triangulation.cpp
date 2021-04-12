@@ -55,7 +55,7 @@ TEST_CASE("TRIANGULATION_STEREO, RANDOM_EASY"){
         x[2] = std::abs(x[2]) + 1.1;
         //x={1,2,3};
 
-        double baseline = randu<double>(0.5, 1.5);
+        double baseline = randu(0.5, 1.5);
         CHECK(baseline>0.4);
         //baseline = 1;
         Vector3d xr = PoseD(-Vector3d(baseline, 0, 0)) * x; // second camera on the right=> -baseline
@@ -125,7 +125,7 @@ TEST_CASE("TRIANGULATION_MIDPOINT,RANDOM_EASY"){
     gentest(Vector3d(1,2,3),PoseD(),PoseD(Vector3d(-0.38,0,0)));
     for(int i=0;i<1000;++i)
     {
-        Vector3d x_world(randu<double>(-1,1),randu<double>(-1,1),randu<double>(-1,1));
+        Vector3d x_world(randu(-1,1),randu(-1,1),randu(-1,1));
         PoseD Ppw=getRandomPose();
         PoseD Pqw=getRandomPose();
         Vector3d xp=Ppw*x_world;

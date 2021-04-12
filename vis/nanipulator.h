@@ -1,4 +1,3 @@
-
 #pragma once
 #include <mlib/utils/cvl/pose.h>
 #include <osgGA/StandardManipulator>

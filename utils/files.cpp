@@ -1,24 +1,12 @@
-#include "mlib/utils/files.h"
-
-
 #include <fstream>
-
 #include <iostream>
 
-namespace fs = std::experimental::filesystem;
+#include "mlib/utils/files.h"
+#include <mlib/utils/mlog/log.h>
 using std::cout;using std::endl;
-
-
-
 namespace mlib{
 
 
-/* //4x faster filecheck on linux
-bool file_exists(const std::string& name){
-    struct stat buffer;
-    return (stat (name.c_str(), &buffer) == 0);
-}
-*/
 bool fileexists(fs::path path, bool verboseiffalse){
 
     if(fs::exists(path)) return true;
@@ -68,6 +56,16 @@ bool isImageExtension(fs::path path){
     if(ext==".pgm") return true;
 
     return false;
+}
+
+void create_or_throw(fs::path path){
+    if(path.filename()!="" )
+        path=path.remove_filename();
+    try {
+        fs::create_directories(path);
+    }  catch (fs::filesystem_error& fe) {
+    mlog()<<"failed to create path: \""<<path<< "\" with error "<<fe.what()<<endl;
+    }
 }
 
 

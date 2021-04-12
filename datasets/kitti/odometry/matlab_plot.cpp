@@ -94,7 +94,8 @@ std::vector<double> Result::getRS( std::vector<double> speeds, double thr) const
 void tomatlabfile(const std::vector<Result>& results, std::string filename){
     cout<<"tomatlabfile:"<<endl;
     std::vector<double> speeds;speeds.reserve(100);
-    for(double i=2;i<25;i+=2)
+
+    for(int i=2;i<25;i+=2)
         speeds.push_back(i);
 
     std::stringstream ss;

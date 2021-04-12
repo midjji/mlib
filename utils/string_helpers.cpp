@@ -11,9 +11,9 @@ using namespace std;
 
 namespace mlib
 {
-std::string pad(std::string in, uint len){
+std::string pad(std::string in, uint len, char key){
     while(in.size()<len)
-        in.push_back(' ');
+        in.push_back(key);
     return in;
 }
 

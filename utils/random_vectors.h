@@ -29,7 +29,7 @@ template<class T,int R> cvl::Vector<T,R> getRandomUnitVector(){
     cvl::Vector<T,R> n;
 
     for(int i =0;i<R;++i)
-        n[i]=randn<T>(0,1);
+        n[i]=randn(0,1);
 
     // can happen...
     if(n.abs().sum() <1e-10)
@@ -39,7 +39,7 @@ template<class T,int R> cvl::Vector<T,R> getRandomUnitVector(){
 }
 template<class T> cvl::Pose<T> getRandomPose(){
 
-return cvl::Pose<T>(getRandomUnitVector<T,4>(),getRandomUnitVector<T,3>()*randu<T>(0,10));
+return cvl::Pose<T>(getRandomUnitVector<double,4>(),getRandomUnitVector<double,3>()*randu(0,10));
 
 }
 

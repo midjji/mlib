@@ -7,10 +7,7 @@ namespace cvl{
  * @brief The Sym struct
  * - provides multiplication, division
  */
-struct Sym
-{
-
-
+struct Sym {
     std::map<std::string, int> comps;
     Sym()=default;
     Sym(std::string n, int exponent=1);

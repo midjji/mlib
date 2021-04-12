@@ -35,17 +35,15 @@ public:
     static Color nrlarge(int i);
     static Color next();
     // colors are in rgb order and assume rgb images, so this tosses it to bgr for opencv
-    Color fliprb();
+    Color fliprb() const;
 
     static Color codeDepthRedToDarkGreen(double depth, double mindepth=1, double maxdepth=100);
-    int getR();
-    int getG();
-    int getB();
-    // member variable access
-    int &operator()( const int& i );
-    int &operator[]( const int& i );
-    const int &operator()( const int& i ) const;
-    const int &operator[]( const int& i ) const;
+    int getR() const;
+    int getG() const;
+    int getB() const;
+    // member variable access    
+    int& operator[](int i );
+    const int& operator[](int i ) const;
 
     // for opencv scalar without including it as a dependency...
     //cv::Scalar toScalar(){return cv::Scalar(rgb[0],rgb[1],rgb[2],0);}

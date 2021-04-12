@@ -1,15 +1,15 @@
 #include <opencv2/imgproc/imgproc.hpp>
-
+#include <opencv2/highgui/highgui.hpp>
 #include "mlib/opencv_util/cv.h"
 
-#include "mlib/utils/constants.h"
+
 #include "mlib/utils/simulator_helpers.h"
 #include "mlib/utils/colormap.h"
 #include "mlib/utils/string_helpers.h"
 
 #include "mlib/utils/cvl/syncque.h"
 #include <mlib/utils/cvl/convertopencv.h>
-#include <opencv2/highgui/highgui.hpp>
+
 
 using std::cout;
 using std::endl;

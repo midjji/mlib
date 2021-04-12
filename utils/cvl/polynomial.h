@@ -20,6 +20,7 @@ public:
     // 1, x, x², x³ osv...
     Vector<Type,degree+1> coeffs=Vector<Type,degree+1>::Zero();
     Polynomial(){}
+    Polynomial(long double v0){coeffs[0]=Type(v0);}
 
     template<unsigned int O>
     Polynomial(Polynomial<O,Type> o){

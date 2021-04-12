@@ -190,7 +190,7 @@ osg::ref_ptr<osg::Node> createFlowField(std::shared_ptr<FlowField> ff){
     }
     //cout<<"ff->points.colors.size(): "<<ff->points.colors.size()<<endl;
     field->addChild(MakePointCloud(ff->points));
-    for(Trajectory tr:ff->trajectories)
+    for(const Trajectory& tr:ff->trajectories)
         field->addChild(MakeTrajectory(tr.poses,1,1));
     return field;
 }
@@ -330,7 +330,6 @@ public:
     FlowViewer(std::string name):name(name){}
     ~FlowViewer(){
         stop();
-        que.stop();
         if(thr.joinable())
             thr.join();
     }
@@ -408,7 +407,6 @@ private:
                 running=false;
         }
         viewer.setDone(true);
-        que.stop();
     }
 };
 
@@ -434,7 +432,7 @@ public:
     int get_running_viewer_count(){
         std::unique_lock<std::mutex> ul(mtx); // locks
         int c=0;
-        for(auto fv:fvs)
+        for(const auto &fv:fvs)
             if(fv.second->get_running()) c++;
         return c;
     }

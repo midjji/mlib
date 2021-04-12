@@ -18,7 +18,7 @@
  ******************************************************************************/
 #include <string>
 #include <experimental/filesystem>
-
+namespace fs = std::experimental::filesystem;
 namespace mlib{
 
 // file helpers, mostly boost wrappers, some will work without boost but with reduced functionality
@@ -29,5 +29,7 @@ bool pathDirectoryExists(std::experimental::filesystem::path path,bool verboseif
 std::string getPath(std::experimental::filesystem::path path);
 std::string getName(std::experimental::filesystem::path path);
 void makefilepath(std::experimental::filesystem::path path);
+void create_or_throw(std::experimental::filesystem::path path);
+
 
 } // end namespace mlib

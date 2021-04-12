@@ -25,7 +25,7 @@
  *
  * int main(){
  *  Timer timer;
- * double seconds=1.5;
+ * float128 seconds=1.5;
  *  for(int i=0;i<10;++i){
  *      timer.tic();
  *      sleep(seconds)
@@ -48,49 +48,46 @@
  *
  ******************************************************************************/
 
-#ifndef Time_H
-#define Time_H
-
 #include <chrono>
 #include <vector>
 #include <iostream>
 #include <map>
 
 
+// fits int64 and uint64, this is what should have been used for std::chrono, if not a templated variable size
+using float128 = long double;
+
 namespace mlib{
 
 
 
-/// different ways of counting time seconds, milliseconds, microseconds, nanoseconds
-enum TIME_TYPE{TIME_S,TIME_MS,TIME_US,TIME_NS};
-
-
 /// Trivial rough time since post stack allocation of the program.
-uint64_t get_steady_now();
+float128 get_steady_now();
 /**
- * @brief getIsoTime
+ * @brief IsoTime
  * @return the current time as in iso format 24:60:60
  */
 std::string getIsoTime();
 /**
- * @brief getIsoDate
+ * @brief IsoDate
  * @return the current date according to the os in iso format 2016-10-01
  */
 std::string getIsoDate();
 /**
- * @brief getIsoDateTime
+ * @brief IsoDateTime
  * @return isodate:isotime
  *
- * This gets ridiculously complicated very quickly, so just assume its the time for the local computer
+ * This s ridiculously complicated very quickly,
+ *  so just assume its the time for the local computer
  */
 std::string getIsoDateTime();
 /**
- * @brief getNospaceIsoDateTime
+ * @brief NospaceIsoDateTime
  * @return isodate:isotime
  */
 std::string getNospaceIsoDateTime();
 /**
- * @brief getNospaceIsoDateTime
+ * @brief NospaceIsoDateTime
  * @return isodate:isotime at start of program(within second precision)
  * This function is thread safe, and will guarantee the same answer every time it is called.
  */
@@ -102,146 +99,66 @@ std::string getNospaceIsoDateTimeofStart();
  */
 class Time{
 public:
-    /// nanoseconds
-    long int ns;
-
-    Time()=default;
+    /// nanoseconds, nothing provides lower than that with any accuracy
+    /// float128 covers all of uint64_t, int64_t and eliminates all problems with sign
+    /// overflow also behaves more reasonably
+    /// the downside is that it is slightly slower, but not much
+    float128 ns;
     /// from nano seconds @param ns
-    Time(long int ns):ns(ns){}
-    /// from timetype
-    Time(long double tt /** @param tt value*/,TIME_TYPE type /** @param type unit of the value */);
+    Time(float128 ns):ns(ns){}
 
     /**
      * @brief toStr
      * @return a human readable string representation
      */
-    std::string toStr() const;
-    /**
-     * @brief toStr
-     * @param type output type
-     * @return a human readable string representation
-     */
-    std::string toStr(TIME_TYPE type) const;
-    /**
-     * @brief operator +=
-     * @param rhs
-     * @return add the times
-     */
-    Time& operator+=(const Time& rhs);
-    /**
-     * @brief operator /=
-     * @param rhs
-     * @return divide the underlying nanoseconds
-     */
-    Time& operator/=(const Time& rhs);    
-
-    /**
-     * @brief getSeconds
-     * @return time in seconds
-     */
-    double getSeconds();
-    /**
-     * @brief getMilliSeconds return the time in
-     * @return time in milliseconds
-     */
-    double getMilliSeconds();
-    /// set time to value in seconds @param seconds
-    void setSeconds(double seconds);
-
+    std::string str() const;
+    Time& operator+=(Time rhs);
+    Time& operator/=(Time rhs);
+    float128 seconds();
+    float128 milli_seconds();
 };
-/**
- * @brief operator == maps to lsh.ns==rhs.ns
- * @param lhs
- * @param rhs
- * @return
- */
-bool operator==(const Time& lhs, const Time& rhs);
-/**
- * @brief operator != maps to lsh.ns!=rhs.ns
- * @param lhs
- * @param rhs
- * @return
- */
-bool operator!=(const Time& lhs, const Time& rhs);
-/**
- * @brief operator < maps to lsh.ns<rhs.ns
- * @param lhs
- * @param rhs
- * @return
- */
-bool operator< (const Time& lhs, const Time& rhs);
-/**
- * @brief operator > maps to lsh.ns>rhs.ns
- * @param lhs
- * @param rhs
- * @return
- */
-bool operator> (const Time& lhs, const Time& rhs);
+bool operator==(Time lhs, Time rhs);
+bool operator!=(Time lhs, Time rhs);
+bool operator< (Time lhs, Time rhs);
+bool operator> (Time lhs, Time rhs);
+bool operator<=(Time lhs, Time rhs);
+bool operator>=(Time lhs, Time rhs);
+Time operator+ (Time lhs, Time rhs);
+Time operator- (Time lhs, Time rhs);
 
-/**
- * @brief operator <= maps to lsh.ns<=rhs.ns
- * @param lhs
- * @param rhs
- * @return
- */
-bool operator<=(const Time& lhs, const Time& rhs);
-/**
- * @brief operator >= maps to lsh.ns>=rhs.ns
- * @param lhs
- * @param rhs
- * @return
- */
-bool operator>=(const Time& lhs, const Time& rhs);
-/**
- * @brief operator + maps to lsh.ns==rhs.ns
- * @param lhs
- * @param rhs
- * @return
- */
-Time operator+ (const Time& lhs,const Time& rhs);
-
-/**
- * @brief operator - maps to lsh.ns-rhs.ns
- * @param lhs
- * @param rhs
- * @return
- */
-Time operator- (const Time& lhs,const Time& rhs);
-
-/**
- * @brief operator << human readable time representation, will automatically figure out a good time unit
- * @param os
- * @param t
- * @return
- */
-std::ostream& operator<<(std::ostream &os, const Time& t);
+std::ostream& operator<<(std::ostream &os, Time t);
 
 /**
  * @brief sleep makes this_thread sleep for
  * @param seconds
  */
-void sleep(double seconds);
+void sleep(float128 seconds);
 /**
  * @brief sleep makes this_thread sleep for
  * @param milliseconds
  */
-void sleep_ms(double milliseconds);
+void sleep_ms(float128 milliseconds);
 /**
  * @brief sleep_us makes this_thread sleep for
  * @param microseconds
  */
-void sleep_us(double microseconds);
+void sleep_us(float128 microseconds);
 
 
-template<class Timer>
-struct TimeScope
-{
+
+
+class Timer;
+/**
+ * @brief The TimeScope struct
+ */
+struct TimeScope{
     Timer* timer; // does not take ownership!
-    TimeScope(Timer* timer):timer(timer){
-        timer->tic();
-    }
-    ~TimeScope(){        timer->toc();    }
+    TimeScope(Timer* timer);
+    ~TimeScope();
 };
+
+
+
 
 /**
  * @brief The Timer class
@@ -253,10 +170,12 @@ struct TimeScope
  *
  *
  * DISCUSS: Should it be atomic? - No.
- * Thread safety when possible is a good idea, but multiple threads using one timer is just wrong.
+ * Thread safety when possible is a good idea,
+ *  but multiple threads using one timer is just wrong.
  * The locking takes time which may confuse results with timers in inner loops.
  *
  * Is there a way to ensure the timer isnt called from multiple threads?
+ * no no fast way
  *
  */
 class Timer{
@@ -277,7 +196,7 @@ public:
 
     Timer();
     Timer(std::string name, uint capacity=1024);
-    void reserve(unsigned int initialsize);
+    void reserve(uint initialsize);
     /**
      * @brief tic mark the beginning of a new time delta
      */
@@ -298,7 +217,7 @@ public:
      * it uh almost guaranteed? yes clang gcc msvc etc all do since 1981
      * yeah, but ugly as sin...
      */
-    TimeScope<Timer> time_scope(){return TimeScope<Timer>(this);}
+    TimeScope time_scope();
     //TimeScope<Timer>&& time_scope(){return std::forward<TimeScope<Timer>>(TimeScope<Timer>(this));    }
 
 
@@ -306,7 +225,7 @@ public:
      * @brief toStr
      * @return human readable timer information
      */
-    std::string toStr() const;
+    std::string str() const;
     std::vector<std::string> toStrRow() const;
 
     /**
@@ -314,41 +233,68 @@ public:
      */
     void clear();
     /**
-     * @brief getTimes
+     * @brief Times
      * @return the time deltas stored so far
      */
-    std::vector<Time> getTimes();       // alias for Time
-    uint64_t samples(){return ts.size();}
+    std::vector<Time> times() const;       // alias for Time
+    uint64_t samples() const;
     /**
-     * @brief getSum
+     * @brief Sum
      * @return the sum
      */
-    Time getSum() const;
+    Time sum() const;
     /**
-     * @brief getMedian
+     * @brief Median
      * @return the median
      */
-    Time getMedian() const;
+    Time median() const;
     /**
-     * @brief getMean
+     * @brief Mean
      * @return the mean
      */
-    Time getMean() const;
+    Time mean() const;
     /**
-     * @brief getMax
+     * @brief Max
      * @return the max
      */
-    Time getMax() const;
+    Time max() const;
     /**
-     * @brief getMin
+     * @brief Min
      * @return the min
      */
-    Time getMin() const;
-
-
-
+    Time min() const;
 };
 
+
+
+
+
+/**
+ * @brief The ScopedDelay struct
+ *
+ * {ScopedDelay sd(10*1e9);
+ * dostuff...
+ * }
+ * // will take a minimum of 10 seconds,
+ * // it will do the thing, then wait.
+ *
+ * it is equivalent to:
+ *
+ * end=now()+min_time;
+ * dostuff
+ * sleep_untill(end);
+ * except it still waits even if dostuff throws an exception
+ *
+ *
+ *
+ */
+struct ScopedDelay{
+    std::chrono::time_point<std::chrono::steady_clock,std::chrono::nanoseconds > mark;
+
+    // note if this was uint, the user would need to check how long it has been
+    ScopedDelay(float128 delay_ns);
+    ~ScopedDelay();
+};
 
 class NamedTimerPack{
 public:
@@ -377,7 +323,3 @@ std::ostream& operator<<(std::ostream &os, const Timer& t);
 std::ostream& operator<<(std::ostream &os, const std::vector<Timer>& t);
 
 }// end namespace mlib
-
-
-
-#endif // Time_H

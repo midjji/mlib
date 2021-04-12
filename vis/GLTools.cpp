@@ -42,10 +42,6 @@ osg::ref_ptr<osg::Node> MakePointCloud(osg::ref_ptr<osg::Vec3Array> vertices,
 
     osg::Group* group=new osg::Group();
     group->addChild(geode);
-    group->addChild(MakeAxisMarker(0.5,0.5,cvl::cvl2osg(cvl::PoseD().get4x4())));
-
-
-
     return group;
 }
 
@@ -317,7 +313,7 @@ osg::MatrixTransform *MakeAxisMarker(const osg::Matrixd& pose, float axis_length
 osg::Group* MakeTrajectory(const std::vector<osg::Matrixd>& poses, float length,float width)
 {
     osg::Group* group=new osg::Group();
-    for(auto pose:poses)
+    for(const auto& pose:poses)
         group->addChild(MakeAxisMarker(length,width,pose));
     return group;
 }

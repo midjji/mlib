@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <mlib/utils/cvl/pose.h>
-#include "mlib/utils/constants.h"
+
 #include <mlib/utils/mlog/log.h>
 #include <mlib/utils/cvl/quaternion.h>
 namespace cvl{
@@ -121,7 +121,7 @@ public:
     double t1() const{return 100;// 200
                      }
 
-    Quaternion<double> w=Quaternion<double>(Vector4d(0.0,pi_d/2.0,0,0));
+    Quaternion<double> w=Quaternion<double>(Vector4d(0.0,3.1415/2.0,0,0));
     Quaternion<double> q0=Quaternion<double>(Vector4d(0.0,1,0,0));
 
     double alpha(double time, int derivative) const{
@@ -137,7 +137,7 @@ public:
         if(derivative==0)
         {
             // time in [0,100], during which 1 full rotation occurs.
-            double a=alpha(time,0)*pi_d/2.0;
+            double a=alpha(time,0)*3.1415/2.0;
 
 
             auto q=q0.upow(alpha(time,0));
