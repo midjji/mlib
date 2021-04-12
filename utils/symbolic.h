@@ -48,6 +48,8 @@ Symb operator+(Symb a, Symb b);
 Symb operator*(Symb as, Symb bs);
 Symb operator*(Symb as, double d);
 bool operator==(Symb s, double d);
+bool operator<(Symb a, Symb b);
+Symb operator-(Symb s);
 
 std::ostream& operator<<(std::ostream& os, Sym s);
 std::ostream& operator<<(std::ostream& os, Symb s);

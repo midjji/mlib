@@ -111,6 +111,7 @@ PoseD AllRot::pose2(double time) const
                    tinw(time),
                    (tinw(time)-tinw(time-0.01))).inverse();
 
+
     P.set_t(P.t()+Vector3d(std::cos(time*0.1),-std::sin(time*0.1),std::cos(time*0.1))*1);
 
     return P;
@@ -215,7 +216,7 @@ Vector3d AllRot2::p(double time) const{
 
     // accellerating rotation around the y axis,
     // also drop it in y a little bit after t==.
-    double f=10;
+    double f=2;
     Vector3d y(std::cos(w*(t + f*s(t-4)*(t-5))),0.1*s(t-4)*(t-5),std::sin(w*(t + f*s(t-4)*(t-5)))); // rotate around y axis
 
 
@@ -228,8 +229,8 @@ Vector3d AllRot2::p(double time) const{
 }
 PoseD AllRot2::pose(double time) const
 { return pose2(time);
-    //PoseD P0=pose2(0);
-    //return P0.inverse()*pose2(time);
+    PoseD P0=pose2(10);
+    return P0.inverse()*pose2(time);
 }
 PoseD AllRot2::pose2(double time) const
 {
@@ -239,7 +240,7 @@ PoseD AllRot2::pose2(double time) const
         mlog()<<"bad... \n";
     }
     // two
-    double dt=0.001*(t1()-t0());
+    double dt=1e-4*(t1()-t0());
     if((p(time+dt)-p(time-dt)).norm()<1e-4){
         mlog()<<"bad... "<<(p(time+dt)-p(time-dt)).norm()<<"\n";
     }
@@ -247,7 +248,7 @@ PoseD AllRot2::pose2(double time) const
 
     PoseD P=lookAt(Vector3d(0,0,0),
                    p(time),
-                   (p(time+dt)  - p(time-dt))).inverse();
+                   (p(time+dt)  - p(time-dt)).normalized()).inverse();
 
 
     return P;

@@ -31,7 +31,7 @@ integrate_fast(const function& f,
     long double val=0;
     for(unsigned int i=0;i<steps;++i){
         long double time=from+(long double)(i)*delta;
-        val+=f(time)*delta;
+        val+=f(double(time))*delta;
     }
     return val;
 }

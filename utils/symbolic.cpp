@@ -70,13 +70,23 @@ Symb::Symb(Sym a, double k){
 void Symb::clear_zeros(){
 
     std::map<Sym,double> ks;
-    for(auto k:koeffs)
+    for(const auto& k:koeffs)
         if(k.second!=0.0)
             ks[k.first]=k.second;
     koeffs=ks;
 
 
 }
+bool operator<([[maybe_unused]] Symb a, [[maybe_unused]] Symb b){
+    return false;
+}
+Symb operator-(Symb s){
+    Symb r=s;
+    for(auto& [toss, k]:r.koeffs)
+        k=-1;
+    return r;
+}
+
 std::string Symb::str(){
 
 
@@ -84,7 +94,7 @@ std::string Symb::str(){
     std::stringstream ss;
     bool first=true;
     bool plus=false;
-    for(auto [sym,k]:koeffs){
+    for(const auto& [sym,k]:koeffs){
         double v=k;
         if(!first){plus=true;
             if(k>0)

@@ -123,6 +123,7 @@ public:
      */
     T theta_(T cos_theta, T abs_sin_theta) const
     {
+        if(abs_sin_theta<T(1e-5)) return cos_theta;
         T th=((cos_theta < T(0.0)) ?
                   ceres::atan2(-abs_sin_theta, -cos_theta):
                   ceres::atan2(abs_sin_theta, cos_theta));
@@ -163,12 +164,9 @@ public:
         const T& q3 = q[3];
 
         const T sin_squared_theta = q1 * q1 + q2 * q2 + q3 * q3;
+        if(sin_squared_theta<T(1e-10))
+            return Vector4<T>(T(0),q1,q2,q3);
 
-        double pi_d=double(3.141592653589793238462643383279502884L);
-        if(!(sin_squared_theta>T(1e-10))){
-            return Vector4<T>(T(0),q1,q2,q3)*T(pi_d/2.0);
-
-        }
 
 
 
@@ -223,7 +221,7 @@ public:
         // special case
 
         const T& cos_theta = q[0];
-        const T& q0 = q[0];
+        //const T& q0 = q[0];
         const T& q1 = q[1];
         const T& q2 = q[2];
         const T& q3 = q[3];
@@ -231,22 +229,11 @@ public:
 
         // the square may be 0 even if q[0]!=1.0
         // due to rounding
-        if(sin_squared_theta<T(1e-6)){
+        if(sin_squared_theta<T(1e-12)){
             //mlog()<<"hitting special case in pow: "<<sin_squared_theta<<"\n";
-            return *this;
-
-            //  m=+-pi/2 dep on q[0]>0
-            // then maybe cos(alpha*m) + sin(alpha*m)(m-x)
-            // and ... this special case might actually be wrong above ...
-            // so tan(v) = v for small angles.
-            // cos(v) = 1-0.5v^2 or 1, sin(v) = v
-            // this gives cos(alpha atan2(|v|,a)) = cos(alpha(+-)|v|/a) = 1 // possibly even better
-            // and sin(alpha(+-)|v|/a)v/|v|  = (+-)alpha v/a // note (+-) is sign(a)
-            T a= q0;
-            //if(q0<T(0))                a=-q0; // I dont think this matters, unsure...
-            a=T(alpha)/a;
-            //return Vector4<T>(T(1), q1*a,q2*a,q3*a);
-            return Vector4<T>(q0, q1*a,q2*a,q3*a);
+            //return *this;
+            // lhospitals to get the limit..
+            return Vector4<T>(T(1), q1*T(alpha),q2*T(alpha),q3*T(alpha));
         }
 
         Vector<T,4> out;

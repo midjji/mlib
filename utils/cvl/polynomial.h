@@ -58,7 +58,6 @@ public:
         {
             std::stringstream ss;
             if(rev[i]==0.0) continue;
-            //if(i!=coeffs.size()-1 && !(rev[i]==1.0))
             ss<<rev[i];
 
             if(i!=coeffs.size()-1)
@@ -72,9 +71,29 @@ public:
         ss<<"p(x) = ";
         for(uint i=0;i<parts.size();++i){
             ss<<parts[i];
-            if(i!=parts.size()-1)
+            if(i!=parts.size()-1){
                 ss<<" + ";
+            }
         }
+        std::string tmp=ss.str();
+        // search and replace "+ -" with "- "
+        // cant be the first place
+        std::string tmp2;tmp2.reserve(tmp.size());
+        for(uint i=2;i<tmp.size();++i){
+            if(tmp[i] =='-' && tmp[i-1]==' ' && tmp[i-2]=='+'){
+                continue;
+            }
+            tmp2.push_back(tmp[i-2]);
+        }
+
+
+        if(tmp.size()>1)
+            tmp2.push_back(tmp[tmp.size()-2]);
+        if(tmp.size()>0)
+            tmp2.push_back(tmp[tmp.size()-1]);
+
+
+
         return ss.str();
     }
 
@@ -342,7 +361,17 @@ public:
 
     std::string str(){
         std::stringstream ss;
-        ss<<"bounds: ["<<bounds[0]<<","<<bounds[1]<<") ";
+        ss<<"";
+        if(bounds[0]==std::numeric_limits<long double>::lowest())
+            ss<<"(-inf";
+        else
+            ss<<"["<<bounds[0];
+        ss<<", ";
+        if(bounds[1]==std::numeric_limits<long double>::max())
+            ss<<"inf";
+        else
+            ss<<bounds[1];
+        ss<<") "; // in either case, its always up to non inclusive!
         ss<<p.str();
         return ss.str();
     }
@@ -463,7 +492,7 @@ public:
     }
     CompoundBoundedPolynomial derivative() const{
         CompoundBoundedPolynomial ret;
-        for(auto p:polys)
+        for(auto& p:polys)
             ret.add(p.derivative());
         return ret;
     }
