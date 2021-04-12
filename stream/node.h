@@ -156,7 +156,7 @@ protected:
     }
 
     virtual std::string node_name(){ return "Node";}
-    virtual void init(){
+    virtual void init() override{
         this->Sink::init();
         this->Source::init();
     };

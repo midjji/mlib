@@ -170,7 +170,7 @@ void Result::evaluate(){
     evaluated=true;
 
 }
-void Result::save_evaluation(std::string basepath){
+void Result::save_evaluation([[maybe_unused]] std::string basepath){
 
     assert(evaluated);
 

@@ -90,7 +90,7 @@ std::array<double,size> random_unit_vector(){
     std::array<double,size> arr;
     for(auto& a:arr) a=0;
     auto len=[&]()->double{    double l=0;    for(auto& a:arr) l+=a*a; return l;       };
-    double l;
+    double l=0;
     while(l<1e-6){ // possible num issues below this, practically never happens either
         for(auto& a:arr) a=randn(0,1);
         l=len();

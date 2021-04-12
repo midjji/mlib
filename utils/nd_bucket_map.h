@@ -4,9 +4,6 @@
 #include <vector>
 
 namespace cvl {
-
-
-
 /**
  * @brief The Fast2DQuery class
  *

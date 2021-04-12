@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-option(BUILD_CERES "build CERES" ON)
+option(BUILD_CERES "build CERES" OFF)
 if(BUILD_CERES)
 if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ceres-solver/CMakeLists.txt")
     message(FATAL_ERROR "ceres-solver not found, clone it here: ${CMAKE_CURRENT_SOURCE_DIR}/")
@@ -38,8 +38,9 @@ add_subdirectory(ceres-solver)
 
 else()
     # dont use internal ceres for debugging
-     find_package(Ceres 2 REQUIRED)
-     #target_link_directories(ceres INTERFACE ${CERES_INCLUDE_DIRS})
-     #target_link_libraries(ceres INTERFACE ${CERES_LIBRARIES})
+    # I need a local target because ceres does not get properly exported?
+     add_library(mceres INTERFACE)
+     find_package(Ceres 2 REQUIRED)     
+     target_link_libraries(mceres INTERFACE ceres) #
 endif()
 

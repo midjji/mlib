@@ -3,11 +3,9 @@ cmake_minimum_required(VERSION 3.16)
 add_library(mlib-extern INTERFACE)
 
 # required but external
-add_subdirectory(convenient_multithreaded_qt_gui)
-add_subdirectory(ceres EXCLUDE_FROM_ALL)
-target_link_libraries(mlib-extern INTERFACE ceres)
-target_link_libraries(mlib-extern INTERFACE mtgui)
 
+add_subdirectory(ceres)
+target_link_libraries(mlib-extern INTERFACE mceres)
 
 # doctest is only a single header, so others may well have included it.
 
