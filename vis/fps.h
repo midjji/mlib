@@ -17,6 +17,7 @@ public:
     cvl::PoseD getPose() const;
     // camera coordinates
     void set_pose(cvl::PoseD P);
+    void set_pose2(cvl::PoseD P);
 
     // in camera coordinates
     void move(double x, double y, double z);

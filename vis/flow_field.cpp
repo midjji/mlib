@@ -59,6 +59,13 @@ void FlowField::apply_transform(PoseD pose){
     for(Trajectory& t:trajectories)
         t.apply_transform(pose);
 }
+void FlowField::cap_velocity(double len){
+    clean();
+    for(auto& flow:flows)
+        if(flow.velocity.norm()>len)
+            flow.velocity=flow.velocity.normalized()*len;
+
+}
 void FlowField::clean(){
     std::vector<Trajectory> trs=trajectories;trajectories.clear();
 
@@ -101,7 +108,7 @@ osg::Node* createFlowField(const FlowField& ff, double marker_scale){
         osg::Geode* geode = new osg::Geode();
 
         for(const Flow& flow:ff.flows){
-            geode->addChild(vis::create_arrow(flow,marker_scale));
+            geode->addChild(vis::create_arrow(flow));
             //geode->addDrawable();
         }
 

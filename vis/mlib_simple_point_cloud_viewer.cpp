@@ -165,14 +165,14 @@ void PointCloudViewer::run() {
     viewer->realize();
     while(!viewer->done() && running)    {
         viewer->frame();
-        //mlib::ScopedDelay sd(1e7); // the loop will always take atleast 10ms
-        mlib::sleep_ms(50);
+        mlib::ScopedDelay sd(1e7); // the loop will always take atleast 10ms
+        //mlib::sleep_ms(50);
 
 
 
         // perform all orders that have arrived so far
         std::unique_ptr<Order> order;
-        if(queue.try_pop(order) && running)
+        while(queue.try_pop(order) && running)
         {
             //if(queue.size()>10) queue.clear();
             if(order->clear_scene){

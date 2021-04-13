@@ -3,6 +3,6 @@
 namespace mlib {
 ChangeViewPointOrder::ChangeViewPointOrder(cvl::PoseD Pcw):Order(false),pose(Pcw){}
 void ChangeViewPointOrder::event(MainEventHandler* meh){
-    meh->cm->set_pose(pose);
+    meh->cm->set_pose2(pose);
 }
 }

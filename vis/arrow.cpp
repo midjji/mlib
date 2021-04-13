@@ -10,13 +10,12 @@ namespace vis {
 
 
 
-osg::Node* create_arrow(Flow flow, double scale){
-    return create_arrow(flow.origin, flow.velocity + flow.origin, flow.color, scale);
+osg::Node* create_arrow(Flow flow){
+    return create_arrow(flow.origin, flow.velocity + flow.origin, flow.color);
 }
-osg::Node* create_arrow(Vector3d from, Vector3d to, Vector3d color, double scale_)
+osg::Node* create_arrow(Vector3d from, Vector3d to, Vector3d color)
 {
 
-    //if((from - to).norm()<1e-2)
     osg::ref_ptr<osg::Vec4Array> shared_colors = new osg::Vec4Array;
     shared_colors->push_back(osg::Vec4(color[0],color[1],color[2],0.1f));
     // create Geometry object to store all the vertices and lines primitive.
@@ -60,10 +59,18 @@ osg::Node* create_arrow(Vector3d from, Vector3d to, Vector3d color, double scale
     //cout<<"arrow: "<<(xs[0] - xs[12]).norm()<<" "<<(from - to).norm()<<endl;
 
     // rotate so x and z swap...
-    double pi=3.14159265359;
-    PoseD Pzx=cvl::getRotationMatrixY(-pi/2.0);
+    //double pi=3.14159265359;
+    PoseD Pzx(Matrix3d(0,0,-1,0,1,0,1,0,0));//==cvl::getRotationMatrixY(-pi/2.0);
+
+
 
     cvl::PoseD P=cvl::lookAt(to, from, Vector3d(0,1,0)).inverse();
+    cvl::PoseD POsg(cvl::Matrix3d(1,0,0,0,-1,0,0,0,-1));
+    P=POsg*P;
+
+
+
+
     for(auto& x:xs)            x=(P*Pzx*x);
 
     osg::Vec3 myCoords[] =

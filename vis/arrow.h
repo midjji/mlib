@@ -5,7 +5,7 @@ namespace osg {
 class Node;
 }
 namespace vis {
-osg::Node* create_arrow(cvl::Vector3d from, cvl::Vector3d to, cvl::Vector3d color, double scale);
-osg::Node* create_arrow(cvl::Flow flow, double scale);
+osg::Node* create_arrow(cvl::Vector3d from, cvl::Vector3d to, cvl::Vector3d color);
+osg::Node* create_arrow(cvl::Flow flow);
 
 }

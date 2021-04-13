@@ -43,6 +43,7 @@ public:
               std::vector<Trajectory> trajectories);
     void apply_transform(cvl::PoseD pose);
     void clean();
+    void cap_velocity(double len);
     void append(std::shared_ptr<FlowField> ff);
 
     std::vector<cvl::Flow> flows;
@@ -53,7 +54,7 @@ public:
 struct FlowOrder:public mlib::Order{
     FlowOrder(FlowField& ff, bool update=false);
     FlowField ff;
-    double scale;
+    double scale=1;
     osg::Node* group() override;
 };
 

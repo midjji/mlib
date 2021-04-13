@@ -19,20 +19,20 @@ void FPSManipulator::move(double x, double y, double z){
 }
 // in camera coordinates
 void FPSManipulator::rotate(double ax, double ay, double az){
-    pose=pose*cvl::PoseD(cvl::getRotationMatrixXYZ(ax,ay,az));
+    pose=cvl::PoseD(cvl::getRotationMatrixXYZ(ax,ay,az))*pose;
     cout<<pose<<endl;
 }
 // camera coordinates
 void FPSManipulator::set_pose(cvl::PoseD P){
     pose=P;
 }
+void FPSManipulator::set_pose2(cvl::PoseD P){
+    pose=cvl::PoseD(cvl::Matrix3d(1,0,0,0,-1,0,0,0,-1))*P;
+}
 void FPSManipulator::reset(){
 
 
-    set_pose(cvl::PoseD(cvl::Matrix4d(1,0,0,0,
-                                      0,-1,0,0,
-                                      0,0,-1,0,
-                                      0,0,0,1)));
+    set_pose(cvl::PoseD(cvl::Matrix3d(1,0,0,0,-1,0,0,0,-1))*cvl::PoseD::Identity());
 }
 
 
