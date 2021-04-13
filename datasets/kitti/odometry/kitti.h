@@ -2,7 +2,7 @@
 #include <fstream>
 #include <opencv2/core.hpp>
 #include <mlib/utils/cvl/pose.h>
-#include <kitti/odometry/sequence.h>
+#include <mlib/datasets/kitti/odometry/sequence.h>
 
 namespace cvl{
 

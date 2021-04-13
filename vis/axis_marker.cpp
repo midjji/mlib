@@ -1,25 +1,24 @@
 #include <osg/Geode>
 #include <osg/Geometry>
-#include <osg/Texture2D>
+
 #include <osg/MatrixTransform>
 #include <osg/Point>
-#include <osgViewer/ViewerEventHandlers>
+
 #include <osgGA/StateSetManipulator>
 #include <osg/LineWidth>
-#include <cassert>
 
-#include "mlib/vis/GLTools.h"
+#include <mlib/vis/axis_marker.h>
 #include <mlib/vis/CvGL.h>
 #include <mlib/vis/convertosg.h>
 
-namespace vis {
+namespace mlib {
 
 
 
 osg::Node* MakeAxisMarker(cvl::PoseD p, float axis_length, float line_width)
 {
 
-    osg::Matrixd pose=CvlToGl(p.inverse());
+    osg::Matrixd pose=cvl2osg(p.inverse());
     osg::Vec3Array *vertices = new osg::Vec3Array;
     vertices->push_back(osg::Vec3(0,0,0));
     vertices->push_back(osg::Vec3(axis_length,0,0));

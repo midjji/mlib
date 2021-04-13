@@ -1,4 +1,4 @@
-
+#if 0
 #include <osg/Geode>
 #include <osg/Geometry>
 #include <osg/Texture2D>
@@ -309,3 +309,4 @@ void ConfigureOrthoCamera(int width, int height, osg::Camera* camera)
 	camera->setAllowEventFocus(true);
 }
 
+#endif

@@ -21,9 +21,32 @@ public:
 PC default_scene();
 
 struct PCOrder:public Order{
-    PCOrder(PC& pc, bool update=false):Order(update),pc(pc){}
+    PCOrder(const PC& pc, bool update=false):Order(update),pc(pc){}
     PC pc;
-    osg::Node* group(double marker_scale) override;
+    double scale=1;
+    osg::Node* group() override;
 };
+
+
+struct PointsOrder:public Order{
+
+
+    PointsOrder(const std::vector<cvl::Vector3d>& xs,
+                Color color=Color::green(),
+                bool clear_scene=true, double radius=1);
+    PointsOrder(const std::vector<cvl::Vector3d>& xs,
+                const std::vector<cvl::Vector3d>& colors, // rgb 0-255
+                bool clear_scene=true, double radius=1);
+    PointsOrder(const std::vector<cvl::Vector3d>& xs,
+                const std::vector<Color>& colors,
+                bool clear_scene=true, double radius=1);
+    osg::Node* group() override;
+private:
+    std::vector<cvl::Vector3d> xs;
+    std::vector<cvl::Vector3d> cs;
+    double radius;
+};
+
+
 }
 

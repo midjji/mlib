@@ -35,16 +35,8 @@ public:
     using Input=Input_;
 
     // this function should always return fast.
-    // this function is always thread safe!
-    // really need decorators for that...
-    void sink(Input& input){
-
-        if(slumbering) return;
-        //std::chrono::steady_clock::time_point t0=std::chrono::steady_clock::now();
-        sink_(input);
-        //uint64_t ns=(std::chrono::steady_clock::now() - t0).count();
-        //if(ns>1000){            mlog()<<"sink is slow"<<ns<<"ns\n";        }
-    }
+    // it claims ownership of input, so copies if needed
+    void sink(Input input){        if(slumbering) return;        sink_(input);    }
     void set_slumbering(bool slumber){        slumbering=slumber;    }
     bool is_slumbering(){return slumbering;}
     virtual ~Sink(){}

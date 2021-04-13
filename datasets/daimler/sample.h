@@ -1,6 +1,6 @@
 #pragma once
 #include <map>
-#include <opencv4/opencv2/core.hpp>
+#include <opencv2/core/mat.hpp>
 #include <mlib/utils/cvl/pose.h>
 #include <mlib/utils/bounding_box.h>
 

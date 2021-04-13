@@ -18,9 +18,14 @@ static_assert (sizeof(float128) >=16, "long float128 implementation is missing" 
 
 void sleep(float128 seconds){
     if(seconds<0) return;
-    std::this_thread::sleep_for(std::chrono::milliseconds((int)(1000*seconds)));}
-void sleep_ms(float128 milliseconds){if(milliseconds<0) return;std::this_thread::sleep_for(std::chrono::milliseconds((int)milliseconds));}
-void sleep_us(float128 microseconds){if(microseconds<0) return;std::this_thread::sleep_for(std::chrono::microseconds((int)microseconds));}
+    std::this_thread::sleep_for(
+                std::chrono::milliseconds(int(1000*seconds)));}
+void sleep_ms(float128 milliseconds){
+    if(milliseconds<0) return;
+    std::this_thread::sleep_for(std::chrono::milliseconds(int(milliseconds)));}
+void sleep_us(float128 microseconds){
+    if(microseconds<0) return;
+    std::this_thread::sleep_for(std::chrono::microseconds(int(microseconds)));}
 
 std::string getIsoDate(){
     std::string datetime=getIsoDateTime();

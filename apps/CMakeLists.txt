@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
+if(FALSE)
 
 
 #file(GLOB apps "*.cpp" "../utils/mlog/mlog_example.cpp" "../utils/mzip/test_mzip.cpp")
@@ -36,7 +36,9 @@ foreach(item ${apps})
         target_configure_warnings(${name})
     endif()
 endforeach()
-
+endif()
+add_executable(vis_manip vis_manip.cpp)
+target_link_libraries(vis_manip mlib-vis)
 
 
 

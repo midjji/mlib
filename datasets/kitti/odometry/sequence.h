@@ -1,6 +1,7 @@
 #pragma once
+#include <opencv2/core/mat.hpp>
 #include <mlib/utils/cvl/pose.h>
-#include <opencv2/core.hpp>
+
 namespace cvl{
 namespace kitti{
 
@@ -10,8 +11,7 @@ namespace kitti{
  */
 class Sequence{
 public:
-    Sequence(){}
-    ~Sequence(){}
+    Sequence()=default;
     Sequence(std::string path_, int sequence_,int rows_, int cols_, int images_);
     void readSequence();
 

@@ -32,13 +32,6 @@
 
 
 
-namespace osg{
-class Group;
-}
-namespace osgViewer {
-class Viewer;
-}
-
 namespace mlib{
 
 class PointCloudViewer;
@@ -59,7 +52,7 @@ class MainEventHandler;
  * que a new point cloud for display with setPointCloud
  *
  */
-class PointCloudViewer :public cvl::Sink<std::shared_ptr<Order>>{
+class PointCloudViewer :public cvl::Sink<std::unique_ptr<Order>>{
 public:
         static sPointCloudViewer start(std::string name="Point Cloud Viewer(wasdqe,mouse)");
 
@@ -93,36 +86,34 @@ public:
                        const std::vector<Color>& colors,
                        double coordinate_axis_length=1);
 
-    void set(vis::FlowField& ff);
-    void set_point_cloud(PC pc);
+    // set the camera to this pose!
+    void view(cvl::PoseD pose);
+
+    //void add(X x, bool clear_old);
 
 
+    void add(FlowField ff, bool clear_scene=true);
+    void add(PC pc, bool clear_scene=true);
 
-    void set_marker_size(double scale);
-    void set_pose(cvl::PoseD Pcw);
 
 
     void wait_for_done();
     void close();
     bool is_running();
 private:
-    void sink_(std::shared_ptr<Order>& pc) override;
-
-    // scales the points
-    std::atomic<double> marker_scale{5.0f};
+    std::string name;
+    void sink_(std::unique_ptr<Order>& pc) override;
 
     void run();
-    std::atomic<bool> running;
+    std::atomic<bool> running{true};
 
     std::thread thr;
 
 
 
 
-    cvl::SyncQue<std::shared_ptr<Order>> queue;
-    osgViewer::Viewer* viewer=nullptr;
-    osg::Group* scene = nullptr;
-    mlib::MainEventHandler* meh =nullptr;
+    cvl::SyncQue<std::unique_ptr<Order>> queue;
+
 
 };
 

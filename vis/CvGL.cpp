@@ -1,20 +1,10 @@
+#if 0
 #include <opencv2/imgproc.hpp>
 #include <mlib/vis/CvGL.h>
 #include <iostream>
 
 using std::cout;
 using std::endl;
-osg::Matrixd CvlToGl(const cvl::Matrix4d& M){
-    auto m=M.transpose(); // assumes p^TM^T
-    return osg::Matrixd(
-                m(0,0), m(0,1), m(0,2), m(0,3),
-                m(1,0), m(1,1), m(1,2), m(1,3),
-                m(2,0), m(2,1), m(2,2), m(2,3),
-                m(3,0), m(3,1), m(3,2), m(3,3));
-}
-osg::Matrixd CvlToGl(const cvl::PoseD& m){
-    return CvlToGl(m.get4x4());
-}
 
 
 
@@ -235,3 +225,4 @@ cv::Mat3b GlImageToCvMat(const osg::Image *src)
 
     return dst;
 }
+#endif

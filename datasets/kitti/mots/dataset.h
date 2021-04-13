@@ -18,8 +18,8 @@
  *
  ******************************************************************************/
 
-#include <kitti/mots/sample.h>
-#include <kitti/mots/calibration.h>
+#include <mlib/datasets/kitti/mots/sample.h>
+#include <mlib/datasets/kitti/mots/calibration.h>
 namespace cvl{
 
 /**

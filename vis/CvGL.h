@@ -1,3 +1,4 @@
+#if 0
 #pragma once
 #include <osg/Matrixd>
 #include <osg/Image>
@@ -7,9 +8,7 @@
 #pragma GCC diagnostic push
 #include <Eigen/Core>
 #pragma GCC diagnostic pop
-/** Convert an cvl 4x4 matrix (double) to a GL matrix */
-osg::Matrixd CvlToGl(const cvl::Matrix4d& m);
-osg::Matrixd CvlToGl(const cvl::PoseD& m);
+
 
 
 /** Convert an Eigen 4x4 matrix (double) to a GL matrix */
@@ -53,3 +52,4 @@ osg::Image *CvMatToGlImage(const cv::Mat& src);
 /** Generate an OpenCV matrix from a GL image.
  * Only 8-bit RGB supported right now. */
 cv::Mat3b GlImageToCvMat(const osg::Image *src);
+#endif

@@ -1,24 +1,31 @@
 #pragma once
 #include <mlib/utils/cvl/pose.h>
 #include <osgGA/StandardManipulator>
-using cvl::PoseD;
 
-/** FPS2 is base class for camera control based on position
-    and orientation of camera, like walk, drive, and flight manipulators. */
-class  FPS2 : public osgGA::StandardManipulator
+namespace mlib {
+
+
+/**
+ * @brief The FPSManipulator class
+ * first person shooter spectator manipulator,
+ * works as you would expect, unlike the osg manipulators, no idea why
+ */
+class  FPSManipulator : public osgGA::StandardManipulator
 {
-    PoseD pose;
+    cvl::PoseD pose;
 public:
-    PoseD getPose() const;
+    cvl::PoseD getPose() const;
+    // camera coordinates
+    void set_pose(cvl::PoseD P);
+
     // in camera coordinates
     void move(double x, double y, double z);
     // in camera coordinates
     void rotate(double ax, double ay, double az);
-    // camera coordinates
-    void set_pose(PoseD P);
+
     void reset();
 
-    FPS2( int flags = DEFAULT_SETTINGS );
+    FPSManipulator( int flags = DEFAULT_SETTINGS );
     void setByMatrix( const osg::Matrixd& matrix );
     void setByInverseMatrix( const osg::Matrixd& matrix );
     osg::Matrixd getMatrix() const;
@@ -44,3 +51,4 @@ protected:
     bool startAnimationByMousePointerIntersection( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& us );
 
 };
+}

@@ -5,7 +5,7 @@
 #include <osg/Geode>
 
 using namespace cvl;
-namespace vis {
+namespace mlib {
 
 
 Trajectory::Trajectory(std::vector<PoseD> poses):poses(poses){}
@@ -85,9 +85,9 @@ void FlowField::append(std::shared_ptr<FlowField> ff){
 FlowOrder::FlowOrder(FlowField& ff, bool update):mlib::Order(update),ff(ff){
     ff.clean();
 }
-osg::Node* FlowOrder::group(double marker_scale){
+osg::Node* FlowOrder::group(){
     ff.clean();
-    return createFlowField(ff, marker_scale);
+    return createFlowField(ff, scale);
 }
 
 osg::Node* createFlowField(const FlowField& ff, double marker_scale){
@@ -119,9 +119,9 @@ osg::Node* createFlowField(const FlowField& ff, double marker_scale){
         field->addChild(geode);
     }
 
-    field->addChild(vis::MakePointCloud(ff.points.points, ff.points.colors,marker_scale));
+    field->addChild(MakePointCloud(ff.points.points, ff.points.colors,marker_scale));
     for(const Trajectory& tr:ff.trajectories)
-        field->addChild(vis::MakeTrajectory(tr.poses,marker_scale,marker_scale));
+        field->addChild(MakeTrajectory(tr.poses,marker_scale,marker_scale));
     return field;
 }
 }

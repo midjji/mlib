@@ -1,31 +1,33 @@
-
-#include <mlib/vis/nanipulator.h>
-#include <mlib/vis/convertosg.h>
 #include <mlib/utils/mlog/log.h>
-
+#include <mlib/vis/convertosg.h>
+#include <mlib/vis/fps.h>
 
 using namespace osg;
 using namespace osgGA;
 using std::cout;
 using std::endl;
 
+namespace mlib {
+
+
+
 
 
 // in camera coordinates
-void FPS2::move(double x, double y, double z){
+void FPSManipulator::move(double x, double y, double z){
     pose=cvl::PoseD(-cvl::Vector3d(x,y,z))*pose;
 }
 // in camera coordinates
-void FPS2::rotate(double ax, double ay, double az){
+void FPSManipulator::rotate(double ax, double ay, double az){
     pose=pose*cvl::PoseD(cvl::getRotationMatrixXYZ(ax,ay,az));
     cout<<pose<<endl;
 }
 // camera coordinates
-void FPS2::set_pose(cvl::PoseD P){
+void FPSManipulator::set_pose(cvl::PoseD P){
     pose=P;
 }
-void FPS2::reset(){
-    set_pose(PoseD());
+void FPSManipulator::reset(){
+    set_pose(cvl::PoseD::Identity());
 }
 
 
@@ -36,14 +38,14 @@ void FPS2::reset(){
 
 
 /// Constructor.
-FPS2::FPS2( int flags )
+FPSManipulator::FPSManipulator( int flags )
     : StandardManipulator( flags ){
     setVerticalAxisFixed(false);
 }
 
 
 /** Get the position of the manipulator as 4x4 matrix.*/
-Matrixd FPS2::getMatrix() const {
+Matrixd FPSManipulator::getMatrix() const {
 
     return cvl2osg(pose.get4x4().inverse()); // my pose is Pcw, theirs is Pwc
 }
@@ -51,7 +53,7 @@ Matrixd FPS2::getMatrix() const {
 
 /** Get the position of the manipulator as a inverse matrix of the manipulator,
     typically used as a model view matrix.*/
-Matrixd FPS2::getInverseMatrix() const {
+Matrixd FPSManipulator::getInverseMatrix() const {
     // mlog()<<"\n";
     //cout<<pose.get4x4()<<endl;
     return cvl2osg(pose.get4x4());// my pose is Pcw, theirs is Pwc
@@ -61,7 +63,7 @@ Matrixd FPS2::getInverseMatrix() const {
 
 
 /** Set the position of the manipulator using a 4x4 matrix.*/
-void FPS2::setByMatrix( const Matrixd& matrix )
+void FPSManipulator::setByMatrix( const Matrixd& matrix )
 {
 cout<<"set by matrix"<<endl;
     // set variables
@@ -72,7 +74,7 @@ cout<<"set by matrix"<<endl;
 
 
 /** Set the position of the manipulator using a 4x4 matrix.*/
-void FPS2::setByInverseMatrix( const Matrixd& matrix )
+void FPSManipulator::setByInverseMatrix( const Matrixd& matrix )
 {
 cout<<"set by inv matrix"<<endl;
     setByMatrix( Matrixd::inverse( matrix ) );
@@ -80,7 +82,7 @@ cout<<"set by inv matrix"<<endl;
 
 
 // doc in parent
-void FPS2::setTransformation(
+void FPSManipulator::setTransformation(
         [[maybe_unused]] const osg::Vec3d& eye,
 [[maybe_unused]]const osg::Quat& rotation )
 {
@@ -91,7 +93,7 @@ cout<<"set transformation"<<endl;
 
 
 // doc in parent
-void FPS2::getTransformation( osg::Vec3d& eye, osg::Quat& rotation ) const
+void FPSManipulator::getTransformation( osg::Vec3d& eye, osg::Quat& rotation ) const
 {
     cout<<"get transformation"<<endl;
     //mlog()<<"\n";
@@ -101,7 +103,7 @@ void FPS2::getTransformation( osg::Vec3d& eye, osg::Quat& rotation ) const
 
 
 // doc in parent
-void FPS2::setTransformation( const osg::Vec3d& eye,
+void FPSManipulator::setTransformation( const osg::Vec3d& eye,
                               const osg::Vec3d& center,
                               const osg::Vec3d& up )
 {
@@ -115,26 +117,26 @@ void FPS2::setTransformation( const osg::Vec3d& eye,
 
 
 // doc in parent
-void FPS2::getTransformation([[maybe_unused]] osg::Vec3d& eye,
+void FPSManipulator::getTransformation([[maybe_unused]] osg::Vec3d& eye,
 [[maybe_unused]] osg::Vec3d& center,
 [[maybe_unused]] osg::Vec3d& up ) const
 {
 
 }
 
-void FPS2::home( double currentTime )
+void FPSManipulator::home( double currentTime )
 {
     StandardManipulator::home( currentTime );
 }
 
 
-void FPS2::home( const GUIEventAdapter& ea, GUIActionAdapter& us )
+void FPSManipulator::home( const GUIEventAdapter& ea, GUIActionAdapter& us )
 {
     StandardManipulator::home( ea, us );
 }
 
 
-void FPS2::init( const GUIEventAdapter& ea, GUIActionAdapter& us )
+void FPSManipulator::init( const GUIEventAdapter& ea, GUIActionAdapter& us )
 {
     StandardManipulator::init( ea, us );
 }
@@ -143,17 +145,17 @@ void FPS2::init( const GUIEventAdapter& ea, GUIActionAdapter& us )
 
 
 // doc in parent
-bool FPS2::handleMouseWheel([[maybe_unused]] const GUIEventAdapter& ea,
+bool FPSManipulator::handleMouseWheel([[maybe_unused]] const GUIEventAdapter& ea,
 [[maybe_unused]] GUIActionAdapter& us )
 {
 
 
     return true;
 }
-PoseD FPS2::getPose() const{return pose;}
+cvl::PoseD FPSManipulator::getPose() const{return pose;}
 
 // doc in parent
-bool FPS2::performMovementLeftMouseButton(
+bool FPSManipulator::performMovementLeftMouseButton(
         [[maybe_unused]] const double /*eventTimeDelta*/,
 [[maybe_unused]] const double dx,
 [[maybe_unused]] const double dy )
@@ -168,7 +170,7 @@ bool FPS2::performMovementLeftMouseButton(
 }
 
 
-bool FPS2::performMouseDeltaMovement(
+bool FPSManipulator::performMouseDeltaMovement(
         [[maybe_unused]] const float dx,
 [[maybe_unused]] const float dy )
 {
@@ -178,7 +180,7 @@ bool FPS2::performMouseDeltaMovement(
 
 
 
-void FPS2::applyAnimationStep(
+void FPSManipulator::applyAnimationStep(
         [[maybe_unused]] const double currentProgress,
 [[maybe_unused]]const double /*prevProgress*/ )
 {
@@ -187,10 +189,11 @@ void FPS2::applyAnimationStep(
 
 
 // doc in parent
-bool FPS2::startAnimationByMousePointerIntersection(
+bool FPSManipulator::startAnimationByMousePointerIntersection(
         [[maybe_unused]]const osgGA::GUIEventAdapter& ea,
 [[maybe_unused]] osgGA::GUIActionAdapter& us )
 {
 
     return true;
+}
 }

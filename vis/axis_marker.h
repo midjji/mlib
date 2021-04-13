@@ -4,9 +4,9 @@
 namespace osg {
 class Node;
 }
-namespace vis {
+namespace mlib {
 
 
-osg::Node* MakeAxisMarker(cvl::PoseD pose, float axis_length, float line_width);
-osg::Node* MakeTrajectory(const std::vector<cvl::PoseD>& poses, float length=2.0,float width=3.0);
+osg::Node* MakeAxisMarker(cvl::PoseD Pcw, float axis_length, float line_width);
+osg::Node* MakeTrajectory(const std::vector<cvl::PoseD>& Pcws, float length=2.0,float width=3.0);
 }

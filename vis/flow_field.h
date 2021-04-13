@@ -10,7 +10,7 @@
 
 namespace osg{class Node;}
 
-namespace vis {
+namespace mlib {
 
 
 
@@ -53,7 +53,8 @@ public:
 struct FlowOrder:public mlib::Order{
     FlowOrder(FlowField& ff, bool update=false);
     FlowField ff;
-    osg::Node* group(double marker_scale) override;
+    double scale;
+    osg::Node* group() override;
 };
 
 

@@ -5,7 +5,7 @@
 namespace osg {
 class Node;
 }
-namespace vis {
+namespace mlib {
 osg::Node* MakePointCloud(
         const std::vector<cvl::Vector3d>& points,
         const std::vector<mlib::Color>& colors,

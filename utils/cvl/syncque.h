@@ -69,11 +69,20 @@ public:
     std::shared_ptr<SyncQue<T>> create(){
         return std::make_shared<SyncQue<T>>();
     }
-    void push(const T& t){        
+    void push(const T& t){
         //std::cout<<"name: "<<name <<" push "<<n++<<std::endl;
         std::unique_lock<std::mutex> ul(mtx); // locks, unlocked as it goes out of scope
 
-        que.push_back(t);
+        que.push_back(std::move(t));
+        ul.unlock();
+        cv.notify_one();
+        //std::cout<<"push done"<<std::endl;
+    }
+    void push(T&& t){ // for unique_ptr
+        //std::cout<<"name: "<<name <<" push "<<n++<<std::endl;
+        std::unique_lock<std::mutex> ul(mtx); // locks, unlocked as it goes out of scope
+
+        que.push_back(std::move(t));
         ul.unlock();
         cv.notify_one();
         //std::cout<<"push done"<<std::endl;
@@ -82,10 +91,21 @@ public:
     void blocking_push(const T& t,
                        StopCondition stop,
                        uint max_size=std::numeric_limits<uint>::max()){
+        std::unique_lock<std::mutex> ul(mtx); // locks, unlocked as it goes out of scope
+
+        cv.wait(ul, [&](){return que.size()<max_size || stop();});
+        que.push_back(std::move(t));
+        ul.unlock();
+        cv.notify_one();
+    }
+    template<class StopCondition>// [&running](){return !running; /*running must be atomic!*/}
+    void blocking_push(T&& t,
+                       StopCondition stop,
+                       uint max_size=std::numeric_limits<uint>::max()){
         std::unique_lock<std::mutex> ul(mtx); // locks, unlocked as it goes out of scope        
 
         cv.wait(ul, [&](){return que.size()<max_size || stop();});
-        que.push_back(t);
+        que.push_back(std::move(t));
         ul.unlock();
         cv.notify_one();
     }
@@ -93,7 +113,7 @@ public:
     bool try_pop(T& t){
         std::unique_lock<std::mutex> ul(mtx); // locks
         if(que.size() > 0){
-            t = que.front();
+            t = std::move(que.front());
             que.pop_front();
             return true;
         }
@@ -108,7 +128,7 @@ public:
 
         if(!que.empty())
         {
-            t = que.front();
+            t = std::move(que.front());
             que.pop_front();
             ul.unlock();
             cv.notify_all();

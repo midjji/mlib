@@ -1,3 +1,4 @@
+#if 0
 #pragma once
 #include <osgGA/CameraManipulator>
 
@@ -36,3 +37,4 @@ public:
 		return osg::Matrixd::inverse(position);
 	}
 };
+#endif

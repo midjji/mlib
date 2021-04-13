@@ -22,7 +22,7 @@
 #include <mlib/vis/convertosg.h>
 #include <mlib/vis/point_cloud.h>
 
-namespace vis {
+namespace mlib {
 osg::Node* MakePointCloud(
         const std::vector<cvl::Vector3d>& xs,
         const std::vector<mlib::Color>& cs,

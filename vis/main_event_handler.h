@@ -2,6 +2,7 @@
 
 #include <osgGA/GUIEventHandler>
 #include <mlib/utils/cvl/pose.h>
+#include <mlib/vis/fps.h>
 
 namespace osgViewer {class Viewer;}
 namespace mlib{
@@ -11,10 +12,8 @@ class MainEventHandler : public osgGA::GUIEventHandler
 {
 
 public:
-
+    osg::ref_ptr<FPSManipulator> cm = new FPSManipulator;
     osgViewer::Viewer* viewer;
-    std::vector<osg::Matrixd> cameraMatrices;
-
     MainEventHandler(osgViewer::Viewer* viewer);
     bool handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& /*aa*/);
     bool in_fps_mode=false;

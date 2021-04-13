@@ -1,3 +1,4 @@
+#if 0
 #pragma once
 
 #include <osg/Image>
@@ -21,3 +22,4 @@ osg::Node *MakeGrid(int num_squares, float side_length, const osg::Vec3& color, 
 
 void ConfigureOrthoCamera(int width, int height, osg::Camera* camera);
 
+#endif

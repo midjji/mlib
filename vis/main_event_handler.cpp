@@ -4,22 +4,19 @@
 
 
 #include <osgViewer/Viewer>
-#include <mlib/vis/nanipulator.h>
-#include "mlib/vis/manipulator.h"
+#include <mlib/vis/main_event_handler.h>
+
 
 using std::cout;using std::endl;
 namespace mlib{
 
 MainEventHandler::MainEventHandler(osgViewer::Viewer* viewer)
-    : osgGA::GUIEventHandler(), viewer(viewer){}
+    : osgGA::GUIEventHandler(), viewer(viewer){
+    viewer->setCameraManipulator(cm);
+}
 
 bool MainEventHandler::handleKeyEvent(const osgGA::GUIEventAdapter& ea){
-    assert(ea.getEventType()==osgGA::GUIEventAdapter::KEYDOWN);
-
-
-    FPS2* cm = dynamic_cast<FPS2*>(viewer->getCameraManipulator());
-
-    assert(cm!=nullptr);
+    //assert(ea.getEventType()==osgGA::GUIEventAdapter::KEYDOWN);
     //cout<<"key: "<<ea.getKey()<<endl;
     int key=ea.getKey();
     switch(key){
@@ -61,8 +58,18 @@ bool MainEventHandler::handleKeyEvent(const osgGA::GUIEventAdapter& ea){
         cm->rotate(0,0,-angle_step);
         break;
     }
+
+    case 122:{//z
+        cm->rotate(0,0,angle_step);
+        break;
+    }
     case 51:{//osgGA::GUIEventAdapter::KEY_KP_3:{
         cm->rotate(0,0,angle_step);
+        break;
+    }
+        // c
+    case 99:{//c
+        cm->rotate(0,0,-angle_step);
         break;
     }
     case 52:{//osgGA::GUIEventAdapter::KEY_KP_4:{
@@ -135,7 +142,7 @@ bool MainEventHandler::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIAction
         if(ea.getButtonMask()!=osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON) break;
         startx=ea.getXnormalized();
         starty=ea.getYnormalized();
-        FPS2* cm = dynamic_cast<FPS2*>(viewer->getCameraManipulator());
+
         startp=cm->getPose();
         break;
     }
@@ -144,10 +151,10 @@ bool MainEventHandler::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIAction
         //cout<<"dragging!"<<endl;
         double x=ea.getXnormalized() - startx;
         double y=ea.getYnormalized() - starty;
- FPS2* cm = dynamic_cast<FPS2*>(viewer->getCameraManipulator());
+
 
         // up in local coordinates!
-        PoseD Pcw=startp;
+        cvl::PoseD Pcw=startp;
         cvl::Vector3d up(0,1,0); // in local coordinates
         cvl::Vector3d from(0,0,0); // in local coordinates
         // ideally something that would reproject to where it is
