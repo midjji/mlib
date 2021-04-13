@@ -6,6 +6,7 @@
 #include <osgGA/StateSetManipulator>
 
 #include <mlib/vis/axis_marker.h>
+#include <mlib/vis/point_cloud.h>
 #include <mlib/vis/convertosg.h>
 
 namespace mlib {
@@ -56,12 +57,28 @@ osg::Node* MakeAxisMarker(cvl::PoseD p, float axis_length, float line_width)
     return marker_tform;
 }
 
-osg::Node* MakeTrajectory(const std::vector<cvl::PoseD>& poses, float length,float width)
+osg::Node* MakeTrajectory(const std::vector<cvl::PoseD>& poses,
+                          float length,float width,
+                          float point_radius,
+                          cvl::Vector3d color)
 {
+
     osg::Group* group=new osg::Group();
     for(const auto& pose:poses){
         group->addChild(MakeAxisMarker(pose, length, width));
+
     }
+    if(point_radius<=0) return group;
+
+    std::vector<cvl::Vector3d> xs,cs;
+    xs.reserve(poses.size());
+    cs.reserve(poses.size());
+    for(const auto& pose:poses){
+        xs.push_back(pose.getTinW());
+        cs.push_back(color);
+    }
+    group->addChild(MakePointCloud(xs, cs, point_radius));
+    // add the points too...
     return group;
 }
 }

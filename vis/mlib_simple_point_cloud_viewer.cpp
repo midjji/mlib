@@ -106,15 +106,16 @@ void PointCloudViewer::sink_(std::unique_ptr<Order>& order){
     if(order!=nullptr) queue.push(std::move(order));
 }
 void PointCloudViewer::add(FlowField ff, bool clear_scene){
-    queue.push(std::move(std::make_unique<FlowOrder>(ff,clear_scene)));
+    queue.push(std::make_unique<FlowOrder>(ff,clear_scene));
 }
 void PointCloudViewer::add(PC pc, bool clear_scene){
-    queue.push(std::move(std::make_unique<PCOrder>(pc, clear_scene)));
+    queue.push(std::make_unique<PCOrder>(pc, clear_scene));
 }
 
 
 void PointCloudViewer::view(PoseD Pcw){
-    queue.push(std::move(std::make_unique<ChangeViewPointOrder>()));}
+    queue.push(std::make_unique<ChangeViewPointOrder>(Pcw));
+}
 
 
 
@@ -173,8 +174,8 @@ void PointCloudViewer::run() {
         std::unique_ptr<Order> order;
         if(queue.try_pop(order) && running)
         {
-            if(queue.size()>10) queue.clear();
-            if(!order->clear_scene){
+            //if(queue.size()>10) queue.clear();
+            if(order->clear_scene){
                 for(auto add:added)
                     scene->removeChild(add);
                 added.clear();

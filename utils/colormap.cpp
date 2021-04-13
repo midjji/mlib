@@ -66,7 +66,12 @@ Color::Color(uint32_t rgb)
     this->rgb[2] = b;
    // fliprb();
 }
-
+std::vector<cvl::Vector3d> color2cvl(const std::vector<Color>& color){
+    std::vector<cvl::Vector3d> rets;
+    rets.reserve(color.size());
+    for(auto c:color)
+        rets.push_back(c.cvl());
+}
 
 Color::Color(uint8_t r, uint8_t g, uint8_t b):rgb{r,g,b}
 {
@@ -258,7 +263,7 @@ Color Color::next()
     return Color::nr(counter++);
 }
 Color Color::fliprb() const{return Color((std::uint8_t)rgb[2],(std::uint8_t)rgb[1],(std::uint8_t)rgb[0]);}
-
+cvl::Vector3d Color::cvl(){return cvl::Vector3d(rgb[0],rgb[1],rgb[2]);}
 Color Color::codeDepthRedToDarkGreen(double depth, double mindepth, double maxdepth)
 {
     if(depth<mindepth)

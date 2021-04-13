@@ -7,6 +7,7 @@
 #include <mlib/vis/point_cloud.h>
 #include <mlib/vis/convertosg.h>
 #include <mlib/utils/mlog/log.h>
+#include <mlib/vis/axis_marker.h>
 
 
 
@@ -50,35 +51,24 @@ PC default_scene(){
     }
     return pc;
 }
-
+PCOrder::PCOrder(const PC& pc,
+                 bool clear_scene):Order(clear_scene),pc(pc){}
 osg::Node* PCOrder::group()
 {
     osg::Group* group=new osg::Group;
 
     auto& posess=pc.posess;
     auto& colors=pc.pose_colors;
+    if(colors.size()!=posess.size())
+        colors.resize(posess.size());
 
-    for(uint i=0;i<posess.size();++i){
-
+    for(uint i=0;i<posess.size();++i) {
         auto& poses=posess[i];
-        auto& col=colors[i];
+        auto col=colors[i];
+
         if(poses.size()<1) continue;
 
-
-
-        std::vector<cvl::Vector3d> xs;xs.reserve(poses.size());
-        std::vector<mlib::Color> cs;cs.reserve(poses.size());
-        for(const cvl::PoseD& pose:poses){
-
-            // argh this kind of ref ptr is insane!
-
-            group->addChild(MakeAxisMarker(pose, pc.coordinate_axis_length, 1));
-
-            xs.push_back(pose.getTinW());
-            cs.push_back(col);
-        }
-        // add the points too...
-        group->addChild(MakePointCloud(xs, cs, scale));
+        group->addChild(MakeTrajectory(poses,pc.coordinate_axis_length, 1,1,col.cvl()));
     }
     auto& xs=pc.xs;
     auto& cs=pc.xs_cols;
@@ -111,13 +101,10 @@ PointsOrder::PointsOrder(const std::vector<cvl::Vector3d>& xs,
     cs.resize(xs.size(), cvl::Vector3d(255,0,0));
 }
 osg::Node* PointsOrder::group() {
+    if(xs.size()==0) return nullptr;
     osg::Group* group=new osg::Group;
 
-    // add a world coordinate sys:
-    group->addChild(MakeAxisMarker(PoseD::Identity(),2,2));
-
-    if(xs.size()>0)
-        group->addChild(MakePointCloud(xs, cs, radius));
+    group->addChild(MakePointCloud(xs, cs, radius));
     return group;
 }
 

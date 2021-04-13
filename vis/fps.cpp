@@ -27,7 +27,12 @@ void FPSManipulator::set_pose(cvl::PoseD P){
     pose=P;
 }
 void FPSManipulator::reset(){
-    set_pose(cvl::PoseD::Identity());
+
+
+    set_pose(cvl::PoseD(cvl::Matrix4d(1,0,0,0,
+                                      0,-1,0,0,
+                                      0,0,-1,0,
+                                      0,0,0,1)));
 }
 
 
@@ -47,7 +52,7 @@ FPSManipulator::FPSManipulator( int flags )
 /** Get the position of the manipulator as 4x4 matrix.*/
 Matrixd FPSManipulator::getMatrix() const {
 
-    return cvl2osg(pose.get4x4().inverse()); // my pose is Pcw, theirs is Pwc
+    return cvl2osg(pose.inverse()); // my pose is Pcw, theirs is Pwc
 }
 
 
@@ -56,7 +61,7 @@ Matrixd FPSManipulator::getMatrix() const {
 Matrixd FPSManipulator::getInverseMatrix() const {
     // mlog()<<"\n";
     //cout<<pose.get4x4()<<endl;
-    return cvl2osg(pose.get4x4());// my pose is Pcw, theirs is Pwc
+    return cvl2osg(pose);// my pose is Pcw, theirs is Pwc
 
 }
 

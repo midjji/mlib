@@ -1,5 +1,8 @@
 #pragma once
 #include <stdint.h>
+#include <vector>
+#include <mlib/utils/cvl/matrix.h>
+
 namespace mlib{
 
 
@@ -36,6 +39,7 @@ public:
     static Color next();
     // colors are in rgb order and assume rgb images, so this tosses it to bgr for opencv
     Color fliprb() const;
+    cvl::Vector3d cvl();
 
     static Color codeDepthRedToDarkGreen(double depth, double mindepth=1, double maxdepth=100);
     int getR() const;
@@ -74,6 +78,6 @@ void encodeRed2DarkGreen(  const double  f_value_d,
                            int&          b);
 
 
-
+std::vector<cvl::Vector3d> color2cvl(const std::vector<Color>& color);
 
 }// end namespace mlib

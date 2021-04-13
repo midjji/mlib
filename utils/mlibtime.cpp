@@ -163,7 +163,7 @@ TimeScope::TimeScope(Timer* timer):timer(timer){    timer->tic();}
 TimeScope::~TimeScope(){        timer->toc();    }
 
 ScopedDelay::ScopedDelay(float128 delay_ns){
-    mark=mlibtime::clock.now() + std::chrono::nanoseconds(uint64_t(delay_ns));
+    mark=mlibtime::clock.now() + std::chrono::nanoseconds(int64_t(delay_ns));
 }
 
 ScopedDelay::~ScopedDelay(){    

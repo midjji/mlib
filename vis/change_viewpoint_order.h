@@ -5,7 +5,7 @@ namespace mlib {
 class MainEventHandler;
 struct ChangeViewPointOrder:public Order{
     cvl::PoseD pose;
-    ChangeViewPointOrder();
+    ChangeViewPointOrder(cvl::PoseD Pcw);
     void event(MainEventHandler* meh) override;
 
 };

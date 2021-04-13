@@ -16,12 +16,12 @@ public:
     std::vector<cvl::PoseD> ps;
     std::vector<std::vector<cvl::PoseD>> posess;
     std::vector<Color> pose_colors;
-    double coordinate_axis_length;
+    double coordinate_axis_length=1;
 };
 PC default_scene();
 
 struct PCOrder:public Order{
-    PCOrder(const PC& pc, bool update=false):Order(update),pc(pc){}
+    PCOrder(const PC& pc, bool clear_scene=true);
     PC pc;
     double scale=1;
     osg::Node* group() override;

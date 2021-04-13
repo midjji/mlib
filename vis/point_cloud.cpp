@@ -21,16 +21,24 @@ osg::Node* MakePointCloud(
         const std::vector<cvl::Vector3d>& cs,
         float radius)
 {
+    auto cols=cs;
+    cols.resize(xs.size(),cvl::Vector3d(0,128,128));
 
     osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array;
     osg::ref_ptr<osg::Vec3Array> colors   = new osg::Vec3Array;
     {
         vertices->reserve(xs.size());
         colors->reserve(xs.size());
-        for(auto x:xs) vertices->push_back(osg::Vec3(float(x[0]),float(x[1]),float(x[2])));
-        for(auto c:cs) colors->push_back(osg::Vec3(float(c[0]/255.0),float(c[1]/255.0),float(c[2]/255.0)));
-        while(colors->size()<vertices->size())
-            colors->push_back(osg::Vec3(0,0.5,0.5));
+
+
+        cvl::Matrix3d R(1,0,0,
+                 0,-1,0,
+                 0,0,-1);
+        for(auto x:xs) vertices->push_back(cvl2osgf(R*x));
+
+        for(auto c:cols) {
+            colors->push_back(cvl2osgf(c/255.0));
+        }
     }
 
     osg::ref_ptr<osg::Geometry> geo = new osg::Geometry;
@@ -45,7 +53,7 @@ osg::Node* MakePointCloud(
     geode->addDrawable(geo);
 
     osg::PolygonMode *pm = new osg::PolygonMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::POINT);
-    osg::Point *psz = new osg::Point(radius);
+    osg::Point *psz = new osg::Point(10*radius);
 
     osg::StateSet *state = geode->getOrCreateStateSet();
     state->setAttributeAndModes(psz, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);

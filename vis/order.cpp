@@ -21,6 +21,12 @@ osg::Node* Order::aggregate_groups(){
             n->addChild(g);
         }
     }
+        osg::Node* g=group();
+        if(g){
+             if(!n) n=new osg::Group;
+            n->addChild(g);
+        }
+
     return n;
 }
 osg::Node* Order::group(){return nullptr;};

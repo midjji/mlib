@@ -174,7 +174,8 @@ public:
     Pose (const Matrix4<T>& P)
     {
         auto q=getRotationQuaternion(P.getRotationPart()).normalized();
-        auto t=P.getTranslationPart();
+        Vector3<T> t=Vector4<T>(P(0,3),P(1,3),P(2,3),P(3,3)).dehom();
+
         for(int i=0;i<4;++i){data[i]=q[i];}
         for(int i=0;i<3;++i){data[4+i]=t[i];}
     }
@@ -446,6 +447,9 @@ template<class T> Pose<T> lookAt(Vector3<T> point,
                                  Vector3<T> from,
                                  Vector3<T> up) {
 #if 1
+    // This lookat is bizzarre,
+    // but I think it returns a lookat that works for osg,
+    // which probably means its rotated (1,0,0,0,-1,0,0,0,-1)
     assert((point-from).absSum()>0);
     assert(point.isnormal());
     assert(from.isnormal());
