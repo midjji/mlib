@@ -1,3 +1,4 @@
+#if 0
 #include <mlib/vis/CvGL.h>
 #include <Eigen/Eigen>
 #include <mlib/vis/fbocamera.h>
@@ -75,3 +76,4 @@ osg::Node *FBOCamera::CreateQuad(const float width, const float height)
     geode->addDrawable(quad);
     return geode;
 }
+#endif

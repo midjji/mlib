@@ -1,24 +1,9 @@
 #include <osg/Geode>
 #include <osg/Geometry>
-#include <osg/Texture2D>
-#include <osg/MatrixTransform>
 #include <osg/Point>
-#include <osgViewer/ViewerEventHandlers>
 #include <osgGA/StateSetManipulator>
-#include <osg/LineWidth>
 
-#include <osg/Geode>
-#include <osg/Geometry>
-#include <osg/Texture2D>
-#include <osg/MatrixTransform>
-#include <osg/Point>
-#include <osgViewer/ViewerEventHandlers>
-#include <osgGA/StateSetManipulator>
-#include <osg/LineWidth>
-#include <cassert>
 
-#include "mlib/vis/GLTools.h"
-#include <mlib/vis/CvGL.h>
 #include <mlib/vis/convertosg.h>
 #include <mlib/vis/point_cloud.h>
 

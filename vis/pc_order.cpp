@@ -1,13 +1,14 @@
+#include <osg/Group>
 #include "mlib/utils/random.h"
 
 #include <mlib/vis/pc_order.h>
 
-#include <mlib/vis/GLTools.h>
-#include <mlib/vis/CvGL.h>
 #include <mlib/vis/axis_marker.h>
 #include <mlib/vis/point_cloud.h>
 #include <mlib/vis/convertosg.h>
 #include <mlib/utils/mlog/log.h>
+
+
 
 using cvl::Vector3d;
 using cvl::PoseD;

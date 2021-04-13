@@ -22,8 +22,8 @@
 
 #include <memory>
 #include <vector>
-#include "mlib/utils/cvl/syncque.h"
-#include "mlib/utils/cvl/pose.h"
+#include <mlib/utils/cvl/syncque.h>
+#include <mlib/utils/cvl/pose.h>
 #include <mlib/utils/colormap.h>
 #include <mlib/stream/sink.h>
 #include <mlib/vis/order.h>

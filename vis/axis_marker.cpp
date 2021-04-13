@@ -1,14 +1,11 @@
 #include <osg/Geode>
 #include <osg/Geometry>
-
 #include <osg/MatrixTransform>
-#include <osg/Point>
-
-#include <osgGA/StateSetManipulator>
 #include <osg/LineWidth>
 
+#include <osgGA/StateSetManipulator>
+
 #include <mlib/vis/axis_marker.h>
-#include <mlib/vis/CvGL.h>
 #include <mlib/vis/convertosg.h>
 
 namespace mlib {

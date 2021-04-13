@@ -1,7 +1,6 @@
 #include <string>
 #include <iostream>
 #include <thread>
-#include <iostream>
 #include <osgViewer/Viewer>
 
 #include <mlib/utils/cvl/pose.h>
