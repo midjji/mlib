@@ -19,7 +19,7 @@ public:
             //mlib::ScopedDelay sd(1e6/framerate);
             this->push_output(out);
         }
-    }        
+    }
 };
 
 }

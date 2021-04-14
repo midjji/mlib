@@ -71,6 +71,7 @@ std::vector<cvl::Vector3d> color2cvl(const std::vector<Color>& color){
     rets.reserve(color.size());
     for(auto c:color)
         rets.push_back(c.cvl());
+    return rets;
 }
 
 Color::Color(uint8_t r, uint8_t g, uint8_t b):rgb{r,g,b}
