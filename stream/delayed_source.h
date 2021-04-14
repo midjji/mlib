@@ -15,7 +15,7 @@ public:
         iterable(iterable){}
 
     virtual void loop() override  {
-        for(Output& out:iterable){
+        for(Output& out:iterable){            
             mlib::ScopedDelay sd(1e9/framerate);
             this->push_output(out);
         }

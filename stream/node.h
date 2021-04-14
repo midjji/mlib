@@ -102,8 +102,9 @@ public:
     using Output= typename Source::Output;
 
 
-    virtual ~Node() {
+    virtual ~Node() {        
         running=false;
+        input_queue.notify_all();
         if(node_thr.joinable())
             node_thr.join();
     }

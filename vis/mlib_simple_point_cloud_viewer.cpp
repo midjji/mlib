@@ -195,7 +195,7 @@ void PointCloudViewer::close(){    running=false;}
 bool PointCloudViewer::is_running(){return running;}
 
 void PointCloudViewer::wait_for_done(){
-    while(is_running()){
+    while(running){
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }

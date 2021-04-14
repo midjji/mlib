@@ -64,7 +64,8 @@ private:
     std::mutex mtx;
     std::condition_variable cv;
 public:    
-
+    // required on destruct to stop
+    void notify_all(){cv.notify_all();}
     SyncQue& operator = (SyncQue&) = delete;
     std::shared_ptr<SyncQue<T>> create(){
         return std::make_shared<SyncQue<T>>();
