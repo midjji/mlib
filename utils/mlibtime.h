@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /* ********************************* FILE ************************************/
 /** \file    mlibtime.h
  *
@@ -164,19 +164,8 @@ struct TimeScope{
  * @brief The Timer class
  * High precision Timer
  *
- * Timing is accurate in us to ms range, may be accurate in ns dep on implementation but not likely
- *
- *
- *
- *
- * DISCUSS: Should it be atomic? - No.
- * Thread safety when possible is a good idea,
- *  but multiple threads using one timer is just wrong.
- * The locking takes time which may confuse results with timers in inner loops.
- *
- * Is there a way to ensure the timer isnt called from multiple threads?
- * no no fast way
- *
+ * Timing is accurate in us to ms range
+ * 
  */
 class Timer{
 

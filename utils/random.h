@@ -66,7 +66,8 @@ static const std::uint64_t seed{
 RANDOM_SEED_VALUE
 #endif
 };
-static std::default_random_engine generator(seed);
+// faster for clang and better in general for scientific simulations
+static std::mt19937_64 generator(seed);
 } // end namespace random
 
 double randu(double low=0, double high=1);
