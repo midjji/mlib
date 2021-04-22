@@ -31,7 +31,7 @@ std::string pad(std::string in, uint len, char key=' ');
 
 
 std::vector<std::string> split_lines(std::string s, char delim='\n');
-std::string ensure_dir(std::string path);
+
 
 double str2double(char* str);
 int str2int(char* str);

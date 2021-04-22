@@ -107,6 +107,7 @@ private:
     void run();
     std::atomic<bool> running{true};
 
+
     std::thread thr;
     cvl::SyncQue<std::unique_ptr<Order>> queue;
 };

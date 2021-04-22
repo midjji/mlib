@@ -442,54 +442,6 @@ public:
     Vector<T,7> qt() const{return data;}
 
 };
-
-template<class T> Pose<T> lookAt(Vector3<T> point,
-                                 Vector3<T> from,
-                                 Vector3<T> up) {
-#if 1
-    // This lookat is bizzarre,
-    // but I think it returns a lookat that works for osg,
-    // which probably means its rotated (1,0,0,0,-1,0,0,0,-1)
-    assert((point-from).absSum()>0);
-    assert(point.isnormal());
-    assert(from.isnormal());
-    assert(up.isnormal());
-    // opt axis is point
-    up.normalize();
-    Vector3<T> z=point -from;     z.normalize();
-    Vector3<T> s=-z.cross(up);    s.normalize();
-    Vector3<T> u=z.cross(s);     u.normalize();
-
-    // u=cross f,s
-    Matrix3d R(s[0],s[1],s[2],
-            u[0],u[1],u[2],
-            z[0],z[1],z[2]);
-    assert(R.isnormal());
-    return Pose<T>(R,-R*from);
-
-
-
-
-
-#else
-    // lookat above is utterly bizzare,TODO:  figure out why!
-
-    // opt axis
-    Vector3<T> z=point -from;
-    // (0,0,1) = Rz, osv ... => R^T = (s,up,z)
-    z.normalize();
-    up=up-up.dot(z)*up; // up orthogonal to z
-    up.normalize();
-    Vector3<T> s=-z.cross(up);
-    s.normalize();
-
-    // u=cross f,s
-    Matrix3<T> R=Matrix3<T>(s[0],up[0],z[0],
-            s[1],up[1],z[1],
-            s[2],up[2],z[2]).transpose();
-    return Pose<T>(R,-R.transpose()*from);
-#endif
-}
 /// convenience alias for the standard pose
 typedef Pose<double> PoseD;
 

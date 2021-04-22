@@ -1,18 +1,22 @@
 #include <mlib/utils/smooth_trajectory.h>
 #include <mlib/utils/cvl/polynomial.h>
+#include <mlib/utils/cvl/lookat.h>
 using std::cout;
 using std::endl;
 namespace cvl{
 
 PoseD SmoothTrajectory::operator()(double time) const{
-    return PoseD(this->qs(time, 0), this->ts(time,0));
+    return pose(time);
 }
 PoseD SmoothTrajectory::pose(double time) const{
-    return this->operator()(time);
+    double t=(time-t0())/(t1()-t0()); // 0 to 1
+    //return pose2(time);
+        PoseD P0=this->pose2((10-t0())/(t1()-t0()));
+        return P0.inverse()*this->pose2(t);
 }
 
 
-std::vector<PoseD> AllRot2::display_poses(std::vector<double> ts) const{
+std::vector<PoseD> SmoothTrajectory::display_poses(std::vector<double> ts) const{
     cout<<"display poses ts: "<<ts.size()<<endl;
     std::vector<PoseD> ps;ps.reserve(ts.size());
     // we assume its in x_world=P(t)x_camera, so invert for display?
@@ -21,6 +25,15 @@ std::vector<PoseD> AllRot2::display_poses(std::vector<double> ts) const{
     return ps;
 }
 
+std::vector<PoseD> SmoothTrajectory::display_poses(int samples_per_second,  int border) const{
+
+    auto ts=interior_times(samples_per_second,border);
+    std::vector<PoseD> ps;ps.reserve(ts.size());
+    for(auto t:ts)
+        ps.push_back(this->pose(t));
+
+    return ps;
+}
 
 std::vector<double> SmoothTrajectory::interior_times(int samples_per_second, int border) const{
     int N=t1()-t0();N*=samples_per_second;
@@ -28,26 +41,12 @@ std::vector<double> SmoothTrajectory::interior_times(int samples_per_second, int
 
     double d=(t1()-t0())/double(N);
     for(int i=border;i<N-border;++i){
-     double time=t0()+d*i;
+        double time=t0()+d*i;
         ts.push_back(time);
     }
     return ts;
 }
-
-std::vector<PoseD> AllRot2::display_poses(int samples_per_second,  int border) const{
-
-    auto ts=interior_times(samples_per_second,border);
- std::vector<PoseD> ps;ps.reserve(ts.size());
-    for(auto t:ts)
-        ps.push_back((*this)(t));
-
-    return ps;
-}
-
-
-
-
-Vector4d AllRot::qs(double time, int derivative) const {
+Vector4d SmoothTrajectory::qs(double time, int derivative) const{
     if(derivative==0) return pose(time).q();
 
     auto a=qs(time+delta,derivative-1);
@@ -55,11 +54,6 @@ Vector4d AllRot::qs(double time, int derivative) const {
     // this means we are currently rotating from b to a at a time of 2delta.
     // so if my q math is trust worthy, then q(t) \approx b(b^ca)^{2deltat}?
     // from which I can compute both omega etc...but maybe compare to this?
-
-
-
-
-
     Vector4d qd= a-b;
 
     if((a+b).norm()<(a-b).norm()) qd=a+b; // should I do this?
@@ -71,17 +65,10 @@ Vector4d AllRot::qs(double time, int derivative) const {
     }
     return qd;
 }
-Vector3d AllRot::ts(double time, int derivative) const{
+Vector3d SmoothTrajectory::ts(double time, int derivative) const{
     if(derivative==0) return pose(time).t();
     return (ts(time+delta,derivative-1) -
             ts(time-delta,derivative-1))/(2.0*delta);
-}
-
-
-PoseD AllRot::pose(double time) const
-{ return pose2(time);
-    //PoseD P0=pose2(0);
-    //return P0.inverse()*pose2(time);
 }
 
 PoseD AllRot::pose2(double time) const
@@ -189,7 +176,7 @@ double AllRot2::s(double t) const{return smooth_interpolator(t);}
 
 
 Vector3d AllRot2::p(double time) const{    
-     double t=8.0*(time-t0())/(t1()-t0());
+    double t=8.0*(time-t0())/(t1()-t0());
 
 
     // total length of curve is,
@@ -227,11 +214,8 @@ Vector3d AllRot2::p(double time) const{
     center= z*(1.0-s(t)) + s(t)*(x*(1.0-s(t-2)) + s(t-2)*y);
     return center*10;
 }
-PoseD AllRot2::pose(double time) const
-{ return pose2(time);
-    PoseD P0=pose2(10);
-    return P0.inverse()*pose2(time);
-}
+
+
 PoseD AllRot2::pose2(double time) const
 {
     // we are making two assumptions,
@@ -254,31 +238,31 @@ PoseD AllRot2::pose2(double time) const
     return P;
 }
 
-Vector4d AllRot2::qs(double time, int derivative) const {
-    if(derivative==0) return pose(time).q();
 
 
-    auto a=qs(time+delta,derivative-1);
-    auto b=qs(time-delta,derivative-1);
-    // this means we are currently rotating from b to a at a time of 2delta.
-    // so if my q math is trust worthy, then q(t) \approx b(b^ca)^{2deltat}?
-    // from which I can compute both omega etc...but maybe compare to this?
 
-    Vector4d qd= a-b;
-
-    if((a+b).norm()<(a-b).norm()) qd=a+b; // should I do this?
-    qd=qd/(2.0*delta);
-    if(derivative==1){
-        Vector4d q = pose(time).q();
-        // make it orthogonal to q
-        qd=qd - qd.dot(q)*q;
-    }
-    return qd;
+Vector3d AllRot3::position(double time) const{
+    double t=(time-t0())/(t1()-t0());
+    Vector3d p(1,0,0);
+    double pi=3.14159265359*0.25;
+    return (getRotationMatrixXYZ(2*pi*t,8*pi*t,32*pi*t)*p)*10.0;
 }
-Vector3d AllRot2::ts(double time, int derivative) const{
-    if(derivative==0) return pose(time).t();
-    return (ts(time+delta,derivative-1) -
-            ts(time-delta,derivative-1))/(2.0*delta);
+
+PoseD AllRot3::pose2(double time) const
+{
+double dt=1;
+
+    PoseD P=lookAt(Vector3d(0,0,0),
+                   position(time),
+                   (position(time+dt)  - position(time-dt)).normalized()).inverse();
+
+
+    return P;
 }
+
+
+
+
+
 
 }

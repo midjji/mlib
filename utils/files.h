@@ -30,6 +30,7 @@ std::string getPath(std::experimental::filesystem::path path);
 std::string getName(std::experimental::filesystem::path path);
 void makefilepath(std::experimental::filesystem::path path);
 void create_or_throw(std::experimental::filesystem::path path);
+std::string ensure_dir(std::string path);
 
 
 } // end namespace mlib

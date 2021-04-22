@@ -43,11 +43,7 @@ std::string toLowerCase(std::string in)
 }
 
 
-std::string ensure_dir(std::string path){
-    if(path.back()=='/')
-        return path;
-    return path+"/";
-}
+
 
 
 

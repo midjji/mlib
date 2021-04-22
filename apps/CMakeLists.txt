@@ -1,24 +1,21 @@
 
 cmake_minimum_required(VERSION 3.16)
 #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-if(FALSE)
 
 
-#file(GLOB apps "*.cpp" "../utils/mlog/mlog_example.cpp" "../utils/mzip/test_mzip.cpp")
+
+file(GLOB apps "*.cpp" "../utils/mlog/mlog_example.cpp" "../utils/mzip/test_mzip.cpp")
 set(apps "")
 #list(APPEND apps "test_stereo.cpp")
-list(APPEND apps "test_undistort.cpp")
-list(APPEND apps "../utils/mlog/mlog_example.cpp")
-list(APPEND apps "../utils/mzip/test_mzip.cpp")
-
-
-list(APPEND apps "inspect_kitti_odometry.cpp")
-list(APPEND apps "inspect_kitti_mots.cpp")
-list(APPEND apps "vis_manip.cpp")
-
-
-list(APPEND apps "mysql.cpp")
-list(APPEND apps "verified_write2file.cpp")
+#list(APPEND apps "test_undistort.cpp")
+#list(APPEND apps "../utils/mlog/mlog_example.cpp")
+#list(APPEND apps "../utils/mzip/test_mzip.cpp")
+#list(APPEND apps "inspect_kitti_odometry.cpp")
+#list(APPEND apps "inspect_kitti_mots.cpp")
+#list(APPEND apps "vis_manip.cpp")
+#list(APPEND apps "mysql.cpp")
+#list(APPEND apps "verified_write2file.cpp")
+list(APPEND apps "test_lookat.cpp")
 
 
 
@@ -36,9 +33,6 @@ foreach(item ${apps})
         target_configure_warnings(${name})
     endif()
 endforeach()
-endif()
-add_executable(vis_manip vis_manip.cpp)
-target_link_libraries(vis_manip mlib-vis)
 
 
 

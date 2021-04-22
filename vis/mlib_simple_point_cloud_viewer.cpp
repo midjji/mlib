@@ -2,6 +2,8 @@
 #include <iostream>
 #include <thread>
 #include <osgViewer/Viewer>
+#include <osgViewer/config/SingleWindow>
+
 
 #include <mlib/utils/cvl/pose.h>
 #include "mlib/utils/string_helpers.h"
@@ -25,6 +27,7 @@ PointCloudViewer::PointCloudViewer(std::string name):name(name){}
 PointCloudViewer::~PointCloudViewer(){
     cout<<"calling pcv destructor"<<endl;
     running=false;
+    queue.notify_all();
     if(thr.joinable()) thr.join();
     cout<<"calling pcv destructor joined"<<endl;
 }
@@ -43,8 +46,9 @@ void PointCloudViewer::setPointCloud(const std::vector<PoseD>& poses, double coo
     setPointCloud(xs,cols,poses, coordinate_axis_length);
 }
 
-void PointCloudViewer::setPointCloud(const std::vector<std::vector<PoseD>>& poses,
-                                     double coordinate_axis_length){
+void PointCloudViewer::setPointCloud(
+        const std::vector<std::vector<PoseD>>& poses,
+        double coordinate_axis_length){
 
     std::vector<Color> cols;cols.reserve(poses.size());
 
@@ -125,7 +129,8 @@ void PointCloudViewer::view(PoseD Pcw){
 sPointCloudViewer PointCloudViewer::start(std::string name){
     //cout << endl << endl << endl << endl << "actually inside the start function" << endl << endl << endl << endl;
     sPointCloudViewer pcv=std::make_shared<PointCloudViewer>(name);
-    pcv->thr=std::thread([pcv](){
+    pcv->thr=std::thread([pcv](){ // why is by copy required here, but not in node?
+        pcv->running=true;
         pcv->run();
         pcv->running=false;
     });
@@ -139,26 +144,35 @@ void PointCloudViewer::run() {
     osg::ref_ptr<mlib::MainEventHandler> meh = new mlib::MainEventHandler(viewer);
 
     osg::ref_ptr<osg::Group> scene=new osg::Group;
+
     std::set<osg::Node*> added;
     { // init stuff
-    // setup default scene
-    {
-        // we allways have this to show where origin is, not removed by clear scene
-        scene->addChild(MakeAxisMarker(PoseD::Identity(),2,2));
-        osg::Node* n=PCOrder(default_scene()).group();
-        added.insert(n); // default gets removed on first add
-        scene->addChild(n);
-    }
+        // setup default scene
+        {
+            // we allways have this to show where origin is, not removed by clear scene
+            scene->addChild(MakeAxisMarker(PoseD::Identity(),2,2));
+            osg::Node* n=PCOrder(default_scene()).group();
+            added.insert(n); // default gets removed on first add
+            scene->addChild(n);
+        }
 
-    viewer->setSceneData(scene);
-    viewer->setUpViewInWindow(50, 50, 800, 600);
-    {
-        std::vector<osgViewer::GraphicsWindow*> windows;
-        viewer->getWindows(windows);
-        windows.at(0)->setWindowName(name);
+        viewer->setSceneData(scene);
+
+        //viewer->setUpViewInWindow(50, 50, 800, 600);
+        viewer->apply(new osgViewer::SingleWindow(50,50,800,600,0));
+
+        {
+            std::vector<osgViewer::GraphicsWindow*> windows;
+            viewer->getWindows(windows);
+            if(windows.size()==0){
+                mlog()<<"Problem with generating the windows in osg\n";
+                return;
+            }
+            windows.at(0)->setWindowName(name);
+        }
+
+        viewer->addEventHandler(meh);
     }
-    viewer->addEventHandler(meh);
-}
 
 
 
@@ -208,6 +222,12 @@ void PointCloudViewer::wait_for_done(){
 namespace {
 std::mutex pcv_mtx;
 std::shared_ptr<std::map<std::string, std::shared_ptr<PointCloudViewer> >> pcvs_=nullptr;
+struct PCVM{
+
+    ~PCVM(){
+
+    }
+};
 std::shared_ptr<std::map<std::string, std::shared_ptr<PointCloudViewer> >> get_pcvs(){
     if(pcvs_==nullptr)
         pcvs_=std::make_shared<std::map<std::string, std::shared_ptr<PointCloudViewer>>>();

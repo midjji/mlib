@@ -58,7 +58,7 @@ bool isImageExtension(fs::path path){
     return false;
 }
 
-void create_or_throw(fs::path path){
+void create_or_throw(fs::path path){        
     if(path.filename()!="" )
         path=path.remove_filename();
     try {
@@ -68,6 +68,11 @@ void create_or_throw(fs::path path){
     }
 }
 
-
+std::string ensure_dir(std::string path){
+    if(path.size()>0)
+    if(path.back()!='/')
+        path.push_back('/');
+    return path;
+}
 }//end namespace mlib
 

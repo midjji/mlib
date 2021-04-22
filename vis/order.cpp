@@ -10,6 +10,7 @@ Order::~Order(){}
 void Order::process_events(MainEventHandler* meh){
     for(auto& order:orders)
         order->event(meh);
+    event(meh);
 }
 void Order::push_back(std::unique_ptr<Order> order){orders.push_back(std::move(order));}
 osg::Node* Order::aggregate_groups(){

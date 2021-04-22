@@ -5,7 +5,7 @@
 
 #include <osgViewer/Viewer>
 #include <mlib/vis/main_event_handler.h>
-
+#include <mlib/utils/cvl/lookat.h>
 
 using std::cout;using std::endl;
 namespace mlib{

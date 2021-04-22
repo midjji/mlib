@@ -1,6 +1,6 @@
 #include <mlib/utils/cvl/pose.h>
 #include <mlib/vis/arrow.h>
-
+#include <mlib/utils/cvl/lookat.h>
 
 #include <osg/Geometry>
 

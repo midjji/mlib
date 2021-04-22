@@ -1,6 +1,7 @@
 #include <mlib/utils/mlog/log.h>
 #include <mlib/vis/convertosg.h>
 #include <mlib/vis/fps.h>
+#include <mlib/utils/cvl/lookat.h>
 
 using namespace osg;
 using namespace osgGA;

@@ -43,7 +43,9 @@ std::string getIsoDateTime()
     auto ms = std::chrono::duration_cast<std::chrono::milliseconds>( tp.time_since_epoch() );
     size_t modulo = ms.count() % 1000;
     time_t seconds = std::chrono::duration_cast<std::chrono::seconds>( ms ).count();
+
     now << std::put_time( localtime( &seconds ), "%Y-%m-%d %H-%M-%S." );
+
     // ms
     now.fill( '0' );
     now.width( 3 );

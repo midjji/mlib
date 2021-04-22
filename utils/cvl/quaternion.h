@@ -218,6 +218,7 @@ public:
         if(alpha==1.0) {
             return q;
         }
+
         // special case
 
         const T& cos_theta = q[0];
