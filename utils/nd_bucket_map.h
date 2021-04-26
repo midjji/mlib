@@ -40,16 +40,13 @@ public:
                 Vector2i buckets);
     Vector2i position(Vector2d y);
     // a negative number means not found
-    int find(Vector2d query, double max_radius);
+    int find(Vector2d query, double max_radius /* must be less than delta */);
     void add(Data data);
 
 private:
-    std::vector<Vector2i> query_locations(Vector2d y, double max_radius);
+
     /// lowest values
     Vector2d minv;
-    /// highest values
-    Vector2d maxv;
-
 
     /// bucket size x direction
     Vector2d delta;

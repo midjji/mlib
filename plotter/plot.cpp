@@ -16,12 +16,18 @@ namespace cvl {
 namespace  {
 class Plotter{
 public:
-
+    void clear_plot(std::string title){
+        auto plotter=self.lock();
+        run_in_gui_thread(
+                    new QAppLambda([plotter,title](){
+            plotter->clear_plot_internal(title);}));
+    }
     void plot(const std::vector<double>& xs,
               const std::vector<double>& ys,
               std::string title, std::string label){
         call_plot(xs,ys,title, label);
     }
+
     void plot(const std::vector<double>& ts, const std::map<std::string, std::vector<double>>& errs, std::string title){
         for(auto& [name,err]:errs) call_plot(ts,err,title, name);
     }
@@ -44,11 +50,11 @@ private:
     {
 
         std::unique_lock<std::mutex> ul(call_plot_mutex);
-        // Here I know the plotter exists for as long as the        
-        // capture this by reference, then run it in blocking mode, so the lambda finishes before the function returns        
-       // actually opencv does not like blocking! hmm???
+        // Here I know the plotter exists for as long as the
+        // capture this by reference, then run it in blocking mode, so the lambda finishes before the function returns
+        // actually opencv does not like blocking! hmm???
         auto plotter=self.lock();
-        run_in_gui_thread_blocking(
+        run_in_gui_thread(
                     new QAppLambda([plotter,xs,ys,title,label](){
             plotter->plot_internal(xs,ys,title, label);}));
     }
@@ -58,24 +64,37 @@ private:
     std::shared_ptr<JKQTPlotter> named_plot(std::string name){
         auto it=plots_.find(name);
         if(it!=plots_.end()) return it->second;
-        plots_[name]=std::make_shared<JKQTPlotter>();
-        return plots_[name];
+        auto plot=std::make_shared<JKQTPlotter>();
+        plots_[name]=plot;
+        plot->setWindowTitle(QString(name.c_str()));
+        // show plotter and make it a decent size
+        plot->show();
+        plot->resize(600,400);
+        return plot;
+    }
+    void clear_plot_internal(std::string title){
+        std::unique_lock<std::mutex> ul(plot_internal_mtx);
+        auto it=plots_.find(title);
+        if(it!=plots_.end()) {
+
+            //plots_.erase(title);// slow
+            it->second->clearGraphs();
+        }
     }
 
     std::mutex plot_internal_mtx; // protects the map
-    void plot_internal(const std::vector<double>& xs,
-                       const std::vector<double>& ys,
-                       std::string title, // for the window
-                       std::string label // for this graph
-                       ){
+    void plot_internal(
+            const std::vector<double>& xs,
+            const std::vector<double>& ys,
+            std::string title, // for the window
+            std::string label // for this graph
+            ){
         // must be run in the event loop, so call via call_plot
         std::unique_lock<std::mutex> ul(plot_internal_mtx);
 
 
         // 1. create a plotter window and get a pointer to the internal datastore (for convenience)
         std::shared_ptr<JKQTPlotter> plot=named_plot(title);
-        plot->setWindowTitle(QString(title.c_str()));
-
         JKQTPDatastore* ds=plot->getDatastore();
 
         // 2. now we create data for a simple plot (a sine curve)
@@ -105,18 +124,11 @@ private:
         graph1->setYColumn(columnY);
         graph1->setTitle(QObject::tr(label.c_str()));
 
+
         // 5. add the graph to the plot, so it is actually displayed
         plot->addGraph(graph1);
-
-
         // 6. autoscale the plot so the graph is contained
         plot->zoomToFit();
-
-        // show plotter and make it a decent size
-
-        plot->show();
-
-        plot->resize(600,400);
 
     }
 };
@@ -131,7 +143,9 @@ std::shared_ptr<Plotter> plotter(){
     return plotter_;
 }
 
-
+void clear_plot(std::string title){
+    plotter()->clear_plot(title);
+}
 void plot(const std::vector<double>& ys,
           std::string title,
           std::string label){
@@ -148,8 +162,8 @@ void plot(const std::vector<double>& xs,
 }
 void plot(
         const std::vector<double>& xs,
-          const std::map<std::string, std::vector<double>>& yss,
-          std::string title)
+        const std::map<std::string, std::vector<double>>& yss,
+        std::string title)
 {
     if(yss.size()==0)
         std::cout<<"missing y values for plot!"<<std::endl;

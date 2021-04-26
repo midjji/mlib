@@ -39,7 +39,7 @@ public:
 
     template<class... V>
     Polynomial(Type v0, V... v){
-        static_assert(sizeof...(V)<=degree, "");
+        //static_assert(sizeof...(V)<=degree, "");
         std::array<Type,sizeof...(V)+1> arr{v0, Type(v)...};
         for(uint i=0;i<coeffs.size();++i)
             coeffs[i]=Type(0);

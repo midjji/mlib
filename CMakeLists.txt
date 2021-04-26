@@ -41,19 +41,17 @@ if(build_mlib_tests)
     include(CTest)
 endif()
 
-add_subdirectory(stream)
-target_link_libraries(mlib INTERFACE mlib-stream)
-
 add_subdirectory(utils)
 target_link_libraries(mlib INTERFACE mlib-utils)
+
+add_subdirectory(stream)
+target_link_libraries(mlib INTERFACE mlib-stream)
 
 add_subdirectory(sfm)
 target_link_libraries(mlib INTERFACE mlib-sfm)
 
-
 add_subdirectory(opencv_util)
 target_link_libraries(mlib INTERFACE mlib-opencv-utils)
-
 
 add_subdirectory(datasets)
 target_link_libraries(mlib INTERFACE mlib-datasets)
@@ -87,6 +85,6 @@ endif()
 if(BUILD_MLIB_TESTS)
     add_subdirectory(tests)
 endif()
-add_executable(doctest_common_main doctest_common_main.cpp) # must be somewhere once atleast!
-target_link_libraries(doctest_common_main mlib)
+#add_executable(doctest_common_main doctest_common_main.cpp) # must be somewhere once atleast!
+#target_link_libraries(doctest_common_main mlib)
 message("\n\nmlib configuration complete!\n\n")

@@ -10,7 +10,6 @@ namespace cvl{
 class SmoothTrajectory
 {
 protected:
-   virtual PoseD pose2(double time) const=0;
 public:
     // this pose trajectory is smooth and has no fast changes
     virtual ~SmoothTrajectory(){}
@@ -20,29 +19,32 @@ public:
 
     std::vector<double> interior_times(int samples_per_second=10, int border=0) const;
     PoseD operator()(double time) const;
+
+    // Should give poses Pwc
     PoseD pose(double time) const;
 
     // interface...
-    double t0() const{return -60;}
-    double t1() const{return 300;}
+    virtual double t0() const=0;
+    virtual double t1() const=0;
     double get_first_time() const{return t0();}
     double get_last_time() const{return t1();}
     double first_valid_time() const{return t0();}
     double last_valid_time() const{return t1();}
     // for stuff dependent on control point count!
-    int get_first([[maybe_unused]] double time) const{return 0;}
-    int get_last([[maybe_unused]] double time) const{return (t1()-t0());} // assume 1 per second.
-    int get_last2([[maybe_unused]] double time) const{return (t1()-t0());} // assume 1 per second.
+    //int get_first([[maybe_unused]] double time) const{return 0;}
+    //int get_last([[maybe_unused]] double time) const{return (t1()-t0());} // assume 1 per second.
+    //int get_last2([[maybe_unused]] double time) const{return (t1()-t0());} // assume 1 per second.
 
     int current_first_control_point()const{return t0();}
     int current_last_control_point()const{return t1();}
     int size() const{return t1()-t0();}
     double delta_time(){return 1;}
 
-    Vector4d qs(double time, int derivative) const;
-    Vector3d ts(double time, int derivative) const;
+    virtual Vector4d qs(double time, int derivative) const =0;
+    virtual Vector3d ts(double time, int derivative) const =0;
 
-    std::vector<PoseD> display_poses(int per_second=10, int border=0) const;
+    virtual bool analytic_derivatives() const{return false;}
+
     std::vector<PoseD> display_poses(std::vector<double> ts) const;
 
 
@@ -65,7 +67,7 @@ public:
 
     Quaternion<double> qdot(double time, int derivative) const
     {
-        return qdot(time)[derivative];
+        return qs(time,derivative);
     }
 
     template<class T> static Vector3<T>
@@ -80,8 +82,6 @@ public:
     angular_acceleration(Vector<Quaternion<T>,3> qs){
         // body
         auto w=(qs[2]*qs[0].conj() + qs[1]*qs[1].conj())*T(2.0);
-        assert(ceres::abs(w(0))<T(1e-12));
-        //w(0)=T(0.0); // MUST BE TRUE FOR UNIT Q
         return w.vec();
     }
     virtual Vector3d
@@ -104,69 +104,23 @@ protected:
 
 };
 
+std::vector<std::shared_ptr<SmoothTrajectory>> test_trajectories();
+
+
+
+
 #if 0
-class AxisLoop:public SmoothTrajectory{
-public:
-    Quaternion<double> w;
-    AxisLoop(Vector3d axis=Vector3d(0,1,0,0)){
-        w=Vector4d(0,axis[0],axis[1],axis[2])*3.14159265359/2.0;
-    }
-    // interface...
-
-    PoseD pose2(double time) const override{ // always 0,1
-        return PoseD(w.uexp(time*10),0);
-    }
-    Vector4d qs(double time, int derivative) const
-    {
-
-        if(derivative==0)
-        {
-            return w.upow()
-            // time in [0,100], during which 1 full rotation occurs.
-            double a=alpha(time,0)*3.1415/2.0;
-            auto q=q0.upow(alpha(time,0));
-            return q.q;
-            return Vector4d(std::cos(a),std::sin(a),0,0);
-        }
-        if(derivative==1){
-            auto v=w;
-            return ((v*Quaternion<double>(qs(time,0)))*alpha(time,1)).q;
-        }
-        if(derivative==2){
-            double a1=alpha(time,1);
-            double a2=alpha(time,2);
-            auto v=w;
-            return  (v*Quaternion<double>(qs(time,0))*a2 +
-                     v*v*Quaternion<double>(qs(time,0))*a1*a1).q;
-        }
-        return Vector4d(0,0,0,0);
-    }
-
-
-    Vector3d ts([[maybe_unused]]double time, int derivative) const{
-        if(derivative==0)
-            return Vector3d(0,0,10);
-        return Vector3d(0,0,0);
-    }
-    Vector3d tws(double time, int derivative) const{
-        if(derivative==0){
-            return PoseD(qs(time,0),ts(time,0)).getTinW();
-        }
-
-
-        return (tws(time+delta,derivative-1) -
-                tws(time-delta,derivative-1))/(2.0*delta);
-    }
-
-};
-#endif
 
 class AllRot : public SmoothTrajectory
 {
 public:
     // interface...
-    PoseD pose2(double time) const override;
-
+    Vector4d qs(double time, int derivative) const override {
+        return (q.ulog().upow(derivative)*q.upow(time)).q;
+    }
+    Vector3d ts([[maybe_unused]] double time,[[maybe_unused]]  int derivative) const override{
+        return Vector3d(0,0,0);
+    }
 };
 
 /**
@@ -206,7 +160,7 @@ public:
 
 };
 
-
+#endif
 
 
 }

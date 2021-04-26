@@ -69,7 +69,7 @@ void create_or_throw(fs::path path){
 }
 
 std::string ensure_dir(std::string path){
-    if(path.size()>0)
+    if(path.size()==0) return path;
     if(path.back()!='/')
         path.push_back('/');
     return path;

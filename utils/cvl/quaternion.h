@@ -19,9 +19,12 @@
  * \note MIT licence
  *
  ******************************************************************************/
+
+#include <cmath>
 #include <iostream>
 #include <ceres/jet.h> // just no way around it...
 #include <mlib/utils/cvl/matrix.h>
+#include <mlib/utils/mlog/log.h>
 
 
 namespace cvl{
@@ -41,7 +44,6 @@ namespace cvl{
    for unit q:
  q=(cos(alpha/2),sin(alpha/2)N)
  N= rotation axis
- * Tested by posetest.cpp
  */
 template<class T>
 class Quaternion
@@ -119,44 +121,63 @@ public:
      * @param abs_sin_theta
      * @return
      *
+     * theta is the angle with represents the shortest path from this to the next
+     *
+     *
+     *
      * atan2 must be ceres::atan2 if its to be derivable
+     *
+     *
+     *
+     *
+     *
      */
     T theta_(T cos_theta, T abs_sin_theta) const
     {
-        if(abs_sin_theta<T(1e-5)) return cos_theta;
-        T th=((cos_theta < T(0.0)) ?
+
+
+
+
+        if(abs_sin_theta<T(1e-6)){
+
+        // means cos(theta) is about 1 or -1
+        // if cos(theta)< 0 then return theta
+        if(abs_sin_theta<T(1e-3)){
+            if(cos_theta<T(0.0)) return -abs_sin_theta;
+            return abs_sin_theta;
+        }
+        return ((cos_theta < T(0.0)) ?
                   ceres::atan2(-abs_sin_theta, -cos_theta):
                   ceres::atan2(abs_sin_theta, cos_theta));
-        return th;
+        }
+        // otherwise use the faster cos_theta?
+        T theta = ceres::acos(cos_theta);
+        // theta in [-pi/2 to pi/2] such that the shorter path is chosen
+        if(theta > (3.14159265359*0.5)) theta = 3.14159265359 - theta;
+        return theta;
     }
     /**
      * @brief theta_
      * @return
      *
-     * Slightly slower, but more consistent to just use one?
+     * Slightly slower,
      */
     T theta_() const
     {
-        T sin_squared_theta = vec().squaredNorm();
-        T abs_sin_theta = ceres::sqrt(sin_squared_theta);
-        //cout<<"sin_theta: "<<sin_theta<<endl;
-        T cos_theta = real(); // note we dont use the /2 in the exponent etc.
-
-        T th=((cos_theta < T(0.0)) ?
-                  ceres::atan2(-abs_sin_theta, -cos_theta):
-                  ceres::atan2(abs_sin_theta, cos_theta));
-        return th;
+        T abs_sin_theta = ceres::sqrt(vec().squaredNorm());
+        return theta_(q[0],abs_sin_theta);
     }
 
-
-
+    void warn_on_not_unit() const noexcept{
+        #ifndef NDEBUG
+        // this is slow, only on debug?
+        if(ceres::abs(q.squaredNorm()-1)>1e-10)
+            std::cout<<"ulog: requires unit norm "<<q.squaredNorm()<<std::endl;
+        #endif
+    }
 
     Quaternion ulog() const {
-
-
-        //if(ceres::abs(q.squaredNorm()-T(1))>T(1e-10)) std::cout<<"ulog: "<<q.squaredNorm()<<std::endl;
-
-        //Vector4<T> q=this->q;        if(q[0]<T(0))            q=-q;
+        warn_on_not_unit();
 
         const T& q0 = q[0];
         const T& q1 = q[1];
@@ -164,21 +185,27 @@ public:
         const T& q3 = q[3];
 
         const T sin_squared_theta = q1 * q1 + q2 * q2 + q3 * q3;
-        if(sin_squared_theta<T(1e-10))
-            return Vector4<T>(T(0),q1,q2,q3);
+        //if(sin_squared_theta<T(1e-12)) return q0<T(0) ? -Vector4<T>(T(0),q1,q2,q3):Vector4<T>(T(0),q1,q2,q3);
 
 
 
 
-        const T sin_theta = ceres::sqrt(sin_squared_theta);
+        const T abs_sin_theta = ceres::sqrt(sin_squared_theta);
         //cout<<"sin_theta: "<<sin_theta<<endl;
         const T& cos_theta = q0;
-        T theta =theta_(cos_theta, sin_theta);
+        T theta =theta_(cos_theta, abs_sin_theta);
 
 
         Vector<T,4> out;
         out[0]=T(0.0);
-        T k=theta/sin_theta;
+        T k;
+        // so this should be the short path
+        if(abs_sin_theta<T(1e-6) )
+            k = cos_theta<T(0) ? T(-1): T(1);
+        else
+            k = theta/abs_sin_theta;
+
+
         //cout<<"theta: "<<theta<<endl;
         out[1] = q1 * k;
         out[2] = q2 * k;
@@ -187,25 +214,11 @@ public:
 
         return out;
     }
-
-    Quaternion uexp(T alpha) const noexcept{
-        if(q[0]*q[0]>T(1e-10))
-            std::cout<<"u exp: "<<q[0]<<std::endl;
-        auto v=vec();
-        auto vv=v.squaredNorm();
-        auto vn=ceres::sqrt(vv);
-
-
-        return Quaternion(ceres::cos(vn*alpha),
-                          ceres::sin(vn*alpha)*v/vv
-                          );
-    }
-
-
     // probably works for all values of alpha!
     //assumes unit quaternion,
     //since non unit quaternions technically have ambigious power
     Quaternion upow(double alpha) const{
+        warn_on_not_unit();
         //if(ceres::abs(q.squaredNorm()-T(1))>T(1e-10))std::cout<<"upow: "<<q.squaredNorm()<<std::endl;
 
         //return ulog().uexp(T(alpha));
@@ -215,9 +228,8 @@ public:
 
 
         if(alpha==0.0) return Vector4<T>(T(1.0),T(0),T(0),T(0));
-        if(alpha==1.0) {
-            return q;
-        }
+        if(alpha==1.0) {            return q;        }
+
 
         // special case
 
@@ -228,27 +240,29 @@ public:
         const T& q3 = q[3];
         const T sin_squared_theta = q1 * q1 + q2 * q2 + q3 * q3;
 
-        // the square may be 0 even if q[0]!=1.0
-        // due to rounding
-        if(sin_squared_theta<T(1e-12)){
-            //mlog()<<"hitting special case in pow: "<<sin_squared_theta<<"\n";
-            //return *this;
-            // lhospitals to get the limit..
-            return Vector4<T>(T(1), q1*T(alpha),q2*T(alpha),q3*T(alpha));
+        if(sin_squared_theta<T(1e-12)) {
+
+            double asign=1; if(alpha<0) asign=-1;
+            if(cos_theta <T(0)) asign=-asign;
+            return Vector4<T>(cos_theta,q1*T(asign),q2*T(asign),q3*T(asign));
         }
 
         Vector<T,4> out;
         // For quaternions representing non-zero rotation, the conversion
         // is numerically stable.
 
-        const T sin_theta = ceres::sqrt(sin_squared_theta);
-
-        T theta =theta_(cos_theta,sin_theta);
-
-
+        T abs_sin_theta = ceres::sqrt(sin_squared_theta);
+        // theta in [-pi/2 to pi/2] such that the shorter path is chosen
+        T theta =theta_(cos_theta,abs_sin_theta);
 
         out[0]= ceres::cos(alpha*theta);
-        T k =   ceres::sin(alpha*theta) / sin_theta;
+        T k;
+        if(abs_sin_theta<T(1e-6) ){
+            //mlog()<<"hits this"<<abs_sin_theta<<"\n";
+            k = cos_theta<T(0) ? T(-alpha): T(alpha);
+        }
+        else
+            k = ceres::sin(alpha*theta) / abs_sin_theta;
 
         out[1] = q1 * k;
         out[2] = q2 * k;

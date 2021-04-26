@@ -1,6 +1,8 @@
 #include <mlib/utils/smooth_trajectory.h>
 #include <mlib/utils/cvl/polynomial.h>
 #include <mlib/utils/cvl/lookat.h>
+#include <mlib/utils/smooth_trajectory_axis_loop.h>
+#include <mlib/utils/random.h>
 using std::cout;
 using std::endl;
 namespace cvl{
@@ -8,11 +10,16 @@ namespace cvl{
 PoseD SmoothTrajectory::operator()(double time) const{
     return pose(time);
 }
-PoseD SmoothTrajectory::pose(double time) const{
-    double t=(time-t0())/(t1()-t0()); // 0 to 1
-    //return pose2(time);
-        PoseD P0=this->pose2((10-t0())/(t1()-t0()));
-        return P0.inverse()*this->pose2(t);
+PoseD SmoothTrajectory::pose(double time) const
+{
+
+
+
+    // that would mess up the derivatives!
+    return PoseD(this->qs(time, 0), this->ts(time,0));
+
+    //PoseD P0=this->pose2((10-t0())/(t1()-t0()));
+    //return P0.inverse()*this->pose2(t);
 }
 
 
@@ -25,17 +32,10 @@ std::vector<PoseD> SmoothTrajectory::display_poses(std::vector<double> ts) const
     return ps;
 }
 
-std::vector<PoseD> SmoothTrajectory::display_poses(int samples_per_second,  int border) const{
 
-    auto ts=interior_times(samples_per_second,border);
-    std::vector<PoseD> ps;ps.reserve(ts.size());
-    for(auto t:ts)
-        ps.push_back(this->pose(t));
-
-    return ps;
-}
-
-std::vector<double> SmoothTrajectory::interior_times(int samples_per_second, int border) const{
+std::vector<double> SmoothTrajectory::interior_times(
+        int samples_per_second,
+        int border) const{
     int N=t1()-t0();N*=samples_per_second;
     std::vector<double> ts;ts.reserve(N);
 
@@ -46,6 +46,33 @@ std::vector<double> SmoothTrajectory::interior_times(int samples_per_second, int
     }
     return ts;
 }
+
+
+
+
+
+std::vector<std::shared_ptr<SmoothTrajectory>> test_trajectories(){
+    std::vector<std::shared_ptr<SmoothTrajectory>> tests;
+    tests.push_back(std::make_shared<AxisLoop>(Vector3d(1,0,0),1));
+    tests.push_back(std::make_shared<AxisLoop>(Vector3d(0,1,0),1));
+    tests.push_back(std::make_shared<AxisLoop>(Vector3d(0,0,1),1));
+    tests.push_back(std::make_shared<AxisLoop>(Vector3d(0,0,1),0.1));
+    auto random_axis=[](){Vector3d axis(0,0,0);
+        while(axis.norm()==0){
+            axis=Vector3d(mlib::randn(),mlib::randn(),mlib::randn());
+        }
+        return axis.normalized();
+    };
+    for(int i=0;i<3;++i)
+            tests.push_back(std::make_shared<AxisLoop>(random_axis(),0.1));
+
+    return tests;
+}
+
+
+
+
+#if 0
 Vector4d SmoothTrajectory::qs(double time, int derivative) const{
     if(derivative==0) return pose(time).q();
 
@@ -250,7 +277,7 @@ Vector3d AllRot3::position(double time) const{
 
 PoseD AllRot3::pose2(double time) const
 {
-double dt=1;
+    double dt=1;
 
     PoseD P=lookAt(Vector3d(0,0,0),
                    position(time),
@@ -263,6 +290,6 @@ double dt=1;
 
 
 
-
+#endif
 
 }

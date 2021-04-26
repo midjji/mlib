@@ -18,9 +18,9 @@ target_configure_warnings(mlib-vis)
 target_link_libraries(mlib-vis PUBLIC mlib-utils)
 target_link_libraries(mlib-vis PUBLIC mlib-stream)
 
-find_package( OpenCV 4 REQUIRED)
-target_include_directories(mlib-vis SYSTEM PUBLIC ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(mlib-vis PUBLIC ${OpenCV_LIBS})
+#find_package( OpenCV 4 REQUIRED)
+#target_include_directories(mlib-vis SYSTEM PUBLIC ${OpenCV_INCLUDE_DIRS})
+#target_link_libraries(mlib-vis PUBLIC ${OpenCV_LIBS})
 
 
 macro(FIND_OSG)

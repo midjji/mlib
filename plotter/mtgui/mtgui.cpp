@@ -99,6 +99,7 @@ std::mutex QApp_mtx;
 std::shared_ptr<QApplicationManager> qm=nullptr;
 
 std::shared_ptr<QApplicationManager> qapplication_manager(int argc=0, char** argv=nullptr){
+
     std::unique_lock<std::mutex> ul(QApp_mtx);
     if(qm==nullptr)
         qm=QApplicationManager::create(argc,argv);
