@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
+
 option(BUILD_CERES "build CERES" OFF)
 if(BUILD_CERES)
 if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ceres-solver/CMakeLists.txt")
