@@ -1,7 +1,7 @@
 #include <mlib/utils/nd_bucket_map.h>
 #include <cmath>
 #include <algorithm>
-
+#include <iostream>
 namespace cvl{
 Fast2DQuery::Fast2DQuery(Vector2d minv,
                          Vector2d maxv,
@@ -22,18 +22,6 @@ Vector2i Fast2DQuery::position(Vector2d y){
     return index;
 }
 
-
-
-
-double minimum_distance(Vector2d y, Vector2i index, Vector2d delta){
-    double a=(delta.pointMultiply(index)             - y).norm2();
-    double b=(delta.pointMultiply(index+Vector2i(1,1))- y).norm2();
-    double c=(delta.pointMultiply(index+Vector2i(0,1))- y).norm2();
-    double d=(delta.pointMultiply(index+Vector2i(1,0))- y).norm2();
-    return std::min(std::min(a,b),std::min(c,d) );
-}
-
-
 int Fast2DQuery::find(
         Vector2d y,
         double max_radius)
@@ -44,8 +32,9 @@ int Fast2DQuery::find(
     Vector2i high=p+Vector2i(1,1);       high.cap(Vector2d(0,0),grid.dimensions());
     Data best; best.index=-1;
     double best_dist=std::numeric_limits<double>::max();
-    for(int r=low[0];r<high[0];++r)
-        for(int c=low[1];c<high[1];++c)
+    for(int r=low[0];r<high[0] ;++r)
+        for(int c=low[1];c<high[1];++c){
+
             for(auto& data:grid(Vector2i(r,c))){
                 double dist=(data.x - y).norm2();
                 if(best_dist< dist) continue;
@@ -53,6 +42,7 @@ int Fast2DQuery::find(
                 best_dist=dist;
                 best=data;
             }
+        }
     return best.index;
 }
 
