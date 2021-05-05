@@ -117,7 +117,8 @@ public:
 
 
         // the node should not own itself. hence by reference, [&]
-        ipp->node_thr=std::thread([&](){
+        ipp->node_thr=std::thread(
+                    [ipp](){
             mlog().set_thread_name(ipp->node_name());
             ipp->running=true;
             std::unique_lock<std::mutex> ul(ipp->start_mutex);

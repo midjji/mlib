@@ -34,6 +34,9 @@
 
 
 namespace mlib{
+
+
+
 /**
  * @brief verified_write to file
  * @param str
@@ -74,5 +77,31 @@ struct Vblock{
 // in the same namespace as the second argument, ths
 std::istream& operator>>(std::istream& is, mlib::Vblock& vdata);
 std::ostream& operator<<(std::ostream& os, mlib::Vblock& vdata);
+
+
+
+}
+
+// write basic types i.e. int, float etc, but not all pods! as bits to iostream
+//struct to hold the value:
+template<typename T> struct bits_t { T t; }; //no constructor necessary
+//functions to infer type, construct bits_t with a member initialization list
+//use a reference to avoid copying. The non-const version lets us extract too
+template<typename T> bits_t<T&> bits(T &t) { return bits_t<T&>{t}; }
+template<typename T> bits_t<const T&> bits(const T& t) { return bits_t<const T&>{t}; }
+// now for basic types thats it!, note wont even work for all pods... see pragma pack
+// I should probably restrict it, but its so nice so its up to the user!
+
+//insertion operator to call ::write() on whatever type of stream
+template<typename S, typename T>
+S& operator<<(S& s,bits_t<T> b) {
+    s.write(reinterpret_cast<char*>(&b.t), sizeof(T));
+    return s;
+}
+//extraction operator to call ::read(), require a non-const reference here
+template<typename S, typename T>
+S& operator>>(S& s, bits_t<T&> b) {
+    s.read(reinterpret_cast<char*>(&b.t), sizeof(T));
+    return s;
 }
 

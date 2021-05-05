@@ -29,6 +29,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC Threads::Threads)
 
 #unfortunately the quaternion requires ceres, but this can be trivially removed if you dont plan to use them in optimization.
 target_link_libraries(mlib-utils PUBLIC mceres)
+target_include_directories(mlib-utils PUBLIC ${MLIB_TOP_PATH}/mlib/extern/pfr/include)
 
 
 
