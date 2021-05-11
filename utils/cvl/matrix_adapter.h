@@ -209,7 +209,7 @@ public:
      */
     T* begin(){
         assert(cols*sizeof(T)==stride);
-        return &data[0];
+        return (T*)(&data[0]);
     }
     mlib_host_device_
     /**
@@ -218,7 +218,7 @@ public:
      */
     T* end(){
         assert(cols*sizeof(T)==stride);
-        return &data[rows*stride*sizeof(T)];
+        return (T*)(&data[rows*stride*sizeof(T)]);
     }
     ///@return get memory which spans the matrix ie rows*stride !
     mlib_host_device_

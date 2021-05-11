@@ -14,6 +14,13 @@
 
 #include <limits>
 #include <cstdint>
+#include <type_traits>
+#include <assert.h>
+
+#include <limits>
+#include <cstdint>
+#include <array>
+#include <mlib/utils/cvl/matrix.h>
 namespace cvl {
 
 
@@ -22,56 +29,88 @@ namespace cvl {
 
 // so this works for both fixed stack arrays and pointers smart ptrs etc
 // clone function? no problem, if storage has clone, it has clone
-// view, semantic is clear, but return type cant be this kind of Tensor
+// view, semantic is clear, but it changes the underlying storage type
 // stride is tricky. It requires something more
-// fixed dim type tensor has performance advantages, but is limited in use
+// slice is interesting, its a kind of view with different indexing
 
-// Basically we need three tensors
-// fully variable:          minimum speed,
+
+// Basically we consider four tensors
+// fully variable:          minimum speed, needs storage for dim count then
+// fixed dimensions:        probably best!
 // fixed dims and stride    lower speed, fixed view, but compiletime dimensionchecking
 // fixed dims ==stride      max speedst
-
 // but the middle one can probably be ignored almost always, its for sub
+// This is not a replacement for matrix today, it is a replacement for the old MatrixAdapter, designed to be used in the mlib cuda stuff
+// having both stride and
+
+
+
+// Storage is interesting,
+// what do we do about alignment?
+// Optimal Alignment can depend on the use i.e. the dimensions,
+// answer, leave it to the user!
+
+// its possible to avoid anyways, so no worries.
+// access byte array cast to type ub? yes!
+// Note, casting the pointer of any pod to any other pod and accessing it is UB in general!
+// so using byte pointers is no good. Though it sure does seem to work correctly alot...
+// thats the problem of the previous MatrixAdapter!
+// so the real question becomes how do we handle alignment?
+// the short answer is in storage, and the user must know what they are doing.
+
+// Storage is contigous and supports indexing
+// is it clearer to use non-virtual inheritance or separate classes?
+// its probably clearer to use separate classes
+// Storage is either a non-owning, i.e. a view,
+// co-owning i.e a shared ptr, or owning i.e a unique ptr
+// for cpu this corresponds to
+//std::shared_ptr<int[size]> a(); // has element_type, and req for correct destructor
+//std::unique_ptr<int[size]> a();
+
+template<class element_type_,
+         class index_type=std::uint64_t>
+struct View {
+    using element_type=element_type_;
+    element_type* ptr=nullptr;
+    index_type size=0;
+    View()=default;
+    explicit View(element_type* ptr,
+                  index_type size):ptr(ptr),size(size){}
+    // does index type matter here? possibly
+    inline const element_type& operator[](std::uint32_t index) const {
+        assert(index<size && "out of bounds");
+        return ptr[index];}
+    inline const element_type& operator[](std::uint64_t index) const {
+        assert(index<size && "out of bounds");
+        return ptr[index];}
+    inline element_type& operator[](std::uint32_t index) {
+        assert(index<size && "out of bounds");
+        return ptr[index];}
+    inline element_type& operator[](std::uint64_t index) {
+        assert(index<size && "out of bounds");
+        return ptr[index];}
+
+    element_type* begin(){return ptr;}
+    const element_type* begin() const{return ptr;}
+    const element_type* cbegin() const{return ptr;}
+    const element_type* end() const{return &ptr[size];}
+    // add the rest here when I need them, is there a cost to std::bidirectional iterator? is it supported on cuda?
+};
+#if 0
 
 
 template<class Storage,
  unsigned int... dimensions> // always atleast 1...
-/**
- * @brief The Tensor class
- * treats a storage like a tensor of specified Dimensions
- * Desc Major order e.g. a Row major matrix would be TensorAdapter<Rows,Cols> t(data); t(row,col)<=>data[row*Cols + col];
- *
- *
- * Try
- * Tensor<std::array<int,6>,2,3> ten({0,1,2,3,4,5});
- *
- * its a matrix and its equivalently fast.
- *
- * for
- *
- *
- * for cuda simply create an array struct
- * template<class T, int size>
-struct array{
-    T data[size];
-    array()=default;
-    T& operator[](unsigned int i)
-    {
-        return data[i];
-    }
-};
- *
- */
-class Tensor
+struct FixedTensor
 {
-    public:
-    // ensures uint indexes computation is used if the number of elements is low enough to support it and uint64 otherwise
-   using index_type=std::conditional_t<((std::uint64_t{1l} * ... * dimensions )<std::numeric_limits<std::uint32_t>::max()), std::uint32_t, std::uint64_t>;
-
+    // ensures uint32 indexes computation is used if the number of elements is low enough to support it and uint64 otherwise
+    using index_type=std::conditional_t<((std::uint64_t{1l} * ... * dimensions )<std::numeric_limits<std::uint32_t>::max()), std::uint32_t, std::uint64_t>;
+    //might be possible to do this with decltype instead
+    using element_type = typename Storage::element_type;
 
     Storage data;
-    Tensor()=default;
-    explicit Tensor(Storage data): data(data)
+    FixedTensor()=default;
+    explicit FixedTensor(Storage data): data(data)
     {
         // check that data!=nullptr
         assert(data!=nullptr); // sometimes relevant, mostly not,
@@ -79,12 +118,13 @@ class Tensor
         //static_assert(sanity_check_dimensions()," no dimension may be zero");
         static_assert(elements()!=0,"");
     }
-
-
     static constexpr index_type elements(){
         return (dimensions * ...); // correct for 1 element too,
     }
-    auto& operator(index_type index){return data[index];}
+
+    inline element_type& operator()(index_type index){return data[index];}
+    inline const element_type& operator()(index_type index) const {return data[index];}
+
     template<class... Indexes>
     auto& operator()(Indexes... indexes)
     {
@@ -99,11 +139,11 @@ class Tensor
             // compiler will optimize this away completely!
             index_type ds[sizeof...(Indexes)]={dimensions...};
             index_type is[sizeof...(Indexes)]={index_type(indexes)...};
-            for(int i=0;i<sizeof...(dimensions);++i){            assert(is[i]<ds[i]);        }
+            for(uint i=0;i<sizeof...(dimensions);++i){            assert(is[i]<ds[i]);        }
 
             //std::cout<<0<<" "<<index<<std::endl;
-            for(int i=0;i<sizeof...(Indexes)-1;++i){
-                int d=ds[i+1];
+            for(uint i=0;i<sizeof...(Indexes)-1;++i){
+                uint d=ds[i+1];
                 index=(is[i] +index)*d;
                 //std::cout<<i<<" "<<d <<" "<<index<<std::endl;
             }
@@ -117,30 +157,28 @@ class Tensor
     auto clone(){
         return Tensor(data.clone());
     }
-
 };
 
-static_assert(std::is_trivial<Tensor<int*,2,3,4>>(),"good c++ is trivial");
+//static_assert(std::is_trivial<Tensor<View<int>,2,3,4>>(),"good c++ is trivial");
 
-int test0(int* r){
-    Tensor<int*,2,3,4> ten(r);
+inline int test0(int* r){
+    FixedTensor<View<int>,2,3,4> ten(View(r,2*3*4));
     return ten(1,2,3);
 }
 
-int test1(int a, int b, int c, int* r){
-    Tensor<int*,2,3,4> ten(r);
+inline int test1(int a, int b, int c, int* r){
+    FixedTensor<View<int>,2,3,4> ten(View(r,2*3*4));
     return ten(a,b,c);
 }
- int test2(int* r){
-     Tensor<int*,2,3,4> ten(r);
-
+inline int test2(int* r){
+     FixedTensor<View<int>,2,3,4> ten(View(r,2*3*4));
     return ten.elements();
  }
 
-void test_ten(){
+inline void test_ten(){
     //
     int rr[30];for(int i=0;i<30;++i)rr[i]=i;
-    Tensor<int*,2,3,4> ten(&rr[0]);
+    Tensor<View<int>,2,3,4> ten(View(&rr[0],30));
     int index=0;
     for(int i=0;i<2;++i)
         for(int j=0;j<3;++j)
@@ -150,32 +188,32 @@ void test_ten(){
                 index++;
             }
 }
-
+/*
 int main(){
 
     test_ten();
     return 0;
 }
+*/
+#endif
 
-#include <type_traits>
-#include <assert.h>
+// Stride is a must, but dimensions is very convenient,
+// So a high perf version might need to be dims free, keeping only stride
 
-#include <limits>
-#include <cstdint>
-#include <array>
-
-
-template<class Storage, int Dimensions>
-class TensorX
+template<class Storage,
+         int Dimensions>
+struct Tensor
 {
     public:
-    using index_type=std::uint64_t;
+    using index_type=std::uint32_t;
     Storage data;
-    // force never used uninitialized somehow?
-    std::array<int, Dimensions> dimensions, strides;
-    TensorX()=default;
-    TensorX(Storage data, std::array<int, Dimensions> dimensions, std::array<int, Dimensions> strides):
-    data(data),dimensions(dimensions), strides(strides)
+    Vector<int, Dimensions> dimensions, strides;
+    Tensor()=default;
+    Tensor(Storage data,
+           Vector<int, Dimensions> dimensions,
+           Vector<int, Dimensions> strides):
+        data(data),
+      dimensions(dimensions), strides(strides)
     {
         static_assert(dimensions.size()==Dimensions);
     }
@@ -192,10 +230,10 @@ class TensorX
         index_type index=0;
         {
             index_type is[sizeof...(Indexes)]={index_type(indexes)...};
-            for(int i=0;i<Dimensions;++i){            assert(is[i]<dimensions[i]);        }
+            for(int i=0;i<int(Dimensions);++i){            assert(is[i]<uint(dimensions[i]));        }
 
             //std::cout<<0<<" "<<index<<std::endl;
-            for(int i=0;i<sizeof...(Indexes)-1;++i){
+            for(int i=0;i<int(sizeof...(Indexes)-1);++i){
                 int d=dimensions[i+1];
                 index=(is[i] +index)*d;
                 //std::cout<<i<<" "<<d <<" "<<index<<std::endl;
@@ -217,19 +255,19 @@ class TensorX
 
 
 int test0(int* r){
-    TensorX<int*,2> ten{r,{3,5}};
+    Tensor<int*,2> ten{r,{3,5}};
     return ten(1,2);
 }
 
 
 int test1(int a, int b, int c, int* r){
-    TensorX<int*,3> ten({r,{3,5,7}});
+    Tensor<int*,3> ten({r,{3,5,7}});
     return ten(a,b,c);
 }
 
 
  int test2(int a, int b, int c, int* r, int d,  int e, int f){
-     TensorX<int*,3> ten({r,{d,e,f}});
+     Tensor<int*,3> ten({r,{d,e,f}});
 
     return ten(a,b,c);
  }
@@ -239,9 +277,6 @@ int test1(int a, int b, int c, int* r){
 
 
 
-
-
-#if 0
 
 template<class T, unsigned int dims>
 class TensorAdapter{
@@ -407,8 +442,6 @@ public:
 
 
 };
-
-#endif
 
 }// end namespace cvl
 #endif

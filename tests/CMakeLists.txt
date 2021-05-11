@@ -16,6 +16,6 @@ cmake_minimum_required(VERSION 3.10)
 
 
 
-#add_executable(test_include_all test_include_all.cpp)
-#target_link_libraries(test_include_all mlib)
+add_executable(test_include_all test_include_all.cpp)
+target_link_libraries(test_include_all mlib)
 #target_configure_warnings(test_include_all)

@@ -74,8 +74,8 @@ endif(WITH_VIS)
 
 option(WITH_MLIB_CUDA "build mlib-cuda" OFF)
 if(WITH_MLIB_CUDA)
-    #add_subdirectory(cuda)
-    #target_link_libraries(mlib INTERFACE mlib-cuda)
+    add_subdirectory(cuda)
+    target_link_libraries(mlib INTERFACE mlib-cuda)
 endif()
 
 

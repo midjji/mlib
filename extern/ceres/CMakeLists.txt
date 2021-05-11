@@ -35,7 +35,8 @@ SET(BUILD_EXAMPLES OFF CACHE BOOL "") # speed
 SET(BUILD_TESTING OFF CACHE BOOL "") # speed
 SET(EXPORT_BUILD_DIR ON CACHE BOOL "") # critical!
 add_subdirectory(ceres-solver)
-
+add_library(mceres INTERFACE)
+target_link_libraries(mceres INTERFACE ceres) #
 
 else()
     # dont use internal ceres for debugging
