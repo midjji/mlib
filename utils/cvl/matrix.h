@@ -1120,10 +1120,11 @@ public:
     T absMax(){
         const Matrix& A = *this;
         T maxv=A(0);
+        if(maxv<T(0)) maxv=-maxv;
         T tmp;
         for(unsigned int i=1;i<Rows*Cols;++i){
             tmp=A(i);
-            if(tmp<0)       tmp=-tmp;
+            if(tmp<T(0))       tmp=-tmp;
             if(maxv<tmp)    maxv=tmp;
         }
         return maxv;
