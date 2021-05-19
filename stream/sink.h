@@ -41,7 +41,6 @@ public:
     bool is_slumbering(){return slumbering;}
     virtual ~Sink(){}
 protected:
-    virtual void init(){}
     virtual void sink_(Input& input)=0;
     std::atomic<bool> slumbering{false};
 private:

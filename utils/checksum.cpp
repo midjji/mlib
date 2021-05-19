@@ -177,5 +177,15 @@ uint64_t checksum64(const std::string& str){
     std::array<uint64_t,2> arr=checksum128(str);
     return arr[0];
 }
+uint32_t checksum32(const uint8_t* ptr, uint len){
+    std::array<uint64_t, 2> hash;hash.fill(0);
+    murmurhash3::MurmurHash3_x64_128(ptr,len,0,&hash[0]);
+    return uint32_t(hash[0]);
+}
+uint64_t checksum64(const uint8_t* ptr, uint len){
+std::array<uint64_t, 2> hash;hash.fill(0);
+murmurhash3::MurmurHash3_x64_128(ptr,len,0,&hash[0]);
+return hash[0];
+}
 }
 

@@ -171,7 +171,7 @@ public:
     void warn_on_not_unit() const noexcept{
         #ifndef NDEBUG
         // this is slow, only on debug?
-        if(ceres::abs(q.squaredNorm()-1)>1e-10)
+        if(ceres::abs(q.squaredNorm()-T(1))>T(1e-10))
             std::cout<<"ulog: requires unit norm "<<q.squaredNorm()<<std::endl;
         #endif
     }

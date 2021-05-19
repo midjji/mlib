@@ -23,13 +23,12 @@ target_link_libraries(${PROJECT_NAME} PUBLIC stdfs )
 FIND_PACKAGE(Threads REQUIRED )
 target_link_libraries(${PROJECT_NAME} PUBLIC Threads::Threads)
 
-#FIND_PACKAGE(Eigen REQUIRED)
-#target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${EIGEN_INCLUDE_DIRS})
+FIND_PACKAGE(Eigen REQUIRED)
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${EIGEN_INCLUDE_DIRS})
 
 
 #unfortunately the quaternion requires ceres, but this can be trivially removed if you dont plan to use them in optimization.
-target_link_libraries(mlib-utils PUBLIC mceres)
-target_include_directories(mlib-utils PUBLIC ${MLIB_TOP_PATH}/mlib/extern/pfr/include)
+target_link_libraries(mlib-utils PUBLIC mlib-extern)
 
 
 

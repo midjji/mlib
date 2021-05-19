@@ -43,19 +43,19 @@
 #include "mlib/datasets/daimler/results_types.h"
 #include "mlib/datasets/tum/tum.h"
 #include "mlib/doc/mainpage4doxygen.h"
-#include "mlib/vis/CameraMatrixManipulator.h"
-#include "mlib/vis/flow_viewer.h"
+
+
 #include "mlib/vis/GLTools.h"
-#include "mlib/vis/nanipulator.h"
+
 #include "mlib/vis/convertosg.h"
 #include "mlib/vis/fbocamera.h"
-#include "mlib/vis/CvGL.h"
+
 #include "mlib/vis/mlib_simple_point_cloud_viewer.h"
-#include "mlib/vis/manipulator.h"
+
 #include "mlib/utils/mlibtime.h"
 #include "mlib/utils/colormap.h"
 #include "mlib/utils/files.h"
-#include "mlib/utils/stream.h"
+
 #include "mlib/utils/colormap_tables/jet_colormap.h"
 #include "mlib/utils/real_fixpoint.h"
 #include "mlib/utils/real.h"
@@ -68,7 +68,7 @@
 #include "mlib/utils/bounding_box.h"
 #include "mlib/utils/mlog/log.h"
 #include "mlib/utils/continuous_image.h"
-#include "mlib/utils/histogram.h"
+
 
 #include "mlib/utils/string_helpers.h"
 #include "mlib/utils/mzip/generator.h"
