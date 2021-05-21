@@ -392,7 +392,8 @@ public:
     auto derivative() const
     {
         // not correct, ignored boundries
-        return BoundedPolynomial<degree,Type>(bounds,p.derivative());
+
+        return BoundedPolynomial<std::max(0,int(degree)-1),Type>(bounds,p.derivative());
     }
     std::vector<BoundedPolynomial<degree+1,Type>> primitive(){
         std::vector<BoundedPolynomial<degree+1,Type>> ret;
@@ -471,6 +472,11 @@ public:
             v+=p(x);
         return v;
     }
+    CompoundBoundedPolynomial()=default;
+    template<uint d0> CompoundBoundedPolynomial(CompoundBoundedPolynomial<d0> p0){
+        for(auto p:p0.polys)
+            polys.push_back(p);
+    }
 
     CompoundBoundedPolynomial reparam(long double d){
         CompoundBoundedPolynomial cbp;
@@ -491,24 +497,26 @@ public:
         }
         return ds;
     }
-    CompoundBoundedPolynomial derivative() const{
-        CompoundBoundedPolynomial ret;
+    CompoundBoundedPolynomial<std::max(0,int(degree)-1)> derivative() const{
+        CompoundBoundedPolynomial<std::max(0,int(degree)-1)> ret;
         for(auto& p:polys)
             ret.add(p.derivative());
         return ret;
     }
-    CompoundBoundedPolynomial derivative(uint N) const{
+    CompoundBoundedPolynomial
+    derivative(uint N) const{
 
         if(N>degree){
-            CompoundBoundedPolynomial ret;
+            CompoundBoundedPolynomial<0> ret;
             return ret;
         }
         if(N==0) return *this;
         if(N==1){
             return derivative();
         }
-        return derivative(N-1).derivative();
+        return derivative(N-1).derivative(); // cast up is ok
     }
+
     std::string str(){
         std::stringstream ss;
         for(auto p:polys)
