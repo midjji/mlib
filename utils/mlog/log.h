@@ -46,8 +46,8 @@ static_assert(__cplusplus>=201103L, " must be c++11 or greater");
 
 
 
-#define mlog() ::cvl::Logger(std::string(__PRETTY_FUNCTION__),std::string(__FILE__),__LINE__)
-#define mlogl() ::cvl::Logger("",std::string(__FILE__),__LINE__)
+#define mlog() ::cvl::Logger(std::string(__PRETTY_FUNCTION__),std::string(__FILE__),0+__LINE__)
+#define mlogl() ::cvl::Logger("",std::string(__FILE__),0+__LINE__)
 
 
 
@@ -108,12 +108,14 @@ public:
     mutable bool flush=false;
 private:
 
-    long int time_ns;
-    bool display_timestamp;
-    bool display_caller_name;
-    bool display_file;
-    bool display_backtrace;
-    std::string  function_description, file, line;
+    long int time_ns=0;
+    bool display_timestamp=true;
+    bool display_caller_name=true;
+    bool display_file=true;
+    bool display_backtrace=true;
+    std::string function_description="";
+    std::string file="";
+    std::string line="";
     std::shared_ptr<Log> log=nullptr;
 };
 

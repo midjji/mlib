@@ -16,7 +16,7 @@ if(WITH_TUM)
 endif(WITH_TUM)
 
 
-if(WITH_SQLITE)
+if(WITH_SQLite)
     option(WITH_Daimler "build daimler dataset" ON)
     if(WITH_Daimler)
         add_subdirectory(daimler)

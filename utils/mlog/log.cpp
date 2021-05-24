@@ -126,7 +126,7 @@ public:
         // resetting name? warn
         if(names[std::this_thread::get_id()]==name_)
         {
-            internal_log(std::string("Warning: void Log::set_thread_name()")+str(__LINE__)
+            internal_log(std::string("Warning: void Log::set_thread_name()")+str(0+__LINE__)
                          +" called twice for the same thread id with the same name. "
                          +"Thread id reuse? or copy paste error.\n");
             return;
@@ -321,6 +321,7 @@ const Logger& Logger::operator<<(StandardEndLine manip) const
     flush=true; // automatic for cout, but not for the file.
     return *this; // lifetime is questionable?
 }
+
 
 void Logger::set_thread_name(std::string name){
     log->set_thread_name(name);

@@ -76,7 +76,6 @@ private:
         std::unique_lock<std::mutex> ul(plot_internal_mtx);
         auto it=plots_.find(title);
         if(it!=plots_.end()) {
-
             //plots_.erase(title);// slow
             it->second->clearGraphs();
         }
@@ -115,6 +114,7 @@ private:
         //          reuse X and Y afterwards!
         //    the variables columnX and columnY will contain the internal column ID of the newly
         //    created columns with names "x" and "y" and the (copied) data from X and Y.
+        ds->clear();
         size_t columnX=ds->addCopiedColumn(X, "x");
         size_t columnY=ds->addCopiedColumn(Y, "y");
 

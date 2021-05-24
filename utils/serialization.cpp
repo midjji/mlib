@@ -6,8 +6,6 @@
 #include <mlib/utils/checksum.h>
 #include <mlib/utils/serialization.h>
 
-
-namespace fs = std::experimental::filesystem;
 using std::endl;using std::cout;
 namespace mlib{
 /**
@@ -22,24 +20,24 @@ namespace mlib{
  *
  *
  */
-bool verified_write(std::string str, std::experimental::filesystem::path path) {
+bool verified_write(std::string str, fs::path path) {
 
 
     // create the chain of directories:
     if(path.parent_path()!="" && !fs::exists(path.parent_path())){
         if(!fs::create_directories(path.parent_path())){
-            mlog()<<"failed to create directories: "<<path.parent_path().native()<<endl;
+            mlog()<<"failed to create directories: "<<path.parent_path().string()<<endl;
             return false;
         }
     }
     if(fs::is_directory(path)){
-        mlog()<<"attempting to write to directory: "<<path.native()<<endl;
+        mlog()<<"attempting to write to directory: "<<path.string()<<endl;
         return false;
     }
     {
         std::ofstream ofs(path,std::ios::binary);
         if(!ofs){
-            mlog()<<"failed to open file for writing"<<path.native()<<endl;
+            mlog()<<"failed to open file for writing"<<path.string()<<endl;
             return false;
         }
         uint64_t cs=checksum64(str);
@@ -49,18 +47,18 @@ bool verified_write(std::string str, std::experimental::filesystem::path path) {
         ofs.write(str.data(),str.size());
         ofs.flush();
         if(!ofs){
-            mlog()<<"failed to write to file"<<path.native()<<endl;
+            mlog()<<"failed to write to file"<<path.string()<<endl;
             return false;
         }
     }
     std::string tmp;
     bool good=verified_read(tmp,path);
     if(!good){
-        mlog()<<"failed to open again"<<path.native()<<endl;
+        mlog()<<"failed to open again"<<path.string()<<endl;
         return false;
     }
     if(tmp!=str){
-        mlog()<<"failed to read, and there was a cache collision"<<path.native()<<endl;
+        mlog()<<"failed to read, and there was a cache collision"<<path.string()<<endl;
         return false;
     }
     return true;
@@ -74,11 +72,11 @@ bool verified_write(std::string str, std::experimental::filesystem::path path) {
  * @param str
  * @return
  */
-bool verified_read(std::string& str, std::experimental::filesystem::path path) {
+bool verified_read(std::string& str, fs::path path) {
     str="";
     std::ifstream ifs(path,std::ios::binary);
     if(!ifs){
-        mlog()<<"failed to open file for reading"<<path.native()<<endl;
+        mlog()<<"failed to open file for reading"<<path.string()<<endl;
         return false;
     }
     std::stringstream ss;

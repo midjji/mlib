@@ -14,7 +14,7 @@ target_configure_warnings(mlib-sfm-anms)
 
 
 target_link_libraries(mlib-sfm-p3p PUBLIC mlib-utils mlib-extern)
-#target_link_libraries(mlib-sfm-p3p PUBLIC mceres)
+
 
 
 

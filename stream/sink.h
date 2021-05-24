@@ -23,7 +23,6 @@
  ******************************************************************************/
 #include <atomic>
 #include <chrono>
-#include <mlib/utils/mlog/log.h>
 #include <mlib/utils/cvl/syncque.h>
 
 namespace cvl {

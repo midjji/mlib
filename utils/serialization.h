@@ -25,11 +25,11 @@
  *
  ******************************************************************************/
 #include <string>
-#include <experimental/filesystem>
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
-
+#include <mlib/utils/files.h>
 
 
 
@@ -51,13 +51,13 @@ namespace mlib{
  *
  *
  */
-bool verified_write(std::string str, std::experimental::filesystem::path path);
+bool verified_write(std::string str, fs::path path);
 /**
  * @brief verified_read use to read files written with verified_write
  * @param str
  * @return
  */
-bool verified_read(std::string& str,std::experimental::filesystem::path path);
+bool verified_read(std::string& str,fs::path path);
 
 
 std::string verifiable_string(std::string data);

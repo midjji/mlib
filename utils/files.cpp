@@ -23,10 +23,10 @@ bool directory_exists(fs::path path, bool verboseiffalse){
         std::cout<<"\nDirectory not found: "<<path<<std::endl;
     return false;
 }
-std::string getPath(std::experimental::filesystem::path path){
+std::string getPath(fs::path path){
     return path.parent_path();
 }
-std::string getName(std::experimental::filesystem::path path){
+std::string getName(fs::path path){
     return path.stem()/path.extension();
 }
 
@@ -64,7 +64,7 @@ void create_or_throw(fs::path path){
     try {
         fs::create_directories(path);
     }  catch (fs::filesystem_error& fe) {
-    mlog()<<"failed to create path: \""<<path<< "\" with error "<<fe.what()<<endl;
+    mlog()<<"failed to create path: \""<<path.string()<< "\" with error "<<fe.what()<<endl;
     }
 }
 
