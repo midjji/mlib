@@ -106,7 +106,7 @@ if constexpr (std::is_trivially_copyable<std::remove_reference_t<T>>()){
         //mlog()<<"should be a string, or a vector: "<<type_name(b.t)<<"\n";
         uint64_t size=b.t.size();
         s<<bits(size);
-        mlog()<<"size: "<<size<<"\n";
+        //mlog()<<"size: "<<size<<"\n";
         for(const auto& e:b.t)
             s<<bits(e);
         return s;
