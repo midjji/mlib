@@ -319,7 +319,7 @@ template<unsigned int degree, class Type=long double>
 class BoundedPolynomial
 {
 public:
-    Vector2<long double> bounds; // only nonzero inside!
+    Vector2<long double> bounds; // [) only nonzero inside!
 
     Polynomial<degree,Type> p;
 
@@ -347,6 +347,7 @@ public:
     }
     // t=x+d
     BoundedPolynomial reparam(long double d){
+        // also potentially flips the direction of the bound!
         return  BoundedPolynomial(bounds - Vector2<long double>(d,d),p.reparam(d));
     }
 
@@ -406,6 +407,7 @@ public:
 
     template<class T>
     T operator()(T x) const{
+        // is always [)
         if(x<bounds[0]) return T(0);
         if(!(x<bounds[1])) return T(0);
         return p(x);
