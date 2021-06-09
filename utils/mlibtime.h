@@ -210,12 +210,8 @@ public:
     //TimeScope<Timer>&& time_scope(){return std::forward<TimeScope<Timer>>(TimeScope<Timer>(this));    }
 
 
-    /**
-     * @brief toStr
-     * @return human readable timer information
-     */
     std::string str() const;
-    std::vector<std::string> toStrRow() const;
+    std::vector<std::string> str_row() const;
 
     /**
      * @brief clear clears the vector with time deltas

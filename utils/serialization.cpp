@@ -86,8 +86,6 @@ bool verified_read(std::string& str, fs::path path) {
     std::string data=ss.str().substr(9,ss.str().size());
 
     uint64_t cs=checksum64(data);
-
-
     uint64_t hash;
     memcpy(&hash,header.data(),8);
     if(cs!=hash)        return false;
@@ -99,20 +97,24 @@ bool verified_read(std::string& str, fs::path path) {
 std::string verifiable_string(std::string data){
     std::stringstream ss;
 
+
     uint64_t cs=checksum64(data);
-    ss.write(reinterpret_cast<char*>(&cs),8);
-    ss<<data;
+    ss<<bits(cs)<<data;
+
+    //ss.write(reinterpret_cast<char*>(&cs),8);
+    //ss<<data;
 
     return ss.str();
 }
 bool verify_string(std::string vdata){
+    if(vdata.size()<8) return false;
+    std::stringstream ss(vdata);
     uint64_t hash;
-    memcpy(&hash,vdata.data(),8);
-
+    ss>>hash;
+    //uint64_t hash;
+    //memcpy(&hash,vdata.data(),8);
     std::string data=vdata.substr(8,vdata.size());
-
     uint64_t cs=checksum64(data);
-    return true;
     return cs==hash;
 }
 std::string serialize(std::string data)

@@ -89,11 +89,11 @@ void FlowField::append(std::shared_ptr<FlowField> ff){
         trajectories.push_back(tr);
     clean();
 }
-FlowOrder::FlowOrder(FlowField& ff, bool update):mlib::Order(update),ff(ff){
-    ff.clean();
+FlowOrder::FlowOrder(const FlowField& ff, bool update):mlib::Order(update),ff(ff){
+    this->ff.clean();
 }
 osg::Node* FlowOrder::group(){
-    ff.clean();
+    this->ff.clean();
     return createFlowField(ff, scale);
 }
 

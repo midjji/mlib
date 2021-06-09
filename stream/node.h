@@ -117,9 +117,9 @@ public:
 
 
         // the node should not own itself. hence by reference, [&]
-        ipp->node_thr=std::thread([&](){
+        ipp->node_thr=std::thread(
+                    [ipp](){
             mlog().set_thread_name(ipp->node_name());
-            ipp->running=true;
             std::unique_lock<std::mutex> ul(ipp->start_mutex);
             ipp->start_cv.wait(ul, [&](){return ipp->ready || !ipp->running;});
             ipp->init();
@@ -156,11 +156,8 @@ protected:
         input_queue.push(input);
     }
 
-    virtual std::string node_name(){ return "Node";}
-    virtual void init() override{
-        this->Sink::init();
-        this->Source::init();
-    };
+    virtual std::string node_name() const{ return "Node";}
+    virtual void init(){}
 
     /**
      * @brief loop
@@ -178,7 +175,7 @@ protected:
             this->push_output(out);
         }
     }
-    std::atomic<bool> running{false};
+    std::atomic<bool> running{true};
     std::atomic<bool> ready{false};
     SyncQue<Input> input_queue;
 private:

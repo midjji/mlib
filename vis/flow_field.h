@@ -52,7 +52,7 @@ public:
 };
 
 struct FlowOrder:public mlib::Order{
-    FlowOrder(FlowField& ff, bool update=false);
+    FlowOrder(const FlowField& ff, bool update=false);
     FlowField ff;
     double scale=1;
     osg::Node* group() override;

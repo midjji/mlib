@@ -45,7 +45,7 @@ public:
     }
 
 protected:
-    virtual void init(){}
+
     void push_output(Output& output)    {
         // guarantee push order
         std::unique_lock<std::mutex> ul(source_mtx);
@@ -78,7 +78,7 @@ using Output= typename Source::Output;
     virtual ~NoSource(){}
 protected:
     void push_output([[maybe_unused]] Output& output){}
-    void init() override{}
+
 private:
     void add_sink([[maybe_unused]] std::shared_ptr<Sink<Output>> queue) override {}
 };

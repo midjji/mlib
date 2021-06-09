@@ -109,10 +109,10 @@ void PointCloudViewer::setPointCloud(const std::vector<Vector3d>& xs,
 void PointCloudViewer::sink_(std::unique_ptr<Order>& order){
     if(order!=nullptr) queue.push(std::move(order));
 }
-void PointCloudViewer::add(FlowField ff, bool clear_scene){
+void PointCloudViewer::add(const FlowField& ff, bool clear_scene){
     queue.push(std::make_unique<FlowOrder>(ff,clear_scene));
 }
-void PointCloudViewer::add(PC pc, bool clear_scene){
+void PointCloudViewer::add(const PC& pc, bool clear_scene){
     queue.push(std::make_unique<PCOrder>(pc, clear_scene));
 }
 

@@ -112,5 +112,5 @@
 #include "mlib/utils/smart_data.h"
 #include "mlib/utils/random_vectors.h"
 //#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-//int main(){return 0;}
+int main(){return 0;}
 

@@ -165,7 +165,9 @@ TimeScope::TimeScope(Timer* timer):timer(timer){    timer->tic();}
 TimeScope::~TimeScope(){        timer->toc();    }
 
 ScopedDelay::ScopedDelay(float128 delay_ns){
-    mark=mlibtime::clock.now() + std::chrono::nanoseconds(int64_t(delay_ns));
+    if(delay_ns>0 && delay_ns<1e9)
+        mark += std::chrono::nanoseconds(int64_t(delay_ns));
+
 }
 
 ScopedDelay::~ScopedDelay(){    
@@ -339,7 +341,7 @@ std::string DisplayTable(std::vector<std::string> headers,
 
 
 
-std::vector<std::string> Timer::toStrRow() const{
+std::vector<std::string> Timer::str_row() const{
     std::vector<std::string> row;
     if(ts.size()==0)
         row={name,"-","-","-","-","-"};
@@ -360,7 +362,7 @@ std::string Timer::str() const{
     }
     std::vector<std::string> headers=
     {"Timer","Total",  "Mean", "Median","Min", "Max","Latest", "Samples"};
-    std::vector<std::string> row=toStrRow();
+    std::vector<std::string> row=str_row();
     std::vector<std::vector<std::string>> rows={row};
     return local::DisplayTable(headers,rows);
 }
@@ -417,7 +419,7 @@ std::ostream& operator<<(std::ostream &os,const std::vector<Timer>& ts){
     {"Timer","Total",  "Mean", "Median","Min", "Max", "Samples"};
     std::vector<std::vector<std::string>> rows;
     for(const Timer& timer:ts){
-        rows.push_back(timer.toStrRow());
+        rows.push_back(timer.str_row());
     }
     return os<< local::DisplayTable(headers,rows);
 }

@@ -7,6 +7,9 @@ add_library(mlib-extern INTERFACE)
 add_subdirectory(ceres)
 target_link_libraries(mlib-extern INTERFACE mceres)
 
+target_include_directories(mlib-extern INTERFACE pfr/include/)
+
+
 # doctest is only a single header, so others may well have included it.
 
 if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/doctest/CMakeLists.txt")

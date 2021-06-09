@@ -265,7 +265,7 @@ auto type_name()
     }
     return std::string("failed to get typename via pretty function, unknown compiler?");
 }
-template<class T> auto type_name(T t){
+template<class T> auto type_name([[maybe_unused]] T t){
     return type_name<T>();
 }
 namespace tuple_print{
@@ -279,11 +279,13 @@ template<class T> std::string str(T t){
     ss<<t;
     return ss.str();
 }
+#if 0
 template<> std::string str<bool>(bool t){
     if(t)
         return "true";
     return "false";
 }
+#endif
 template<class... T>
 std::string str_t(T... t) {
     std::stringstream ss;

@@ -34,6 +34,8 @@ namespace mlib{
 uint32_t checksum32(const std::string& str);
 uint64_t checksum64(const std::string& str);
 std::array<uint64_t, 2> checksum128(const std::string& str);
+uint32_t checksum32(const uint8_t* ptr, uint len);
+uint64_t checksum64(const uint8_t* ptr, uint len);
 
 
 }

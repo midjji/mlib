@@ -32,8 +32,16 @@
 #include <mlib/utils/files.h>
 
 
+#include <mlib/utils/checksum.h>
+#include <mlib/utils/mlog/log.h>
+#include <mlib/utils/mzip/mzip_view.h>
+
+
 
 namespace mlib{
+
+
+
 /**
  * @brief verified_write to file
  * @param str
@@ -74,5 +82,97 @@ struct Vblock{
 // in the same namespace as the second argument, ths
 std::istream& operator>>(std::istream& is, mlib::Vblock& vdata);
 std::ostream& operator<<(std::ostream& os, mlib::Vblock& vdata);
+
 }
 
+template<typename T> struct bits_t { T t; }; //no constructor necessary
+template<typename T> bits_t<T&> bits(T& t) {    return bits_t<T&>{t};}
+template<typename T> bits_t<const T&> bits(const T& t) {    return bits_t<const T&>{t};}
+
+//insertion operator to call ::write() on whatever type of stream
+template<typename S, typename T>
+S& operator<<(S& s,bits_t<T> b) {
+    if(!s) return s;
+
+
+if constexpr (std::is_trivially_copyable<std::remove_reference_t<T>>()){
+                //mlog()<<"should be a basic "<<type_name(b.t)<<"\n";
+        s.write(reinterpret_cast<const char*>(&b.t), sizeof(T));
+        return s;
+    }
+    else
+    {
+        //mlog()<<"should be a string, or a vector: "<<type_name(b.t)<<"\n";
+        uint64_t size=b.t.size();
+        s<<bits(size);
+        //mlog()<<"size: "<<size<<"\n";
+        for(const auto& e:b.t)
+            s<<bits(e);
+        return s;
+    }
+}
+
+
+
+
+//extraction operator to call ::read(), require a non-const reference here
+template<typename S, typename T>
+S& operator>>(S& s, bits_t<T&> b) {
+   /*
+    uint32_t ar[4];
+ static_assert(sizeof(ar)==16,"ok?");
+ auto arr=bits(ar);
+ static_assert(sizeof(arr.t) ==16, "ok?");
+*/
+
+    if(!s) return s;
+    if constexpr (std::is_trivially_copyable<std::remove_reference_t<T>>()){
+        //mlog()<<"should be a pod "<<type_name(b.t)<<"\n";
+
+        s.read(reinterpret_cast<char*>(&b.t), sizeof(T));
+        return s;
+    }
+    else
+    {
+        // so if your pod isnt trivial, why are you landing here?
+        // supports string and vector, and possibly alot of other stuff that isnt actually supported by this at all... user beware!
+        uint64_t size;
+        s>>bits(size);
+
+       // mlog()<<"should be a string, or a vector: "<<type_name(b.t)<<" size: "<<size<<"\n";
+        b.t.resize(size);
+        for(uint i=0;i<size;++i)
+            s>>bits(b.t[i]);
+        return s;
+    }
+
+}
+
+template<typename T> struct vbits_t { T t; }; //no constructor necessary
+template<typename T> vbits_t<T&> vbits(T& t) {    return vbits_t<T&>{t};}
+template<typename T> vbits_t<const T&> vbits(const T& t) {    return vbits_t<const T&>{t};}
+
+template<typename S, typename T>
+S& operator<<(S& s,vbits_t<T> b) {
+    if(!s) return s;
+    // I need to have the binary as final first, there is no way around that...
+    std::stringstream ss;
+    ss<<bits(b.t);
+    uint32_t cs=mlib::checksum32(ss.str());
+    s<<bits(cs);
+    s<<ss.str();
+    return s;
+}
+
+template<typename S, typename T>
+S& operator>>(S& s, vbits_t<T&> b) {
+    if(!s) return s;
+    uint32_t cs;
+    s>>bits(cs);
+    s>>bits(b.t);
+    std::stringstream ss;
+    ss<<bits(b.t);
+    if(cs!=mlib::checksum32(ss.str()))
+        s.setstate(std::ios::failbit);
+    return s;
+}
