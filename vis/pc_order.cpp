@@ -59,8 +59,9 @@ osg::Node* PCOrder::group()
 
     auto& posess=pc.posess;
     auto& colors=pc.pose_colors;
-    if(colors.size()!=posess.size())
-        colors.resize(posess.size());
+    int size=std::min(posess.size(), colors.size());
+    posess.resize(size);
+    colors.resize(size);
 
     for(uint i=0;i<posess.size();++i) {
         auto& poses=posess[i];

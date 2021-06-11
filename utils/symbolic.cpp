@@ -5,7 +5,7 @@
 
 namespace cvl {
 
-Sym::Sym(std::string n, int exponent){
+Sym::Sym(const std::string& n, int exponent){
     comps[n]=exponent;
 }
 std::string Sym::str() const{

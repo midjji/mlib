@@ -1,6 +1,6 @@
 #include "mlib/utils/mlibtime.h"
 #include <iomanip>
-#include <assert.h>
+#include <cassert>
 #include <fstream>
 #include <sstream>
 #include <thread>
@@ -66,7 +66,7 @@ return datetime;
 
 
 namespace  {
-std::string startstr="";
+std::string startstr;
 std::mutex mtx;
 auto program_start = std::chrono::system_clock::now();
 }
@@ -111,8 +111,8 @@ float128  get_steady_now(){
 
 
 
-float128 Time::seconds(){return ns/1e9L;}
-float128 Time::milli_seconds(){return ns/1e6L;}
+float128 Time::seconds() const{return ns/1e9L;}
+float128 Time::milli_seconds() const{return ns/1e6L;}
 
 
 Time& Time::operator+=(Time rhs){
@@ -186,10 +186,10 @@ Timer::Timer(std::string name,uint capacity){
 void Timer::reserve(unsigned int size){
     ts.reserve(size);
 }
-bool Timer::tickable(){
+bool Timer::tickable() const{
     return dotic;
 }
-bool Timer::tockable(){
+bool Timer::tockable() const{
     return !dotic;
 }
 
@@ -417,7 +417,7 @@ std::ostream& operator<<(std::ostream &os,const std::vector<Timer>& ts){
         cout<<"Empty timer list";
     std::vector<std::string> headers=
     {"Timer","Total",  "Mean", "Median","Min", "Max", "Samples"};
-    std::vector<std::vector<std::string>> rows;
+    std::vector<std::vector<std::string>> rows;rows.reserve(ts.size());
     for(const Timer& timer:ts){
         rows.push_back(timer.str_row());
     }

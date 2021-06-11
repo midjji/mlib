@@ -10,7 +10,7 @@ namespace cvl{
 struct Sym {
     std::map<std::string, int> comps;
     Sym()=default;
-    Sym(std::string n, int exponent=1);
+    Sym(const std::string& n, int exponent=1);
 
 
     // display string

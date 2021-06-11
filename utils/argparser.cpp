@@ -1,30 +1,30 @@
 #include <mlib/utils/argparser.h>
 #include <mlib/utils/mlog/log.h>
 #include <iostream>
-#include <assert.h>
+#include <cassert>
 #include <queue>
 #include <sstream>
 using std::cout;
 using std::endl;
 namespace mlib{
-std::vector<std::string> split(std::string args)
+std::vector<std::string> split(const std::string& args)
 {
 
-    std::vector<std::string> words;
-    if(args.size()==0)
+    std::vector<std::string> words;words.reserve(args.size());
+    if(args.empty())
         return words;
 
     std::string tmp;
-    for(uint i=0;i<args.size();++i){
-        if(args[i]==' '){
+    for(const auto& arg:args){
+        if(arg==' '){
             if(tmp.size()>0)
                 words.push_back(tmp);
             tmp.clear();
         }
         else
-            tmp.push_back(args[i]);
+            tmp.push_back(arg);
     }
-    if(tmp.size()>0)
+    if(!tmp.empty())
         words.push_back(tmp);
     return words;
 }

@@ -9,10 +9,9 @@ KDE::KDE(const std::vector<double>& datas_):datas(datas_){
     std::sort(datas.begin(), datas.end(),[](double a, double b){return std::abs(a)<std::abs(b);});
     datas_sorted=datas;
     std::sort(datas_sorted.begin(), datas_sorted.end());
-
 }
 double KDE::operator()(double t, double sigma) const{
-    double nf=(1.0/(sigma*std::sqrt(2*3.14159265359L)))/double(datas.size());
+    double nf=(1.0/(sigma*std::sqrt(2*3.14159265359)))/double(datas.size());
     double output=0;
      double s2=-1.0/(2.0*sigma*sigma);
     for(double d:datas){

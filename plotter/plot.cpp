@@ -14,6 +14,73 @@ namespace cvl {
 
 
 namespace  {
+
+struct Figure
+{
+    JKQTPlotter plot;
+    std::map<std::string, JKQTPXYLineGraph*> graphs;
+
+    JKQTPXYLineGraph* labeled_graph(std::string label)
+    {
+        auto it=graphs.find(label);
+        if(it!=graphs.end()) return it->second;
+        auto graph=new JKQTPXYLineGraph(&plot);
+        graph->setTitle(QObject::tr(label.c_str()));
+        graphs[label]=graph;
+        return graph;
+    }
+
+
+    void set(const std::vector<double>& xs,
+             const std::vector<double>& ys,
+             std::string label)
+    {
+
+        JKQTPDatastore* ds=plot.getDatastore();
+
+        // 2. now we create data for a simple plot (a sine curve)
+        QVector<double> X, Y;
+        X.reserve(xs.size());
+        Y.reserve(ys.size());
+        bool nansinplot=false;
+        for (uint i=0;i<std::min(xs.size(),ys.size());++i) {
+            if(std::isnan(xs[i]+ys[i])){nansinplot=true; continue;}
+            X<<xs[i];
+            Y<<ys[i];
+        }
+        if(nansinplot)
+            std::cout<<"nans in plot"<<std::endl;
+
+        // 3. make data available to JKQTPlotter by adding it to the internal datastore.
+        //    Note: In this step the data is copied (of not specified otherwise), so you can
+        //          reuse X and Y afterwards!
+        //    the variables columnX and columnY will contain the internal column ID of the newly
+        //    created columns with names "x" and "y" and the (copied) data from X and Y.
+
+
+        // these are pointers, not ... ffs...
+        size_t columnX=ds->addCopiedColumn(X, "x");
+        size_t columnY=ds->addCopiedColumn(Y, "y");
+
+        // 4. create a graph in the plot, which plots the dataset X/Y:
+
+        auto graph = labeled_graph(label);
+        graph->setXColumn(columnX);
+        graph->setYColumn(columnY);
+
+        // 5. add the graph to the plot, so it is actually displayed
+        plot.addGraph(graph);
+        // 6. autoscale the plot so the graph is contained
+        plot.zoomToFit();
+    }
+};
+
+
+
+
+
+
+
 class Plotter{
 public:
     void clear_plot(std::string title){
@@ -60,24 +127,28 @@ private:
     }
 
 
-    std::map<std::string, std::shared_ptr<JKQTPlotter>> plots_;
-    std::shared_ptr<JKQTPlotter> named_plot(std::string name){
+    std::map<std::string, std::shared_ptr<Figure>> plots_;
+
+
+
+    std::shared_ptr<Figure> named_plot(std::string name){
         auto it=plots_.find(name);
         if(it!=plots_.end()) return it->second;
-        auto plot=std::make_shared<JKQTPlotter>();
-        plots_[name]=plot;
-        plot->setWindowTitle(QString(name.c_str()));
+        auto figure=std::make_shared<Figure>();
+        plots_[name]=figure;
+        auto& plot=figure->plot;
+        plot.setWindowTitle(QString(name.c_str()));
         // show plotter and make it a decent size
-        plot->show();
-        plot->resize(600,400);
-        return plot;
+        plot.show();
+        plot.resize(600,400);
+        return figure;
     }
     void clear_plot_internal(std::string title){
         std::unique_lock<std::mutex> ul(plot_internal_mtx);
         auto it=plots_.find(title);
         if(it!=plots_.end()) {
             //plots_.erase(title);// slow
-            it->second->clearGraphs();
+            it->second->plot.clearGraphs();
         }
     }
 
@@ -93,42 +164,11 @@ private:
 
 
         // 1. create a plotter window and get a pointer to the internal datastore (for convenience)
-        std::shared_ptr<JKQTPlotter> plot=named_plot(title);
-        JKQTPDatastore* ds=plot->getDatastore();
-
-        // 2. now we create data for a simple plot (a sine curve)
-        QVector<double> X, Y;
-        X.reserve(xs.size());
-        Y.reserve(ys.size());
-        bool nansinplot=false;
-        for (uint i=0;i<std::min(xs.size(),ys.size());++i) {
-            if(std::isnan(xs[i]+ys[i])){nansinplot=true; continue;}
-            X<<xs[i];
-            Y<<ys[i];
-        }
-        if(nansinplot)
-            std::cout<<"nans in plot"<<std::endl;
-
-        // 3. make data available to JKQTPlotter by adding it to the internal datastore.
-        //    Note: In this step the data is copied (of not specified otherwise), so you can
-        //          reuse X and Y afterwards!
-        //    the variables columnX and columnY will contain the internal column ID of the newly
-        //    created columns with names "x" and "y" and the (copied) data from X and Y.
-        ds->clear();
-        size_t columnX=ds->addCopiedColumn(X, "x");
-        size_t columnY=ds->addCopiedColumn(Y, "y");
-
-        // 4. create a graph in the plot, which plots the dataset X/Y:
-        JKQTPXYLineGraph* graph1=new JKQTPXYLineGraph(plot.get());
-        graph1->setXColumn(columnX);
-        graph1->setYColumn(columnY);
-        graph1->setTitle(QObject::tr(label.c_str()));
+        std::shared_ptr<Figure> figure=named_plot(title);
+        figure->set(xs,ys,label);
 
 
-        // 5. add the graph to the plot, so it is actually displayed
-        plot->addGraph(graph1);
-        // 6. autoscale the plot so the graph is contained
-        plot->zoomToFit();
+
 
     }
 };

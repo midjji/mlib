@@ -396,6 +396,7 @@ public:
     }
     Vector<T,6> geodesic_vector(const Pose<T>& b) // component wize makes it convenient as residual
     {
+
         Vector3<T> v=Quaternion<T>(data).geodesic_vector(b.data);
 
         Vector3<T> p=(b.inverse()*(*this)).t(); // think about this again...

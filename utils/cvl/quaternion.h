@@ -306,11 +306,9 @@ public:
     T squaredNorm(){
         return q.squaredNorm();
     }
-
     double geodesic_angle_degrees(Quaternion<double> b){
         return (180.0/3.1415)*(conj()*b).theta_()/2.0; // the last /2.0 is to convert it to half sphere?
     }
-
     // for rotations, the minimum distance!
     double geodesic(Quaternion<double> b){
         // dont use this for ceres, use geodesic_vector instead!
@@ -325,11 +323,8 @@ public:
         if(d0<d1) return d0;
         return d1;
     }
-
-
     Vector3<T> vec() const{return Vector3<T>(q[1],q[2],q[3]);}
     T a() const{return q[0];}
-
 };
 
 // required for

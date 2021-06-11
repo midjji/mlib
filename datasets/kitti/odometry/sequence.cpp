@@ -115,8 +115,12 @@ cv::Mat1b Sequence::getPoseConfusionMatrix(){
     return im;
 }
 cv::Mat3b Sequence::getMap(){
-    std::vector<Vector3d> tws;tws.reserve(gt_poses.size());
+    std::vector<Vector3d> tws;
+    tws.reserve(gt_poses.size());
     std::vector<double> xs,ys,zs;
+    xs.reserve(gt_poses.size());
+    ys.reserve(gt_poses.size());
+    zs.reserve(gt_poses.size());
     for(uint i=0;i<gt_poses.size();++i){
         Vector3d tw=gt_poses[i].translation(); // kitti is in inversem, x,z is interesting
         std::swap(tw[1],tw[2]);

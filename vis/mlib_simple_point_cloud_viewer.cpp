@@ -60,7 +60,7 @@ void PointCloudViewer::setPointCloud(
 
 void PointCloudViewer::setPointCloud(const std::vector<Vector3d>& xs, const std::vector<PoseD>& poses,
                                      double coordinate_axis_length){
-    std::vector<Color> cols;
+    std::vector<Color> cols;cols.reserve(xs.size());
     for(uint i=0;i<xs.size();++i)
         cols.push_back(Color::nr(i));
     setPointCloud(xs,cols,poses, coordinate_axis_length);
@@ -71,11 +71,12 @@ void PointCloudViewer::setPointCloud(
         const std::deque<PoseD>& poses,
         double coordinate_axis_length)
 {
-    std::vector<Color> cols;
+    std::vector<Color> cols;cols.reserve(xs.size());
+
     for(uint i=0;i<xs.size();++i)
         cols.push_back(Color::nr(i));
 
-    std::vector<PoseD> pose_vector;
+    std::vector<PoseD> pose_vector;pose_vector.reserve(poses.size());
     for(uint i=0;i<poses.size();++i)
         pose_vector.push_back(poses[i]);
 
@@ -222,12 +223,6 @@ void PointCloudViewer::wait_for_done(){
 namespace {
 std::mutex pcv_mtx;
 std::shared_ptr<std::map<std::string, std::shared_ptr<PointCloudViewer> >> pcvs_=nullptr;
-struct PCVM{
-
-    ~PCVM(){
-
-    }
-};
 std::shared_ptr<std::map<std::string, std::shared_ptr<PointCloudViewer> >> get_pcvs(){
     if(pcvs_==nullptr)
         pcvs_=std::make_shared<std::map<std::string, std::shared_ptr<PointCloudViewer>>>();

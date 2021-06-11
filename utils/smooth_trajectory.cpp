@@ -63,6 +63,7 @@ std::vector<std::shared_ptr<SmoothTrajectory>> test_trajectories(){
         }
         return axis.normalized();
     };
+    tests.reserve(3);
     for(int i=0;i<3;++i)
             tests.push_back(std::make_shared<AxisLoop>(random_axis(),0.1));
 

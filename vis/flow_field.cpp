@@ -69,7 +69,7 @@ void FlowField::cap_velocity(double len){
 void FlowField::clean(){
     std::vector<Trajectory> trs=trajectories;trajectories.clear();
 
-    for(auto tr:trs)
+    for(const auto& tr:trs)
         if(tr.is_normal())
             trajectories.push_back(tr);
 

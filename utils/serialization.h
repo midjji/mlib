@@ -69,7 +69,7 @@ bool verified_read(std::string& str,fs::path path);
 
 
 std::string verifiable_string(std::string data);
-bool verify_string(std::string vdata);
+bool verify_string(const std::string& vdata);
 
 std::string serialize(std::string data);
 

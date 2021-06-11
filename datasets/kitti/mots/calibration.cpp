@@ -85,7 +85,7 @@ KittiMotsStereoCalibration KittiMotsCalibration::get_color_stereo(std::string ba
             }
             return true;
     }
-    bool KittiMotsCalibration::read_file(std::string path){
+    bool KittiMotsCalibration::read_file(const std::string& path){
 
         /**
 P0: 7.215377000000e+02 0.000000000000e+00 6.095593000000e+02 0.000000000000e+00

@@ -159,7 +159,7 @@ cv::Mat1w get_bw_labels(cv::Mat1b bw)
             ids.insert(*tmp(r,c));
         }
     }
-    std::vector<int> vids;
+    std::vector<int> vids;vids.reserve(ids.size());
     for(int id:ids) vids.push_back(id);
     std::map<int,int> map;
     for(uint i=0;i<vids.size();++i)

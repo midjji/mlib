@@ -4,7 +4,7 @@ using namespace cvl;
 namespace mlib{
 
 double abs(cv::Point2f p){
-    return sqrt(p.x*p.x + p.y*p.y);
+    return std::sqrt(p.x*p.x + p.y*p.y);
 }
 
 

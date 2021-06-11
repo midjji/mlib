@@ -99,9 +99,7 @@ namespace  {
 
 
 std::vector<Color> colors = {
-    Color::red(),
-    Color::green(),
-    Color::blue(),
+
     Color::yellow(),
     Color::cyan(),
     Color::white(),

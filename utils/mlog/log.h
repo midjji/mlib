@@ -66,7 +66,7 @@ public:
      * @param name
      *
      */
-    void set_thread_name(std::string name);
+    void set_thread_name(const std::string& name);
     void set_display_format(bool display_timestamp_,
                             bool display_caller_name_,
                             bool display_file_,
@@ -87,7 +87,7 @@ public:
 
     // dealing with stream control types
     // this is the type of std::cout
-    typedef std::basic_ostream<char, std::char_traits<char> > CoutType;
+    using  CoutType = std::basic_ostream<char, std::char_traits<char> >;
     // this is the function signature of std::endl, and most of the other iomanip
     // how do I know which one it is? I dont, instead add them to ss as usual. endl will become "\n" though
     // meaning we will add a flush to the end if any iomanip has been added.

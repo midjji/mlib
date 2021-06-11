@@ -41,8 +41,8 @@ bool BoundingBox::in(Vector2d rc) const{
 double BoundingBox::area() const{
     return (row_end - row_start)*(col_end - col_start);
 }
-double BoundingBox::rows(){return  row_end - row_start;}
-double BoundingBox::cols(){return  col_end - col_start;}
+double BoundingBox::rows() const {return  row_end - row_start;}
+double BoundingBox::cols() const {return  col_end - col_start;}
 std::vector<Vector2d> BoundingBox::corners() const{
     return {{row_start, col_start},
         {row_start, col_end},
@@ -83,7 +83,7 @@ BoundingBox BoundingBox::remove_border(double b){
         return BoundingBox(id, row_start + b, col_start+b, row_end -b, col_end -b);
     return BoundingBox(-1,0,0,0,0);
 }
-bool BoundingBox::near_image_edge(double d, double rows, double cols){
+bool BoundingBox::near_image_edge(double d, double rows, double cols) const {
     if (row_start -d <0) return true;
     if (col_start - d<0) return true;
     if(row_end +d > rows) return true;

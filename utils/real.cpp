@@ -1,6 +1,5 @@
 #include <mlib/utils/real.h>
 #include <iomanip>
-#include <math.h>
 #include <cmath>
 
 

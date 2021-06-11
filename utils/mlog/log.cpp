@@ -8,6 +8,7 @@
 
 #include <regex>
 #include <mlib/utils/cvl/syncque.h>
+#include <mlib/utils/mlibtime.h>
 using std::cout;
 using std::endl;
 namespace cvl{
@@ -23,38 +24,40 @@ template<class T> std::string str(T t){std::stringstream ss; ss<<t; return ss.st
 
 
 
-class LogMessage{
-public:
-    LogMessage(){}
+struct LogMessage{
+    std::string msg, prettyfun, file, line;
+    std::thread::id id;
+    bool flush;
+    float128 time_ns;
+
+    LogMessage()=default;
     LogMessage(std::string msg,
                std::string prettyfun,
                std::string file,
                std::string line,
                std::thread::id id,
-               bool flush,long int time_ns):msg(msg),prettyfun(prettyfun),file(file), line(line), id(id),flush(flush),time_ns(time_ns){}
-    std::string msg, prettyfun, file, line;
-    std::thread::id id;
-    bool flush;
-    long int time_ns;
-    std::vector<std::string> split_lines() const{
+               bool flush,
+               float128 time_ns):msg(msg),prettyfun(prettyfun),file(file), line(line), id(id),flush(flush),time_ns(time_ns){}
+
+    std::vector<std::string> split_lines() const
+    {
         std::vector<std::string> strs;
         strs.push_back("");
+        strs.back().reserve(msg.size());
 
 
 
-        for(uint i=0;i<msg.size();++i) {
+        for(auto m:msg) {
             if(strs.back().size()>0 && strs.back().back()=='\n')
                 strs.push_back("");
-            strs.back().push_back(msg[i]);
+            strs.back().push_back(m);
         }
-
         return strs;
-
     }
 };
 
 template<class Key, class Value> bool value_exists(const Value& v, const std::map<Key, Value>& es){
-    for(auto e:es)
+    for(const auto& e:es)
         if(e.second==v)
             return true;
     return false;
@@ -99,7 +102,7 @@ class Log{
     std::ofstream ofs;
 public:
     Log(std::string name):name(name){
-        if(name=="")
+        if(name.empty())
             ofs=std::ofstream("log.txt");
         else
             ofs=std::ofstream(name+"_log.txt");
@@ -114,7 +117,8 @@ public:
         ofs.flush();
     }
 
-    bool log_function_information, log_thread_information;
+    bool log_function_information;
+    bool log_thread_information;
     bool save2file=true;
     bool log_time=true;
     void set_thread_name(std::string name_)  {
@@ -139,13 +143,7 @@ public:
         // test names in order:
         uint i=0;
         while(value_exists(name_+"_"+str(i++),names));
-        names[std::this_thread::get_id()]=name_;
-        return;
-
-
-
-
-
+        names[std::this_thread::get_id()]=name_;        
     }
     void show_function_information(bool val){  std::unique_lock<std::mutex> ul(log_mtx);log_function_information=val;    }
     void show_thread_information(bool val)  {  std::unique_lock<std::mutex> ul(log_mtx);log_thread_information=val;    }
@@ -167,15 +165,13 @@ public:
 
 
 private:
-    void internal_log(std::string msg_str){
+    void internal_log(const std::string& msg_str){
 
         std::cout<<msg_str;
         std::cout.flush();
         if(save2file){
             ofs<<msg_str;
             ofs.flush();
-            //std::string tmp=std::regex_replace( msg.msg, std::regex("\n"), "\n        " );
-
         }
     }
 
@@ -227,7 +223,7 @@ private:
         if(color_log_red)
             ss<<"\033[0m";
 
-        if(ss.str().size()>0)
+        if(!ss.str().empty())
             ss<<": ";
 
         while(ss.str().size()<9+12+10+20)
@@ -304,7 +300,7 @@ Logger::Logger(std::string function_description, std::string file, unsigned int 
 
 // dealing with stream control types
 // this is the type of std::cout
-typedef std::basic_ostream<char, std::char_traits<char> > CoutType;
+using CoutType = std::basic_ostream<char, std::char_traits<char> >;
 // this is the function signature of std::endl, and most of the other iomanip
 // how do I know which one it is? I dont, instead add them to ss as usual. endl will become "\n" though
 // meaning we will add a flush to the end if any iomanip has been added.
@@ -323,7 +319,7 @@ const Logger& Logger::operator<<(StandardEndLine manip) const
 }
 
 
-void Logger::set_thread_name(std::string name){
+void Logger::set_thread_name(const std::string& name){
     log->set_thread_name(name);
 }
 }

@@ -45,8 +45,6 @@ public:
     int blocksize;
 };
 
-using std::cout;
-using std::endl;
 
 namespace mlib {
 typedef std::vector<std::vector<std::vector<cv::KeyPoint> > > KPGrid;

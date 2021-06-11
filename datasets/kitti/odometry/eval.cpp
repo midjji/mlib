@@ -64,7 +64,7 @@ void Evaluator::evaluate(){
 
         std::vector<PoseD> gts;
         gts=results[i].seq.gt_poses;
-        std::vector<std::vector<PoseD>> estimates;
+        std::vector<std::vector<PoseD>> estimates;estimates.reserve(estimatepaths.size());
         for(const std::string& estimate:estimatepaths){
 
             Result res=results[i];

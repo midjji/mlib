@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
-#include <assert.h>
+#include <cassert>
 #include <mlib/utils/mlog/log.h>
 #include <mlib/utils/checksum.h>
 #include <mlib/utils/serialization.h>
@@ -42,7 +42,7 @@ bool verified_write(std::string str, fs::path path) {
         }
         uint64_t cs=checksum64(str);
 
-        ofs.write(reinterpret_cast<char*>(&cs),8);
+        ofs.write(reinterpret_cast<char*>(&cs),sizeof(uint64_t));
         ofs<<"\n";
         ofs.write(str.data(),str.size());
         ofs.flush();
@@ -81,13 +81,13 @@ bool verified_read(std::string& str, fs::path path) {
     }
     std::stringstream ss;
     ss<<ifs.rdbuf();
-    std::string header=ss.str().substr(0,8);
+    std::string header=ss.str().substr(0,sizeof(uint64_t));
 
-    std::string data=ss.str().substr(9,ss.str().size());
+    std::string data=ss.str().substr(sizeof(uint64_t)+1,ss.str().size());
 
     uint64_t cs=checksum64(data);
     uint64_t hash;
-    memcpy(&hash,header.data(),8);
+    memcpy(&hash,header.data(),sizeof(uint64_t));
     if(cs!=hash)        return false;
 
     str=data;
@@ -106,7 +106,7 @@ std::string verifiable_string(std::string data){
 
     return ss.str();
 }
-bool verify_string(std::string vdata){
+bool verify_string(const std::string& vdata){
     if(vdata.size()<8) return false;
     std::stringstream ss(vdata);
     uint64_t hash;

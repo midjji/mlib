@@ -114,8 +114,8 @@ public:
     std::string str() const;
     Time& operator+=(Time rhs);
     Time& operator/=(Time rhs);
-    float128 seconds();
-    float128 milli_seconds();
+    float128 seconds() const;
+    float128 milli_seconds() const;
 };
 bool operator==(Time lhs, Time rhs);
 bool operator!=(Time lhs, Time rhs);
@@ -180,8 +180,8 @@ class Timer{
 
 
 public:
-    bool tickable();
-    bool tockable();
+    bool tickable() const;
+    bool tockable() const;
 
     Timer();
     Timer(std::string name, uint capacity=1024);

@@ -44,7 +44,7 @@ private:
     Vector3d translation(std::vector<double> ds){
         return Vector3d(ds[3],ds[7],ds[11]);
     }
-        bool read_file(std::string path);
+        bool read_file(const std::string& path);
         double fx(){        return p0s[0];    }
         double fy(){        return p0s[5];    }
         double px(){return p0s[3];}
