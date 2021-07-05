@@ -15,68 +15,6 @@ using namespace mlib;
 namespace cvl{
 
 namespace kitti{
-namespace {
-cv::Mat3b convertw2rgb8(cv::Mat1w img){
-    cv::Mat3b rgb(img.rows,img.cols);
-    for(int r=0;r<img.rows;++r)
-        for(int c=0;c<img.cols;++c){
-            uint16_t tmp=img(r,c)/16;
-            if(tmp>255)tmp=255;
-            rgb(r,c)=cv::Vec3b(tmp,tmp,tmp);
-        }
-    return rgb;
-}
-}
-cv::Mat3b KittiOdometrySample::rgb(uint id){
-return convertw2rgb8(images.at(id));
-}
-cv::Mat1b KittiOdometrySample::greyb(uint id){
-    auto& in=images.at(id);
-
-    cv::Mat1b out(rows(),cols());
-    for(uint r=0;r<rows();++r)
-        for(uint c=0;c<cols();++c){
-            auto v=in(r,c);            
-            if(v>255)v=255;
-            out(r,c)=uchar(v);
-        }
-    return out;
-}
-cv::Mat1f KittiOdometrySample::greyf(uint id){
-    auto& in=images.at(id);
-
-    cv::Mat1f out(rows(),cols());
-    for(uint r=0;r<rows();++r)
-        for(uint c=0;c<cols();++c){
-            out(r,c)=float(in(r,c));
-        }
-    return out;
-}
-cv::Mat1b KittiOdometrySample::disparity_image(){
-    cv::Mat1b im(rows(), cols());
-    for(uint r=0;r<rows();++r)
-        for(uint c=0;c<cols();++c){
-            float disp=disparity(r,c);
-            disp*=2;
-            if(disp<0) disp=0;
-            if(disp>255)
-                disp=255;
-            im(r,c)=uint8_t(disp);
-        }
-    return im;
-}
-
-cv::Mat3b rgb(uint id);// for visualization, new clone
-
-
-
-
-
-
-
-
-
-
 /**
 cv::Point min_loc, max_loc
 bad idea though, it assumes alot of wierd shit
@@ -159,7 +97,6 @@ void KittiDataset::init(){
     inited=true;
     for(int seq:sequences){
         Sequence s(basepath,seq,rowss[seq],colss[seq],seqimgs[seq]);
-        s.readSequence();
         seqs.push_back(s);
     }
 }
@@ -180,13 +117,17 @@ bool KittiDataset::getImage(std::vector<cv::Mat1b>& images, int number, int sequ
 int KittiDataset::images(int sequence){return seqimgs.at(sequence);}
 
 
-std::shared_ptr<KittiOdometrySample> KittiDataset::get_sample(int sequence, int frameid){
-    std::vector<cv::Mat1w> images;
-    cv::Mat1f disparity;
+std::shared_ptr<KittiOdometrySample> KittiDataset::get_sample(int sequence, int frameid) {
     Sequence seq= getSequence(sequence);
-    seq.getImages(images,disparity,frameid);
-    return std::make_shared<KittiOdometrySample>(images,disparity,sequence,frameid);
+    return seq.get_sample(frameid);
 }
+Sequence KittiDataset::getSequence(int index){init();
+                                              if(index<0){
+                                                  Sequence seq=seqs.at(-index);
+                                                  seq.make_joke_sequence();
+                                                  return seq;
+                                              }
+                                              return seqs.at(index);    }
 std::shared_ptr<KittiOdometrySample> KittiDataset::next(){
     return get_sample(sequence,index++);
 }
@@ -200,7 +141,7 @@ void testKitti(std::string basepath, bool withstereo){
     while(true){
         for(uint seq=0;seq<kd.sequences.size();++seq){
             Sequence sq=kd.getSequence(seq);
-            for(int i=0;i<sq.images;i+=1){
+            for(int i=0;i<sq.samples();i+=1){
                 if(!withstereo){
                     std::vector<cv::Mat1b> imgs;
                     if(!sq.getImages(imgs,i)) continue;
@@ -270,7 +211,16 @@ void testKitti(std::string basepath, bool withstereo){
 
 
 
+std::vector<std::vector<PoseD>> trajectories(std::string basepath){
+    KittiDataset kd(basepath);
+    kd.init();
 
+    std::vector<std::vector<PoseD>> trs; trs.reserve(100);
+    for(const auto& seq : kd.seqs){
+        trs.push_back(seq.gt_poses);
+    }
+    return trs;
+}
 
 
 

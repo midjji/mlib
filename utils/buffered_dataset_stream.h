@@ -30,6 +30,7 @@ public:
         queue.blocking_pop(sd, stop); // return value ignored...
         return sd; // may return nullptr if stream stopped!
     }
+    int samples() const {return ds->samples();}
 
 
     uint offset=0;
@@ -47,7 +48,7 @@ private:
     void loop(){
         //std::cout<<"looping"<<std::endl;
         for(uint index=offset;
-            running && index<ds->samples();
+            running && int(index)<int(ds->samples());
             ++index)
         {
             while(queue.size()>5 && running)    mlib::sleep_ms(10);

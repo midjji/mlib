@@ -49,7 +49,8 @@ public:
     std::string path;
     mtable::gt_db_type gt_storage;
     std::shared_ptr<DaimlerSample> get_sample(uint index);
-    uint samples(){return total_samples;}
+    int samples() const;
+    double time_to_frameid_factor() const;
 
 private:
     uint total_samples=0;

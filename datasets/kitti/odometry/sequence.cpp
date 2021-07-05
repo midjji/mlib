@@ -1,16 +1,10 @@
 #include <fstream>
-
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
-
-
 #include <mlib/utils/files.h>
 #include <mlib/utils/string_helpers.h>
-
 #include <mlib/utils/mlibtime.h>
- 
 #include <mlib/utils/cvl/convertopencv.h>
-
 #include <kitti/odometry/sequence.h>
 using namespace mlib;
 using std::cout;using std::endl;
@@ -18,22 +12,40 @@ namespace cvl{
 namespace kitti{
 
 
+int Sequence::samples() const{return samples_;}
 
+int Sequence::rows() const{return rows_;}
+int Sequence::cols() const{return cols_;}
+std::string Sequence::seqpath() const{
+    std::string tmp=path_+"sequences/"+name()+"/";
+    return tmp;
+}
+int Sequence::sequence() const{return sequence_;}
+std::string Sequence::name() const{ return toZstring(sequence_,2);}
+std::string Sequence::description() const{return description_;}
+double Sequence::baseline() const{return baseline_;}
+double Sequence::time_to_frameid_factor() const{return 10;}
+std::shared_ptr<KittiOdometrySample> Sequence::get_sample(int index) const{
+    std::vector<cv::Mat1w> images;
+    cv::Mat1f disparity;
 
+    if(getImages(images,disparity,index)){
 
-
-
-
+        return std::make_shared<KittiOdometrySample>(images,disparity,sequence(),index, times.at(index));
+         }
+    mlog()<<"tried to read sample out of bounds"<<index<<" " <<samples_<<"\n";
+    return nullptr;
+}
 
 
 
 
 bool Sequence::getImages(std::vector<cv::Mat1b>& imgs, int number) const{
     imgs.clear();imgs.reserve(4);
-    if(number<0 || number>images) return false;
+    if(number<0 || number>samples_) return false;
 
-    std::string lpath=seqpath+"image_0/"+mlib::toZstring(number,6)+".png";
-    std::string rpath=seqpath+"image_1/"+mlib::toZstring(number,6)+".png";
+    std::string lpath=seqpath()+"image_0/"+mlib::toZstring(number,6)+".png";
+    std::string rpath=seqpath()+"image_1/"+mlib::toZstring(number,6)+".png";
     if(!mlib::fileexists(lpath,false)) {cout<<"left image not found: "<<lpath <<endl; assert(false);return false;}
     if(!mlib::fileexists(rpath,false)) {cout<<"right image not found: "<<rpath<<endl; assert(false);return false;}
     cv::Mat1b left = cv::imread(lpath,cv::IMREAD_GRAYSCALE);
@@ -42,32 +54,31 @@ bool Sequence::getImages(std::vector<cv::Mat1b>& imgs, int number) const{
     imgs.push_back(left);
     imgs.push_back(right);
 
-    assert(left.rows==rows);
-    assert(left.cols==cols);
-    assert(right.rows==rows);
-    assert(right.cols==cols);
+    if(left.rows!=rows()) mlog()<<"missmatch: "<<left.rows<<" "<<rows()<<"for id"<<number<<"\n";
+    if(right.rows!=rows()) mlog()<<"missmatch: "<<right.rows<<" "<<rows()<<"for id"<<number<<"\n";
 
-
+    if(left.cols!=cols()) mlog()<<"missmatch: "<<left.cols<<" "<<cols()<<"for id"<<number<<"\n";
+    if(right.cols!=cols()) mlog()<<"missmatch: "<<right.cols<<" "<<cols()<<"for id"<<number<<"\n";
     return true;
 }
 PoseD Sequence::getPose(int number) const{    return gt_poses.at(number);}
-PoseD Sequence::getPoseRightLeft() const{        return PoseD(-Vector3d(baseline,0,0));    }
+PoseD Sequence::getPoseRightLeft() const{        return PoseD(-Vector3d(baseline(),0,0));    }
 bool Sequence::getImages(std::vector<cv::Mat1w>& images,cv::Mat1f& disparity, int number) const{
     std::vector<cv::Mat1b> imgs;
     if(!getImages(imgs,number)) return false;
     // convert to 1w
-    cv::Mat1w L(rows,cols);
-    cv::Mat1w R(rows,cols);
-    for(int row=0;row<rows;++row)
-        for(int col=0;col<cols;++col)
+    cv::Mat1w L(rows(),cols());
+    cv::Mat1w R(rows(),cols());
+    for(int row=0;row<rows();++row)
+        for(int col=0;col<cols();++col)
             L(row,col)=imgs[0](row,col)*16; // bitshift is faster but it should be converted automatically by the compiler
     images.push_back(L);
-    for(int row=0;row<rows;++row)
-        for(int col=0;col<cols;++col)
+    for(int row=0;row<rows();++row)
+        for(int col=0;col<cols();++col)
             R(row,col)=imgs[1](row,col)*16; // bitshift is faster but it should be converted automatically by the compiler
     images.push_back(R);
 
-    std::string stereopath=path+"stereo/"+name+"/"+toZstring(number)+".exr";
+    std::string stereopath=path_+"stereo/"+name()+"/"+toZstring(number)+".exr";
 
     if(!mlib::fileexists(stereopath,false)) {cout<<"stereo image not found: "<<stereopath<<endl; assert(false);return false;}
     disparity=cv::imread(stereopath,cv::IMREAD_ANYDEPTH);
@@ -80,7 +91,7 @@ bool Sequence::getImages(std::vector<cv::Mat1w>& images,cv::Mat1f& disparity, in
 
 }
 
-bool Sequence::isTraining(){return sequence<11;}
+bool Sequence::is_training() const{return sequence()<11;}
 std::vector<unsigned int> Sequence::getDistantFrames(){
     assert(isTraining());
     // shouldnt be any loop closures in it...
@@ -190,7 +201,11 @@ cv::Mat3b Sequence::getMap(){
 
 
 cvl::Matrix3d Sequence::getK(){
-    if((ks[0].getBlock<0,0,3,3>()-ks[1].getBlock<0,0,3,3>()).abs().sum()>1e-7) cout<<"Different K for L,R "<<endl;
+    if((ks[0].getBlock<0,0,3,3>()-ks[1].getBlock<0,0,3,3>()).abs().sum()>1e-7)
+    {
+        mlog()<<"Different K for L,R THAT SHOULD NOT HAPPEN! EXITING DUE TO DATACORRUPTION\n";
+        exit(1);
+    }
     return ks[0].getBlock<0,0,3,3>();
 }
 
@@ -199,36 +214,38 @@ cvl::Matrix3d Sequence::getK(){
 
 
 
-Sequence::Sequence(std::string path_, int sequence_,int rows_, int cols_, int images_){
-    path=path_;
-    sequence=sequence_;
-    name=toZstring(sequence,2);
-    rows=rows_;
-    cols=cols_;
-    images=images_;
-    seqpath=path+"sequences/"+name+"/";
+Sequence::Sequence(std::string path_,
+                   int sequence_,
+                   int rows_,
+                   int cols_,
+                   int samples_):path_(path_), sequence_(sequence_),rows_(rows_),cols_(cols_),samples_(samples_){
+readSequence();
+
 }
 void Sequence::readSequence(){
-    std::string seqpath=path+"sequences/"+name+"/";
 
+    if(inited) return;
 
-    times=readTimes(seqpath+"times.txt");
-    if(sequence<11){
-        gt_poses=readKittiPoses(path+"poses/"+name+".txt");
-        assert((int)gt_poses.size()==images);
+    times=readTimes(seqpath()+"times.txt");
+    if(sequence_<11){
+        gt_poses=readKittiPoses(path_+"poses/"+name()+".txt");
+        if((int)gt_poses.size()!=samples())
+            mlog()<<"Configuration missmatch\n";
     }
 
-    ks=readCalibrationFile(seqpath+"calib.txt");
+    ks=readCalibrationFile(seqpath()+"calib.txt");
     assert(ks.size()==5);
 
-    baseline=-ks[1](0,3)/ks[1](0,0);
+    baseline_=-ks[1](0,3)/ks[1](0,0);
     assert(baseline>0);
-
-
+    inited=true;
 }
 
 
 
+void Sequence::make_joke_sequence(){
+    samples_=std::min(100,samples_);
+}
 
 
 
@@ -309,7 +326,7 @@ std::vector<double> readTimes(std::string path){
 }
 
 std::vector<Matrix34d> readCalibrationFile(std::string path  ){
-   // cout<<"readCalibrationFile path: "<<path<<endl;
+    // cout<<"readCalibrationFile path: "<<path<<endl;
     std::vector<Matrix34d> ks;ks.reserve(4);
     assert(fileexists(path,true));
 
@@ -340,11 +357,10 @@ std::vector<Matrix34d> readCalibrationFile(std::string path  ){
     //double err=M.abs().sum();
     //if(err>1e-10)
     //    cout<<err<<"\n"<<ks[0]<<"\n"<<ks[1]<<endl;
-//cout<<__PRETTY_FUNCTION__ <<": done"<<endl;
+    //cout<<__PRETTY_FUNCTION__ <<": done"<<endl;
     assert(test);
     return ks;
 }
-
 
 
 

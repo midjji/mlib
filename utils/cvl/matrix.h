@@ -41,7 +41,7 @@
 #endif
 #endif
 
-#include <assert.h>
+#include <cassert>
 #include <cmath>
 //#include <mlib/utils/cvl/matrix_adapter.h>
 

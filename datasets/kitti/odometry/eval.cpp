@@ -76,7 +76,7 @@ void Evaluator::evaluate(){
             estimates.push_back(res.poses);
         }
 
-        plot_sequence(gts,estimates,names,path,results[i].seq.name);
+        plot_sequence(gts,estimates,names,path,results[i].seq.name());
 
         // for the ones with gt what is the single worst error
 

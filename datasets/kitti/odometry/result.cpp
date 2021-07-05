@@ -93,7 +93,7 @@ bool Result::init(std::string path){
 
 
 
-    std::string estpath=path+mlib::toZstring(seq.sequence,2)+".txt";
+    std::string estpath=path+mlib::toZstring(seq.sequence(),2)+".txt";
 
 
 
@@ -107,22 +107,22 @@ bool Result::init(std::string path){
   //      altposes=readKittiPoses(altestpath);
 
 
-    if((int)poses.size()==seq.images ){
+    if((int)poses.size()==seq.samples() ){
         state="OK!";
         return true;
     }
-    state="Wrong number of poses:"+toStr((int)poses.size()) + " " + toStr(seq.images);
+    state="Wrong number of poses:"+toStr((int)poses.size()) + " " + toStr(seq.samples());
     return false;
 
 }
 std::string Result::getDisplayString(){
     std::stringstream ss;
-    ss<<"Result: sequence: "<<toZstring(seq.sequence,2)<<" "<<state;
+    ss<<"Result: sequence: "<<toZstring(seq.sequence(),2)<<" "<<state;
     return ss.str();
 }
 
 void Result::evaluate(){
-    if(seq.isTraining())
+    if(seq.is_training())
         compute_benchmark_metrics();
 
     /**
@@ -133,7 +133,7 @@ void Result::evaluate(){
       *
       * */
     // interframe translation and angle error
-    if(seq.isTraining()){
+    if(seq.is_training()){
 
         interframe_angle_error.clear();interframe_angle_error.reserve(seq.gt_poses.size());
         interframe_translation_error.clear();interframe_translation_error.reserve(seq.gt_poses.size());
@@ -190,7 +190,7 @@ void Result::save_evaluation([[maybe_unused]] std::string basepath){
 void Result::save_benchmark_metrics(std::string path){
     // big function ? well soso
     if(seq.gt_poses.size()>0)
-        plot_errors(kes,path,seq.name,lengths);
+        plot_errors(kes,path,seq.name(),lengths);
 }
 
 void Result::compute_benchmark_metrics(){
@@ -205,7 +205,7 @@ void Result::compute_benchmark_metrics(){
 
     // for all start positions do
 
-    for (int first_frame=0; first_frame<seq.images; first_frame+=step_size) {
+    for (int first_frame=0; first_frame<seq.samples(); first_frame+=step_size) {
         assert(seq.images==(int)seq.gt_poses.size());
 
         // for all segment lengths do

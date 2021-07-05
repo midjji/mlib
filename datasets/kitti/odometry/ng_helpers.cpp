@@ -89,7 +89,7 @@ std::string calibdata(Matrix34d K,int rows, int cols){
 
 }
 void writeNgSequence(const Sequence& seq,std::string outputpath){
-    outputpath=outputpath+seq.name;
+    outputpath=outputpath+seq.name();
     // check if the sequence
     // write the ngsystemconfig.xml
     {
@@ -107,15 +107,15 @@ void writeNgSequence(const Sequence& seq,std::string outputpath){
     {
 
         saferSystemCall("mkdir -p "+outputpath+"/systemData");
-        {std::ofstream file;file.open(outputpath+"/systemData"+std::string("/calib_k0.bog")); file<<calibdata(seq.ks[0],seq.rows,seq.cols)<<endl; file.close();}
-        {std::ofstream file;file.open(outputpath+"/systemData"+std::string("/calib_k1.bog")); file<<calibdata(seq.ks[1],seq.rows,seq.cols)<<endl; file.close();}
+        {std::ofstream file;file.open(outputpath+"/systemData"+std::string("/calib_k0.bog")); file<<calibdata(seq.ks[0],seq.rows(),seq.cols())<<endl; file.close();}
+        {std::ofstream file;file.open(outputpath+"/systemData"+std::string("/calib_k1.bog")); file<<calibdata(seq.ks[1],seq.rows(),seq.cols())<<endl; file.close();}
     }
 
     // write the time stamp files
     {
         std::string path=outputpath+"/Grabber_Dataset/";
         saferSystemCall("mkdir -p "+path);
-        for(int i=0;i<seq.images;++i){
+        for(int i=0;i<seq.samples();++i){
             std::stringstream ss;
             ss<<"Timestamp: "<<seq.times[i]<<"\n";
             ss<<"Framestamp: "<<i<<"\n";
@@ -132,12 +132,12 @@ void writeNgSequence(const Sequence& seq,std::string outputpath){
         ss<<"<Grabber>\n";
         ss<<"  <ServerType>23</ServerType>\n";
         ss<<"  <NumCameras>2</NumCameras>\n";
-        ss<<"  <Camera_0_Width>"<<seq.cols<<"</Camera_0_Width>\n";
-        ss<<"  <Camera_0_Height>"<<seq.rows<<"</Camera_0_Height>\n";
+        ss<<"  <Camera_0_Width>"<<seq.cols()<<"</Camera_0_Width>\n";
+        ss<<"  <Camera_0_Height>"<<seq.rows()<<"</Camera_0_Height>\n";
         ss<<"  <Camera_0_Bits_per_pixel>12</Camera_0_Bits_per_pixel>\n";
         ss<<"  <Camera_0_Number_of_channels>1</Camera_0_Number_of_channels>\n";
-        ss<<"  <Camera_1_Width>"<<seq.cols<<"</Camera_1_Width>\n";
-        ss<<"  <Camera_1_Height>"<<seq.rows<<"</Camera_1_Height>\n";
+        ss<<"  <Camera_1_Width>"<<seq.cols()<<"</Camera_1_Width>\n";
+        ss<<"  <Camera_1_Height>"<<seq.rows()<<"</Camera_1_Height>\n";
         ss<<"  <Camera_1_Bits_per_pixel>12</Camera_1_Bits_per_pixel>\n";
         ss<<"  <Camera_1_Number_of_channels>1</Camera_1_Number_of_channels>\n";
         ss<<"</Grabber>\n";
@@ -201,14 +201,14 @@ void writeNgSequence(const Sequence& seq,std::string outputpath){
     std::string path=outputpath+"/Grabber_Dataset/";
     saferSystemCall("mkdir -p "+path);
     mlib::Timer timer;timer.tic();
-    for(int i=0;i<seq.images;++i){
+    for(int i=0;i<seq.samples();++i){
 
         // if the image exists skip it... this relies on no incomplete file beeing written which is guarenteed by the rename and zfs transactions
         if(mlib::fileexists(path+mlib::toZstring(i,5)+"_c1.pgm",false)) continue;
         std::vector<cv::Mat1b> imgs;
         bool test=seq.getImages(imgs,i);
         if(!test){
-            std::cout<<"Failed to read image"<<seq.sequence<<":"<<i<<endl;
+            std::cout<<"Failed to read image"<<seq.sequence()<<":"<<i<<endl;
             exit(1);
         }
 
@@ -231,7 +231,7 @@ void writeNgSequence(const Sequence& seq,std::string outputpath){
             // write log file
 
             timer.toc();
-            cout<<"img: "<<i<<" of "<<seq.images<<" of sequence "<<seq.name <<" time: "<<timer.median()<<endl;
+            cout<<"img: "<<i<<" of "<<seq.samples()<<" of sequence "<<seq.name() <<" time: "<<timer.median()<<endl;
             timer.tic();
         }
 

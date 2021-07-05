@@ -10,39 +10,40 @@ namespace cvl{
 
 class DaimlerSample{
 public:
-    DaimlerSample(){}
+    DaimlerSample()=default;
     // dataset contains 1w images, 1f disparity, and 1b label images
     DaimlerSample(std::vector<cv::Mat1w> images,
-            cv::Mat1f dim,
+                  cv::Mat1f disparity_,
                   cv::Mat1b labels,
-            int frameid):images(images), dim(dim),
-        labels(labels), frameid_(frameid){}
+                  int frameid);
+
+
+    // returns -1 for missing or out of image...
+    float disparity(double row, double col) const;
+    float disparity(Vector2d rowcol) const;
+    Vector3d get_3d_point(double row, double col) const;
+    bool is_car(double row, double col) const;
+    bool is_car(Vector2d rowcol) const;
+
+
+    cv::Mat1b disparity_image()const;  // for visualization, new clone
+    cv::Mat1f disparity_imagef()const;  // for visualization, new clone
+    cv::Mat3b disparity_image_rgb()const; // for visualization, new clone
+    cv::Mat3b rgb(uint id)const; // for visualization, new clone
+    cv::Mat1b gray(uint id)const; // for visualization, new clone
+    cv::Mat1f grayf(uint id)const;
+    cv::Mat3b show_labels()const;// for visualization, new clone
+    int rows() const;
+    int cols() const;
+    int frameid() const;
 
 
 
-    float getDim(double row, double col);
-    float getDim(Vector2d rowcol);
-    Vector3d get_3d_point(double row, double col);
-    bool is_car(double row, double col);
-    bool is_car(Vector2d rowcol);
-
-
-    cv::Mat1b disparity_image(); // for visualization, new clone
-    cv::Mat3b disparity_image_rgb(); // for visualization, new clone
-    cv::Mat3b rgb(uint id); // for visualization, new clone
-    cv::Mat1b gray(uint id); // for visualization, new clone
-    cv::Mat1f grayf(uint id);
-    cv::Mat3b show_labels();// for visualization, new clone
-    uint rows();
-    uint cols();
-    int frameid();
-
-
+private:
     std::vector<cv::Mat1w> images;
-    cv::Mat1f dim; // holds floating point disparities
+    cv::Mat1f disparity_; // holds floating point disparities
     cv::Mat1b labels;
     int frameid_;
-private:
 
 
 };

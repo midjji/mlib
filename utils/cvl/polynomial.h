@@ -503,6 +503,7 @@ public:
         CompoundBoundedPolynomial<std::max(0,int(degree)-1)> ret;
         for(auto& p:polys)
             ret.add(p.derivative());
+        ret.collapse();
         return ret;
     }
     CompoundBoundedPolynomial
@@ -524,6 +525,8 @@ public:
         for(auto p:polys)
             ss<<p.str()<<"\n";
         return ss.str();
+
+
     }
     std::string str2(){
         std::stringstream ss;

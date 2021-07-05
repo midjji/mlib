@@ -110,7 +110,7 @@ public:
 
 
     std::string toMatlabStruct();
-    std::string name(){return seq.name;}
+    std::string name(){return seq.name();}
     Sequence seq;
     std::vector<PoseD> poses;// in kitti direction
 private:

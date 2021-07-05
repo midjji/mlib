@@ -4,6 +4,7 @@
 #include <mlib/utils/cvl/pose.h>
 #include <mlib/datasets/kitti/odometry/sequence.h>
 
+
 namespace cvl{
 
 /**
@@ -18,33 +19,7 @@ namespace kitti{
 
 
 
-class KittiOdometrySample{
-public:
-    std::vector<cv::Mat1w> images;
-    cv::Mat1f disparity;
-    int sequenceid_;
-    int frameid_;
-    KittiOdometrySample(std::vector<cv::Mat1w> images,
-                        cv::Mat1f disparity,
-                        int sequenceid_,
-                        int frameid_):
-        images(images),
-        disparity(disparity),
-        sequenceid_(sequenceid_),
-        frameid_(frameid_)
-    {}
-    int frameid(){return frameid_;}
-    int sequenceid(){return sequenceid_;}
-    uint rows(){return disparity.rows;}
-    uint cols(){return disparity.cols;}
-    cv::Mat1b disparity_image(); // for visualization, new clone
-    cv::Mat3b disparity_image_rgb(); // for visualization, new clone
-    cv::Mat3b rgb(uint id);// for visualization, new clone
-    cv::Mat1w grey(uint id);// for visualization, new clone
-    cv::Mat1b greyb(uint id);// for visualization, new clone
-    cv::Mat1f greyf(uint id);// for visualization, new clone
 
-};
 
 
 
@@ -58,31 +33,32 @@ public:
  *  and allows convenient access to the pertinent data
  */
 class KittiDataset{
+
+
 public:
     using sample_type=std::shared_ptr<KittiOdometrySample>;
-    KittiDataset(){}
-    ~KittiDataset(){}
+    KittiDataset()=default;
     KittiDataset(std::string basepath);
     void init();
-
     bool checkFiles();
 
 
     std::string getseqpath(int sequence);
     bool getImage(std::vector<cv::Mat1b>& images, int number, int sequence, bool cycle=false);
 
-    Sequence getSequence(unsigned int index){init();        return seqs.at(index);    }
+    Sequence getSequence(int index);
     std::shared_ptr<KittiOdometrySample> get_sample(int sequence, int frameid);
 
 
 
     int index=0;
     int sequence=0;
+    // not always true, but always returned by this thing
+    int training_sequences=11;
     std::shared_ptr<KittiOdometrySample> next();
 
 
-    // not always true, but always returned by this thing
-    int training_sequences=11;
+
 
 
     int images(int sequence);
@@ -135,7 +111,7 @@ private:
 void testKitti(std::string basepath="/store/datasets/kitti/dataset/", bool withstereo=false);
 
 
-
+std::vector<std::vector<PoseD>> trajectories(std::string basepath="/store/datasets/kitti/dataset/");
 
 
 

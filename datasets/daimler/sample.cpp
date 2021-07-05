@@ -1,6 +1,6 @@
 #include <daimler/sample.h>
 #include <mlib/utils/mlog/log.h>
- 
+
 #include <mlib/utils/cvl/triangulate.h>
 #include <daimler/calibration.h>
 using std::cout;
@@ -39,28 +39,34 @@ cv::Mat1f convertw2grayf(cv::Mat1w img){
 }
 }
 
-float DaimlerSample::getDim(double row, double col){ // row,col
+DaimlerSample::DaimlerSample(std::vector<cv::Mat1w> images,
+                             cv::Mat1f disparity_,
+                             cv::Mat1b labels,
+                             int frameid):images(images), disparity_(disparity_),
+    labels(labels), frameid_(frameid){}
+
+float DaimlerSample::disparity(double row, double col) const{ // row,col
 
     if(row<0) return -100.0f;
     if(col<0) return -200.0f;
-    if(dim.rows<row) return -300.0f;
-    if(dim.cols<col) return -400.0f;
+    if(rows()<=row) return -300.0f;
+    if(cols()<=col) return -400.0f;
     if(std::isnan(row+col)) return -500.0f;
-    return dim(int(std::round(row)),int(std::round(col)));
+    return disparity_(int(std::round(row)),int(std::round(col)));
 }
-float DaimlerSample::getDim(Vector2d rowcol){return getDim(rowcol[0],rowcol[1]);}
+float DaimlerSample::disparity(Vector2d rowcol) const{return disparity(rowcol[0],rowcol[1]);}
 
 
-Vector3d DaimlerSample::get_3d_point(double row, double col)
+Vector3d DaimlerSample::get_3d_point(double row, double col) const
 {
-    double disp=getDim(row,col);
+    double disp=disparity(row,col);
     if(disp<0) disp=0;
     return DaimlerCalibration::common().triangulate_ray(Vector2d(row,col),disp).dehom();
 }
-bool DaimlerSample::is_car(Vector2d rowcol){
+bool DaimlerSample::is_car(Vector2d rowcol) const{
     return is_car(rowcol(0),rowcol(1));
 }
-bool DaimlerSample::is_car(double row, double col){
+bool DaimlerSample::is_car(double row, double col) const{
 
     assert(row>=0);
     assert(col>=0);
@@ -69,17 +75,19 @@ bool DaimlerSample::is_car(double row, double col){
     return labels(int(std::round(row)),int(std::round(col)));
 } // is disparity still offset by one frame? check !
 
-uint DaimlerSample::rows(){
+int DaimlerSample::rows() const{
     return 1024;
 
 }
-uint DaimlerSample::cols(){return 2048;}
-    int DaimlerSample::frameid(){return frameid_;}
-cv::Mat1b DaimlerSample::disparity_image(){
-    cv::Mat1b im(dim.rows, dim.cols);
-    for(int r=0;r<dim.rows;++r)
-        for(int c=0;c<dim.cols;++c){
-            float disp=dim(r,c);
+int DaimlerSample::cols()const{return 2048;}
+int DaimlerSample::frameid()const{return frameid_;}
+
+cv::Mat1b DaimlerSample::disparity_image() const{
+
+    cv::Mat1b im(rows(), cols());
+    for(int r=0;r<rows();++r)
+        for(int c=0;c<cols();++c){
+            float disp=disparity_(r,c);
             disp*=2;
             if(disp<0) disp=0;
             if(disp>255)
@@ -88,11 +96,15 @@ cv::Mat1b DaimlerSample::disparity_image(){
         }
     return im;
 }
-cv::Mat3b DaimlerSample::disparity_image_rgb(){
-    cv::Mat3b im(dim.rows, dim.cols);
-    for(int r=0;r<dim.rows;++r)
-        for(int c=0;c<dim.cols;++c){
-            float disp=dim(r,c);
+cv::Mat1f DaimlerSample::disparity_imagef() const{
+return disparity_;
+}
+cv::Mat3b DaimlerSample::disparity_image_rgb() const{
+
+    cv::Mat3b im(rows(), cols());
+    for(int r=0;r<rows();++r)
+        for(int c=0;c<cols();++c){
+            float disp=disparity_(r,c);
             disp*=2;
             if(disp<0) disp=0;
             if(disp>255)
@@ -101,21 +113,21 @@ cv::Mat3b DaimlerSample::disparity_image_rgb(){
         }
     return im;
 }
-cv::Mat3b DaimlerSample::rgb(uint id) // for visualization, new clone
+cv::Mat3b DaimlerSample::rgb(uint id) const // for visualization, new clone
 {
     return convertw2rgb8(images.at(id));
 }
-cv::Mat1b DaimlerSample::gray(uint id) // for visualization, new clone
+cv::Mat1b DaimlerSample::gray(uint id) const // for visualization, new clone
 {
     return convertw2gray8(images.at(id));
 }
-cv::Mat1f DaimlerSample::grayf(uint id){
+cv::Mat1f DaimlerSample::grayf(uint id) const{
     return convertw2grayf(images.at(id));
 }
-cv::Mat3b DaimlerSample::show_labels(){
-    cv::Mat3b im(dim.rows, dim.cols);
-    for(int r=0;r<dim.rows;++r)
-        for(int c=0;c<dim.cols;++c){
+cv::Mat3b DaimlerSample::show_labels() const{
+    cv::Mat3b im(rows(), cols());
+    for(int r=0;r<rows();++r)
+        for(int c=0;c<cols();++c){
             float disp=labels(r,c);
             im(r,c)=cv::Vec3b(1,1,1)*disp;
         }

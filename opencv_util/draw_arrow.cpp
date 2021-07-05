@@ -74,6 +74,19 @@ void draw_legend(cv::Mat3b rgb, std::vector<std::tuple<std::string,Color>> label
     for(const auto& [str,col]:labels){
         cv::putText(rgb, str, origin + cv::Vec2i(0,i++*50), fontface, scale, col.fliprb().toScalar<cv::Scalar>(), thickness, 8);
     }
-    //cv::waitKey(0);
 }
+cv::Mat3b draw_arrows(const std::vector<std::pair<Vector2d,Vector2d>>& deltas,
+                      cv::Mat3b rgb)
+{
+    rgb=rgb.clone();
+    for(auto& delta:deltas)
+    {
+        mlib::drawArrow(rgb,
+                        delta.first,
+                        delta.second,
+                        mlib::Color::blue(),2);
+    }
+    return rgb;
+}
+
 }

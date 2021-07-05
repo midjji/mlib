@@ -18,7 +18,7 @@ cv::Mat3b drawData(std::vector<anms::Data>& datas){
 void show(std::vector<Data>& datas,std::string name){
     cv::Mat3b im=drawData(datas);
     cv::imshow(name,im);
-    cv::waitKey(0);
+
 }
 
 

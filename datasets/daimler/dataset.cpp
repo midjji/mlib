@@ -15,6 +15,10 @@ using std::endl;
 using namespace sqlite_orm;
 namespace cvl{
 
+
+int DaimlerDataset::samples() const{return total_samples;}
+double DaimlerDataset::time_to_frameid_factor() const{return 33;}
+
 std::string parse(std::string path2, std::string gt_path){
 
     if(gt_path=="")
