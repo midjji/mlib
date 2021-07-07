@@ -25,7 +25,7 @@ int main()
     while(true){
         for(uint seq=0;seq<kd.sequences.size();++seq){
             Sequence sq=kd.getSequence(seq);
-            for(int i=0;i<sq.images;i+=1){
+            for(int i=0;i<sq.samples();i+=1){
 
 
                 std::vector<cv::Mat1w> imgs;
