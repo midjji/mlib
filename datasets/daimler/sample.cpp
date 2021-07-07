@@ -33,7 +33,7 @@ cv::Mat1f convertw2grayf(cv::Mat1w img){
     for(int r=0;r<img.rows;++r)
         for(int c=0;c<img.cols;++c){
             float tmp=img(r,c);
-            gray(r,c)=tmp;
+            gray(r,c)=tmp/16.0f;
         }
     return gray;
 }

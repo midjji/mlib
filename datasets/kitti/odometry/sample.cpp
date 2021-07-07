@@ -59,7 +59,7 @@ cv::Mat1f KittiOdometrySample::greyf(uint id){
     cv::Mat1f out(rows(),cols());
     for(int r=0;r<rows();++r)
         for(int c=0;c<cols();++c){
-            out(r,c)=float(in(r,c));
+            out(r,c)=float(in(r,c))/16.0F;
         }
     return out;
 }
