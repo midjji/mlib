@@ -1,11 +1,14 @@
 #include <mlib/opencv_util/draw_arrow.h>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <mlib/utils/mlog/log.h>
 using namespace cvl;
 namespace mlib{
 
 double abs(cv::Point2f p){
     return std::sqrt(p.x*p.x + p.y*p.y);
 }
+
+
 
 
 /**
@@ -20,17 +23,26 @@ double abs(cv::Point2f p){
  */
 void drawArrow(cv::Mat3b im, Vector2d from, Vector2d to, Color color, int thick, int length){
 
+
+    if(!(from.isnormal()&& to.isnormal())) {
+        mlog()<<"trying to draw bad arrow"<<from<< " "<<to<<"\n";
+    }
+    //from.cap(Vector2d(0,0),Vector2d(im.rows,im.cols));
+    //to.cap(Vector2d(0,0),Vector2d(im.rows,im.cols));
+
     //assert(in(from,im.size()));
     //assert(in(to,im.size()));
     // opencv uses reverse coordinates for its points, i.e. col,row
+
     cv::Point2f cfrom(from[1],from[0]);
     cv::Point2f cto(to[1],to[0]);
+
     cv::Scalar ccolor(color.getB(), color.getG(), color.getR());
 
 
+    float dist=(from - to).norm();
 
-
-    if( (from - to).norm()<15){
+    if( dist<15){
         // only draw line
         cv::line(im,cfrom,cto,ccolor,thick);
         return;
@@ -59,7 +71,7 @@ void drawArrow(cv::Mat3b im, Vector2d from, Vector2d to, Color color, int thick,
     b.y=float((b.y/abs(b))*length);
     b=b+cto;
 
-    cv::line(im,cfrom,cto,ccolor,thick);
+    cv::line(im,cfrom,cto,ccolor,thick);       
     cv::line(im,cto,a,ccolor,thick);
     cv::line(im,cto,b,ccolor,thick);
 
