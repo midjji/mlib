@@ -282,21 +282,27 @@ public:
     void setRow(const Matrix<T,Rows,1>& rowvec, unsigned int row){
         setRow(rowvec.begin(),row);
     }
+
     ///@return a pointer to the first element
     mlib_host_device_
     const T* begin() const{return &_data[0];}
     ///@return a pointer to the last element
-    mlib_host_device_
-    const T* end() const{
-        return begin()+(Cols*Rows);
-    }
+
     T& back(){ return _data[Rows*Cols-1];}
     const T& back() const{ return _data[Rows*Cols-1];}
 
-    T* begin() {return &_data[0];}
+    T* begin() {
+        return &_data[0];
+    }
+    mlib_host_device_
+    const T* end() const{
+        // Matrix can be bigger than Rows*Cols, but its not strided
+        return begin()+(Cols*Rows);
+    }
     ///@return a pointer to the last element +1
     mlib_host_device_
     T* end() {
+         // Matrix can be bigger than Rows*Cols, but its not strided
         return begin()+(Cols*Rows);
     }
 
@@ -347,6 +353,10 @@ public:
         Matrix& a = *this;
         for(unsigned int i=0;i<Rows*Cols;++i)
             a(i)=T(M(i));
+    }
+    template<class NewType>
+    Matrix<NewType,Rows,Cols> to_type(Matrix a) const{
+       return Matrix<NewType,Rows,Cols>(a);
     }
 
 
@@ -405,7 +415,7 @@ public:
     {
         Matrix& a = *this;
         T si=T(1.0)/s;
-        for (unsigned int i = 0; i < Rows * Cols; i++) {
+        for (unsigned int i = 0; i < Rows * Cols; ++i) {
             a(i) *= si;
         }
         return a;
@@ -963,9 +973,10 @@ public:
         Matrix< T, Rows - 1, Cols> b;
         const Matrix& a = *this;
         T iz;
+        for (unsigned int row = 0; row < Rows - 1; row++)
         for (unsigned int col = 0; col < Cols; col++) {
             iz=(T(1.0)/a(Rows - 1, col));
-            for (unsigned int row = 0; row < Rows - 1; row++) {
+             {
                 b(row, col) = a(row, col) *iz;
             }
         }
@@ -982,8 +993,9 @@ public:
     {
         Matrix< T, Rows - 1, Cols> b;
         const Matrix& a = *this;
+        for (unsigned int row = 1; row < Rows ; ++row)
         for (unsigned int col = 0; col < Cols; ++col) {
-            for (unsigned int row = 1; row < Rows ; ++row) {
+             {
                 b(row-1, col) = a(row, col);
             }
         }
@@ -995,8 +1007,9 @@ public:
     {
         Matrix< T, Rows - 1, Cols> b;
         const Matrix& a = *this;
+        for (unsigned int row = 0; row < Rows - 1; ++row)
         for (unsigned int col = 0; col < Cols; ++col) {
-            for (unsigned int row = 0; row < Rows - 1; ++row) {
+             {
                 b(row, col) = a(row, col);
             }
         }
@@ -1117,7 +1130,7 @@ public:
     }
     ///@return max of elementwise absolute value, only for reals
     mlib_host_device_
-    T absMax(){
+    T absMax() const{
         const Matrix& A = *this;
         T maxv=A(0);
         if(maxv<T(0)) maxv=-maxv;
@@ -1128,6 +1141,12 @@ public:
             if(maxv<tmp)    maxv=tmp;
         }
         return maxv;
+    }
+    bool non_zero() const noexcept{
+        const Matrix& A = *this;
+        for(int i=0;i<Rows*Cols;++i)
+            if(A(i)!=T(0)) return true;
+        return false;
     }
     mlib_host_device_
     T absSum(){
@@ -1515,8 +1534,8 @@ mlib_host_device_
  * @param t
  * @return
  */
-Matrix3<T> get3x4(const Matrix3<T>& R,const Vector3<T>& t){
-    return Matrix3<T>(R(0,0),R(0,1),R(0,2),t(0),
+Matrix<T,3,4> get3x4(const Matrix3<T>& R,const Vector3<T>& t){
+    return Matrix<T,3,4>(R(0,0),R(0,1),R(0,2),t(0),
                       R(1,0),R(1,1),R(1,2),t(1),
                       R(2,0),R(2,1),R(2,2),t(2));
 }

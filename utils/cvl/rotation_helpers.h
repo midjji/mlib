@@ -114,17 +114,17 @@ template<class T>
  * @param x
  * @return
  */
-Vector3<T> quaternionRotate(const T* q,const Vector3<T>& x){
+Vector3<T> quaternionRotate(const T* const q ,const Vector3<T>& x){
 
-    const double t2 =  q[0] * q[1];
-    const double t3 =  q[0] * q[2];
-    const double t4 =  q[0] * q[3];
-    const double t5 = -q[1] * q[1];
-    const double t6 =  q[1] * q[2];
-    const double t7 =  q[1] * q[3];
-    const double t8 = -q[2] * q[2];
-    const double t9 =  q[2] * q[3];
-    const double t1 = -q[3] * q[3];
+    const T t2 =  q[0] * q[1];
+    const T t3 =  q[0] * q[2];
+    const T t4 =  q[0] * q[3];
+    const T t5 = -q[1] * q[1];
+    const T t6 =  q[1] * q[2];
+    const T t7 =  q[1] * q[3];
+    const T t8 = -q[2] * q[2];
+    const T t9 =  q[2] * q[3];
+    const T t1 = -q[3] * q[3];
     Vector3<T> out(
                 (T(2.0) * ((t8 + t1) * x[0] + (t6 - t4) * x[1] + (t3 + t7) * x[2]) + x[0]),
             (T(2.0) * ((t4 + t6) * x[0] + (t5 + t1) * x[1] + (t9 - t2) * x[2]) + x[1]),

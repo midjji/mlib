@@ -15,7 +15,7 @@ public:
     DaimlerSample(std::vector<cv::Mat1w> images,
                   cv::Mat1f disparity_,
                   cv::Mat1b labels,
-                  int frameid);
+                  int frameid, double time);
 
 
     // returns -1 for missing or out of image...
@@ -24,6 +24,7 @@ public:
     Vector3d get_3d_point(double row, double col) const;
     bool is_car(double row, double col) const;
     bool is_car(Vector2d rowcol) const;
+    double time() const;
 
 
     cv::Mat1b disparity_image()const;  // for visualization, new clone
@@ -44,6 +45,7 @@ private:
     cv::Mat1f disparity_; // holds floating point disparities
     cv::Mat1b labels;
     int frameid_;
+    double time_;
 
 
 };

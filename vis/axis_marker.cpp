@@ -11,11 +11,63 @@
 
 namespace mlib {
 
-
-
-osg::Node* MakeAxisMarker(cvl::PoseD p, float axis_length, float line_width)
+osg::Node* MakeAxisMarker2(cvl::PoseD p, float axis_length, float line_width)
 {
 
+// The open gl coordinate system is rotated:
+// my y is down, my z forwards, theirs are reversed.
+cvl::PoseD P=cvl::PoseD(cvl::Matrix4d(1,0,0,0,
+               0,-1,0,0,
+               0,0,-1,0,
+               0,0,0,1))*p.inverse();
+
+// the 3d points are:
+
+cvl::Vector3d c(0,0,0); c=P*c*axis_length;
+cvl::Vector3d x(1,0,0);x=P*x*axis_length;
+cvl::Vector3d y(0,1,0);y=P*y*axis_length;
+cvl::Vector3d z(0,0,1);z=P*z*axis_length;
+
+osg::Vec3Array *vertices = new osg::Vec3Array;
+vertices->push_back(cvl2osgf(c));
+vertices->push_back(cvl2osgf(x));
+vertices->push_back(cvl2osgf(c));
+vertices->push_back(cvl2osgf(y));
+vertices->push_back(cvl2osgf(c));
+vertices->push_back(cvl2osgf(z));
+
+osg::Vec3Array *colors = new osg::Vec3Array;
+colors->push_back(osg::Vec3(1,0,0));
+colors->push_back(osg::Vec3(0,1,0));
+colors->push_back(osg::Vec3(0,0,1));
+
+osg::Geometry *lines = new osg::Geometry;
+lines->setVertexArray(vertices);
+lines->setColorArray(colors, osg::Array::BIND_PER_PRIMITIVE_SET);
+lines->addPrimitiveSet(new osg::DrawArrays(GL_LINES, 0, 2));
+lines->addPrimitiveSet(new osg::DrawArrays(GL_LINES, 2, 2));
+lines->addPrimitiveSet(new osg::DrawArrays(GL_LINES, 4, 2));
+
+osg::Geode *marker_geode = new osg::Geode;
+marker_geode->addDrawable(lines);
+
+osg::PolygonMode *pm = new osg::PolygonMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::LINE);
+osg::LineWidth *lw = new osg::LineWidth(line_width);
+
+osg::StateSet *state = marker_geode->getOrCreateStateSet();
+state->setAttributeAndModes(lw, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
+state->setAttributeAndModes(pm, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
+state->setMode(GL_LIGHTING, osg::StateAttribute::PROTECTED | osg::StateAttribute::OFF);
+state->setMode(GL_LINE_SMOOTH, osg::StateAttribute::OFF);
+state->setMode(GL_BLEND, osg::StateAttribute::ON);
+
+return marker_geode;
+
+
+}
+osg::Node* MakeAxisMarker(cvl::PoseD p, float axis_length, float line_width)
+{
+return MakeAxisMarker2(p,axis_length,line_width);
     osg::Matrixd pose=cvl2osg(p.inverse());
     osg::Vec3Array *vertices = new osg::Vec3Array;
     vertices->push_back(osg::Vec3(0,0,0));

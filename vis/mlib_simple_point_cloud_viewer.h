@@ -93,7 +93,7 @@ public:
 
 
     void add(const FlowField& ff, bool clear_scene=true);
-    void add(const PC& pc, bool clear_scene=true);
+    void add(PC pc, bool clear_scene=true);
 
 
 

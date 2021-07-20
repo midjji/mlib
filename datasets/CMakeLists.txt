@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 3.16)
 
 add_library(mlib-datasets INTERFACE)
 
+
+add_library(mlib-datasets-interface interface.h interface.cpp)
+target_include_directories(mlib-datasets-interface INTERFACE PRIVATE "${MLIB_TOP_PATH}")
+target_link_libraries(mlib-datasets INTERFACE mlib-datasets-interface)
+
+
 if(WITH_MLIB_OPENCV_UTILS)
 option(WITH_KITTI "build KITTI" ON)
 if(WITH_KITTI)

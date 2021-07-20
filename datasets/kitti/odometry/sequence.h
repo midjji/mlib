@@ -5,6 +5,9 @@
 namespace cvl{
 namespace kitti{
 
+
+
+
 /**
  * @brief The Sequence class
  * contains all info and functions relevant for one kitti sequence!
@@ -12,7 +15,7 @@ namespace kitti{
 class Sequence{
 public:
     using sample_type=std::shared_ptr<KittiOdometrySample>;
-    int samples() const;
+
     int rows() const;
     int cols() const;
     int sequence() const;
@@ -22,7 +25,8 @@ public:
     double baseline() const;
 
     sample_type get_sample(int index) const;
-    double time_to_frameid_factor() const;
+    double fps() const;
+
 
 
     Sequence()=default;
@@ -31,18 +35,24 @@ public:
 
     bool getImages(std::vector<cv::Mat1b>& images, int number) const;
     PoseD getPose(int number) const;
+    PoseD gt_pose(int number) const;
     PoseD getPoseRightLeft() const;
     bool getImages(std::vector<cv::Mat1w>& images,cv::Mat1f& disparity, int number) const;
 
-    cvl::Matrix3d getK();
+
+    // this (row, col) = (K*x_cam).dehom();
+    cvl::Matrix3d getK() const;
+    PoseD P_camera_vehicle() const;
 
 
 
 
     std::vector<Matrix34d> ks; //ks[0] is the left cam, ks[1] is the right
     // in seconds from start
-    std::vector<double> times;
-    std::vector<PoseD> gt_poses; // Pwc(t)
+    std::vector<double> times() const;
+    std::vector<PoseD> gt_poses() const; // Pwc(t)
+    std::vector<PoseD> gt_vehicle_poses() const;
+    int samples() const;
 
     bool is_training() const;
 
@@ -53,9 +63,14 @@ public:
 
 
     std::string seqpath() const;
-    void make_joke_sequence();
+    Sequence shrunk(int newsize=100) const;
 
 private:
+
+    std::vector<double> times_;
+    std::vector<PoseD> gt_poses_; // Pwc(t)
+    PoseD P_camera_vehicle_; // Including the transform to my coordinates
+    PoseD P_cvl_kitti;
     std::string path_;
     int sequence_=-1;
     int rows_=0;
@@ -64,8 +79,7 @@ private:
     std::string name_;
     std::string description_;
     // baseline in meters!
-    double baseline_; // >0 P10(-Vector3d(baseline,0,0)); x_1=P10*x0 . 0 is left, 1 is right.
-    void readSequence();
+    double baseline_; // >0 P10(-Vector3d(baseline,0,0)); x_1=P10*x0 . 0 is left, 1 is right. 
     bool inited=false;
 };
 

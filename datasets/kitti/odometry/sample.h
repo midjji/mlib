@@ -14,7 +14,7 @@ public:
     int sequenceid()const;
     int rows()const;
     int cols()const;
-    double time()const;
+    double time() const;
     float disparity(double row, double col) const;
 
     cv::Mat1b disparity_image() const; // for visualization, new clone

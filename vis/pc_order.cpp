@@ -16,8 +16,16 @@ using cvl::PoseD;
 
 
 namespace mlib {
+void PC::fill_colors(){
+    if(xs_cols.size()==0) xs_cols.push_back(Color::cyan());
+    if(xs_cols.size()!=xs.size()) xs_cols.resize(xs.size(),xs_cols[0]);
 
 
+    for(int i=pose_colors.size();i<int(posess.size());++i)
+    pose_colors.push_back(Color::nr(i));
+
+
+}
 PC default_scene(){
     PC pc;
     pc.xs.reserve(12000);

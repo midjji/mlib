@@ -28,8 +28,7 @@ public:
  */
 class DistLsh{
 public:
-    DistLsh(){}
-    ~DistLsh(){}
+    DistLsh()=default;
     DistLsh(std::vector<cvl::PoseD> ps);
     /**
      * @brief getIndexPlusDist returns the index of the frame which is atleast dist after start but atmost dist+2m or -1 if no such frame is found
@@ -73,11 +72,8 @@ std::vector<double> getDistanceTraveled(const std::vector<cvl::PoseD>& ps);
  */
 class Result{
 public:
-    Result(){}
-    ~Result(){}
-    Result(Sequence seq){
-        this->seq=seq;
-    }
+    Result()=default;
+    Result(Sequence seq):seq(seq){}
 
     bool init(std::string path);
     std::string getDisplayString();
@@ -91,12 +87,12 @@ public:
 
     DistLsh getDistLsh(){
         if(!distlsh_inited)
-            distlsh=DistLsh(seq.gt_poses);
+            distlsh=DistLsh(seq.gt_poses());
         distlsh_inited=true;
         return distlsh;
     }
 
-    std::vector<double> lengths={100,200,300,400,500,600,700,800};
+    std::vector<double> lengths{100,200,300,400,500,600,700,800};
 
 
 

@@ -1,12 +1,17 @@
 #pragma once
 // eigen is column major!
 //#pragma GCC diagnostic push
-#include <Eigen/Core>
+#include <Eigen/Core>// no need
 #include <Eigen/Geometry>
 //#pragma GCC diagnostic pop
 
 
 #include <mlib/utils/cvl/pose.h>
+
+namespace Eigen {
+// Can I forward declare them? well they are strange...
+}
+
 namespace cvl{
 
 

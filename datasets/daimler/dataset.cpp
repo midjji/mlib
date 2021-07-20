@@ -4,7 +4,7 @@
 #include <fstream>
 #include <experimental/filesystem>
 #include <sqlite_orm.h>
-#include <daimler/dataset.h>
+#include <mlib/datasets/daimler/dataset.h>
 #include <mlib/utils/string_helpers.h>
 #include <mlib/utils/cvl/matrix_adapter.h>
 
@@ -15,9 +15,9 @@ using std::endl;
 using namespace sqlite_orm;
 namespace cvl{
 
-
+std::vector<PoseD> DaimlerDataset::gt_vehicle_poses(){return std::vector<PoseD>();}
 int DaimlerDataset::samples() const{return total_samples;}
-double DaimlerDataset::time_to_frameid_factor() const{return 33;}
+double DaimlerDataset::fps() const{return 33;}
 
 std::string parse(std::string path2, std::string gt_path){
 
@@ -294,7 +294,7 @@ std::shared_ptr<DaimlerSample> DaimlerDataset::get_sample(uint index)
     images.push_back(right);
     // imo_id, boundingbox
 
-    return std::make_shared<DaimlerSample>(images,disparity,cars,index);
+    return std::make_shared<DaimlerSample>(images,disparity,cars,index, fps()*index);
 }
 
 

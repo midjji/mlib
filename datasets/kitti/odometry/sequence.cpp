@@ -11,9 +11,6 @@ using std::cout;using std::endl;
 namespace cvl{
 namespace kitti{
 
-
-int Sequence::samples() const{return samples_;}
-
 int Sequence::rows() const{return rows_;}
 int Sequence::cols() const{return cols_;}
 std::string Sequence::seqpath() const{
@@ -24,15 +21,15 @@ int Sequence::sequence() const{return sequence_;}
 std::string Sequence::name() const{ return toZstring(sequence_,2);}
 std::string Sequence::description() const{return description_;}
 double Sequence::baseline() const{return baseline_;}
-double Sequence::time_to_frameid_factor() const{return 10;}
+double Sequence::fps() const{return 10;}
 std::shared_ptr<KittiOdometrySample> Sequence::get_sample(int index) const{
     std::vector<cv::Mat1w> images;
     cv::Mat1f disparity;
 
     if(getImages(images,disparity,index)){
 
-        return std::make_shared<KittiOdometrySample>(images,disparity,sequence(),index, times.at(index));
-         }
+        return std::make_shared<KittiOdometrySample>(images,disparity,sequence(),index, times().at(index));
+    }
     mlog()<<"tried to read sample out of bounds"<<index<<" " <<samples_<<"\n";
     return nullptr;
 }
@@ -61,7 +58,8 @@ bool Sequence::getImages(std::vector<cv::Mat1b>& imgs, int number) const{
     if(right.cols!=cols()) mlog()<<"missmatch: "<<right.cols<<" "<<cols()<<"for id"<<number<<"\n";
     return true;
 }
-PoseD Sequence::getPose(int number) const{    return gt_poses.at(number);}
+PoseD Sequence::getPose(int number) const{    return gt_poses_[number];}
+PoseD Sequence::gt_pose(int number) const{    return gt_poses_[number];}
 PoseD Sequence::getPoseRightLeft() const{        return PoseD(-Vector3d(baseline(),0,0));    }
 bool Sequence::getImages(std::vector<cv::Mat1w>& images,cv::Mat1f& disparity, int number) const{
     std::vector<cv::Mat1b> imgs;
@@ -90,16 +88,18 @@ bool Sequence::getImages(std::vector<cv::Mat1w>& images,cv::Mat1f& disparity, in
     return true;
 
 }
-
+std::vector<double> Sequence::times() const{return times_;}
+std::vector<PoseD> Sequence::gt_poses() const{return gt_poses_;} // Pwc(t)
+int Sequence::samples() const{return samples_;}
 bool Sequence::is_training() const{return sequence()<11;}
 std::vector<unsigned int> Sequence::getDistantFrames(){
     assert(isTraining());
     // shouldnt be any loop closures in it...
     // so check each pose distance to every other
-    std::vector<PoseD>        solitaries; solitaries.reserve(gt_poses.size());
-    std::vector<unsigned int> indexes;    indexes.reserve(gt_poses.size());
+    std::vector<PoseD>        solitaries; solitaries.reserve(gt_poses_.size());
+    std::vector<unsigned int> indexes;    indexes.reserve(gt_poses_.size());
 
-    for(PoseD p:gt_poses){
+    for(PoseD p:gt_poses_){
         bool solitary =true;
         p=p.inverse();
         for(PoseD sol:solitaries){
@@ -112,12 +112,23 @@ std::vector<unsigned int> Sequence::getDistantFrames(){
     }
     return indexes;
 }
+std::vector<PoseD> Sequence::gt_vehicle_poses() const{
+    std::vector<PoseD> ps=gt_poses_;
+    // Should be Pwc*Pcv = Pwv
+
+    for(auto& p:ps){        p=p*P_camera_vehicle();    }
+
+    return ps;
+}
 cv::Mat1b Sequence::getPoseConfusionMatrix(){
     // the distance in translation and rotation from every image to every other...
-    cv::Mat1b im(gt_poses.size(),gt_poses.size());
-    for(uint i=0;i<gt_poses.size();++i){
-        for(uint j=0;j<gt_poses.size();++j){
-            double dist=255-std::min(255.0,2.55*(gt_poses[i].distance(gt_poses[j])));
+    int rows=samples();
+    int cols=samples();
+    cv::Mat1b im(rows,cols,uchar(0));
+    if(!is_training()) return im;
+    for(int i=0;i<samples();++i){
+        for(int j=0;j<samples();++j){
+            double dist=255-std::min(255.0,2.55*(gt_poses_[i].distance(gt_poses_[j])));
             // double rdist=255-std::min(255.0,255*std::abs((gt_poses[i].inverse()*(gt_poses[j])).getAngle())/1.5);
             im(i,j)=dist;
             //im(i,j)=cv::Vec3b(dist,0,rdist);
@@ -127,13 +138,13 @@ cv::Mat1b Sequence::getPoseConfusionMatrix(){
 }
 cv::Mat3b Sequence::getMap(){
     std::vector<Vector3d> tws;
-    tws.reserve(gt_poses.size());
+    tws.reserve(samples());
     std::vector<double> xs,ys,zs;
-    xs.reserve(gt_poses.size());
-    ys.reserve(gt_poses.size());
-    zs.reserve(gt_poses.size());
-    for(uint i=0;i<gt_poses.size();++i){
-        Vector3d tw=gt_poses[i].translation(); // kitti is in inversem, x,z is interesting
+    xs.reserve(samples());
+    ys.reserve(samples());
+    zs.reserve(samples());
+    for(int i=0;i<samples();++i){
+        Vector3d tw=gt_poses_[i].translation(); // kitti is in inversem, x,z is interesting
         std::swap(tw[1],tw[2]);
         tws.push_back(tw);
         xs.push_back(tw[0]);
@@ -175,6 +186,9 @@ cv::Mat3b Sequence::getMap(){
             cols.push_back(cv::Scalar(0,0,tw[2],0));
         }
 
+        //4.276802385584e-04 -9.999672484946e-01 -8.084491683471e-03 -1.198459927713e-02
+        //-7.210626507497e-03 8.081198471645e-03 -9.999413164504e-01 -5.403984729748e-02
+         //9.999738645903e-01 4.859485810390e-04 -7.206933692422e-03 -2.921968648686e-01
 
 
 
@@ -200,7 +214,7 @@ cv::Mat3b Sequence::getMap(){
 }
 
 
-cvl::Matrix3d Sequence::getK(){
+cvl::Matrix3d Sequence::getK() const{
     if((ks[0].getBlock<0,0,3,3>()-ks[1].getBlock<0,0,3,3>()).abs().sum()>1e-7)
     {
         mlog()<<"Different K for L,R THAT SHOULD NOT HAPPEN! EXITING DUE TO DATACORRUPTION\n";
@@ -208,7 +222,9 @@ cvl::Matrix3d Sequence::getK(){
     }
     return ks[0].getBlock<0,0,3,3>();
 }
-
+PoseD Sequence::P_camera_vehicle() const{
+    return P_camera_vehicle_;
+}
 
 
 
@@ -218,33 +234,42 @@ Sequence::Sequence(std::string path_,
                    int sequence_,
                    int rows_,
                    int cols_,
-                   int samples_):path_(path_), sequence_(sequence_),rows_(rows_),cols_(cols_),samples_(samples_){
-readSequence();
+                   int samples_):
+    path_(path_), sequence_(sequence_),rows_(rows_),cols_(cols_),samples_(samples_){
+    times_=readTimes(seqpath()+"times.txt");
 
-}
-void Sequence::readSequence(){
-
-    if(inited) return;
-
-    times=readTimes(seqpath()+"times.txt");
-    if(sequence_<11){
-        gt_poses=readKittiPoses(path_+"poses/"+name()+".txt");
-        if((int)gt_poses.size()!=samples())
+    if(sequence_<11)
+    {
+        gt_poses_=readKittiPoses(path_+"poses/"+name()+".txt");
+        if(int(gt_poses_.size())!=samples())
             mlog()<<"Configuration missmatch\n";
     }
 
     ks=readCalibrationFile(seqpath()+"calib.txt");
     assert(ks.size()==5);
 
-    baseline_=-ks[1](0,3)/ks[1](0,0);
-    assert(baseline>0);
+    baseline_=-ks[1](1,3)/ks[1](1,0);
+    P_camera_vehicle_=PoseD::Identity();
+
+    // P_camera_vehicle_=PoseD(getRotationMatrixY(4 * 3.1415/180.0)*getRotationMatrixX(31.0 * 3.1415/180.0)*getRotationMatrixY(23 * 3.1415/180.0));
+    //P_camera_vehicle_ = PoseD(Vector4d(0.99897597013522099, -0.0083444056543999345, 0.0017357290603424664, 0.044433874817507608),Vector3d(0,0,0));
+    //P_camera_vehicle_=PoseD(getRotationMatrixZ(0.5*3.1415))*PoseD(ks[4]);
+    //P_camera_vehicle_ = PoseD(Vector4d(0.99959445390732238, 0.013343332682150745, 0.025157000775769104, 9.2209667494754373e-05),Vector3d(0,0,0));
+    //P_camera_vehicle_ = PoseD(Vector4d(0.644979, -0.146418, 0.471854, -0.583025),Vector3d(0.248715, 0.0942763, -0.046136));
+    double f=3.1415/180.0;
+    // 1,-1.7 kinda makes sense, its at the back of the car...
+    P_camera_vehicle_=PoseD(Vector3d(0,1,-1))*PoseD(getRotationMatrixX(1.0*f)*getRotationMatrixY(-0.75*f));
+
     inited=true;
 }
 
 
-
-void Sequence::make_joke_sequence(){
-    samples_=std::min(100,samples_);
+Sequence Sequence::shrunk(int newsize) const{
+    Sequence seq=*this;
+    seq.samples_=std::min(newsize,samples_);
+    seq.times_.resize(seq.samples_);
+    seq.gt_poses_.resize(seq.samples_);
+    return seq;
 }
 
 
@@ -264,7 +289,7 @@ std::vector<cvl::PoseD> readKittiPoses(std::string path){
         throw new std::logic_error(path + "file not found ");
     }
     // read file
-    std::vector<double> vals;double val; vals.reserve(10000000);
+    std::vector<double> vals;double val; vals.reserve(100000);
     {
         std::ifstream fin; fin.open(path);
         while(fin>>val) vals.push_back(val);
@@ -278,10 +303,15 @@ std::vector<cvl::PoseD> readKittiPoses(std::string path){
     if(vals.size()%12!=0)       throw new std::logic_error("Failure to parse data - to few values"+path);
     std::vector<cvl::PoseD> poses;poses.reserve(vals.size()/12+1);
     for(uint i=0;i<vals.size();i+=12){
-        cvl::PoseD pose(cvl::Matrix34d(vals[i],vals[i+1],vals[i+2],vals[i+3],
-                vals[i+4],vals[i+5],vals[i+6],vals[i+7],
-                vals[i+8],vals[i+9],vals[i+10],vals[i+11]));
-        pose.normalize();
+        cvl::Matrix34d M(vals[i],vals[i+1],vals[i+2],vals[i+3],
+                        vals[i+4],vals[i+5],vals[i+6],vals[i+7],
+                        vals[i+8],vals[i+9],vals[i+10],vals[i+11]);
+
+        cvl::PoseD pose(M);
+
+        //auto rek=pose.get3x4();// error is like 10^-8 which is ok...
+        // the gt is shittier though...
+        //std::cout<<"kitti:\n"<<M<< "\n"<<rek<< "\n"<<M-rek<<std::endl;
         poses.push_back(pose);
     }
     //assert(validPoses(poses));
@@ -322,23 +352,49 @@ std::vector<double> readTimes(std::string path){
     while(ifs>>t)
         times.push_back(t);
     ifs.close();
+
+
+
+
     return times;
 }
 
-std::vector<Matrix34d> readCalibrationFile(std::string path  ){
+
+
+
+std::vector<Matrix34d>
+readCalibrationFile(std::string path  )
+{
+
+    // the k on disk for the right camera matrix looks like:
+    //7.188560000000e+02 0.000000000000e+00 6.071928000000e+02 -3.861448000000e+02
+    //0.000000000000e+00 7.188560000000e+02 1.852157000000e+02 0.000000000000e+00
+    //0.000000000000e+00 0.000000000000e+00 1.000000000000e+00 0.000000000000e+00
+    // the row col measurement one looks like:
+    // the row, col one
+    //Matrix3d K{0, 2261.54, 1108.15,
+    //           2267.22, 0, 519.169,
+    //           0, 0, 1}; // for both cameras
+    // So the kitti matrixes assume col, row, so convert it.
+
+Matrix3d R(0,1,0,
+           1,0,0,
+           0,0,1);
+
+
+
+
     // cout<<"readCalibrationFile path: "<<path<<endl;
     std::vector<Matrix34d> ks;ks.reserve(4);
     assert(fileexists(path,true));
 
     std::ifstream ifs;ifs.open(path);
-
-
-    std::vector<double> vals;vals.reserve(9);
+    std::vector<double> vals;vals.reserve(12);
     bool test=true;
-    for(int i=0;i<5;++i){
+    for(int i=0;i<5;++i)
+    {
         vals.clear();vals.resize(12);
         char skip;
-
         for(int j=0;j<3;++j){
             test=test && ifs>>skip;
         }
@@ -346,7 +402,7 @@ std::vector<Matrix34d> readCalibrationFile(std::string path  ){
             test=test && ifs>>vals[j];
         }
         assert(test);
-        Matrix34d K=Matrix34d::copy_from(&vals[0]);
+        Matrix34d K=R*Matrix34d::copy_from(&vals[0]);
 
         ks.push_back(K);
     }

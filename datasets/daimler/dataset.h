@@ -48,7 +48,10 @@ public:
     mtable::gt_db_type gt_storage;
     std::shared_ptr<DaimlerSample> get_sample(uint index);
     int samples() const;
-    double time_to_frameid_factor() const;
+    double fps() const;
+
+    std::vector<PoseD> gt_poses; // interface..
+    std::vector<PoseD> gt_vehicle_poses();
 
 private:
     uint total_samples=0;

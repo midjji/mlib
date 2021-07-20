@@ -91,7 +91,7 @@ bool KittiDataset::checkFiles(){
     return true;
 
 }
-KittiDataset::KittiDataset(std::string basepath):basepath(basepath){}
+KittiDataset::KittiDataset(std::string basepath):basepath(basepath){init();}
 void KittiDataset::init(){
     if(inited) return;
     inited=true;
@@ -100,6 +100,19 @@ void KittiDataset::init(){
         seqs.push_back(s);
     }
 }
+std::vector<Sequence> KittiDataset::get_training_sequences(){
+    std::vector<Sequence> ss; ss.reserve(11);
+    for(int i=0;i<training_sequences;++i)
+        ss.push_back(seqs[i]);
+    return ss;
+}
+std::vector<Sequence> KittiDataset::get_joke_sequences(){
+    std::vector<Sequence> ss=get_training_sequences();
+    for(auto& s:ss)
+        s=s.shrunk();
+    return ss;
+}
+
 std::string KittiDataset::getseqpath(int sequence){
     return basepath+"sequences/"+mlib::toZstring(sequence,2)+"/";
 }
@@ -123,8 +136,7 @@ std::shared_ptr<KittiOdometrySample> KittiDataset::get_sample(int sequence, int 
 }
 Sequence KittiDataset::getSequence(int index){init();
                                               if(index<0){
-                                                  Sequence seq=seqs.at(-index);
-                                                  seq.make_joke_sequence();
+                                                  Sequence seq=seqs.at(-index).shrunk();
                                                   return seq;
                                               }
                                               return seqs.at(index);    }
@@ -217,7 +229,7 @@ std::vector<std::vector<PoseD>> trajectories(std::string basepath){
 
     std::vector<std::vector<PoseD>> trs; trs.reserve(100);
     for(const auto& seq : kd.seqs){
-        trs.push_back(seq.gt_poses);
+        trs.push_back(seq.gt_poses());
     }
     return trs;
 }

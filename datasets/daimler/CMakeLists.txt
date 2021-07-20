@@ -11,9 +11,9 @@ FILE(GLOB SRCS "*.cpp")
 add_library(${PROJECT_NAME} ${SRCS} ${HDRS})
 
 
-# also needs path to dir above...
-get_filename_component(${PROJECT_NAME}_top ../ ABSOLUTE)
-target_include_directories(${PROJECT_NAME} PUBLIC ${${PROJECT_NAME}_top})
+# also needs path to dir above...#
+#get_filename_component(${PROJECT_NAME}_top ../ ABSOLUTE)
+#target_include_directories(${PROJECT_NAME} PUBLIC ${${PROJECT_NAME}_top})
 
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)

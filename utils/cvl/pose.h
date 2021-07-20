@@ -82,18 +82,7 @@ public:
          * @brief Pose initializes as a identity transform, trouble, this prevents std::trivial!
          */
 
-    Pose():data{T(1.0),T(0.0),T(0.0),T(0.0),T(0.0),T(0.0),T(0.0)}{
-        // if it wasnt because i rely on the pose() is identity in so many places, this would be a nice fix
-        static_assert(std::is_trivially_destructible<Pose<double>>(),"speed");
-        static_assert(std::is_trivially_copyable<Pose<double>>(),"speed");
-        // the following constraints are good, but not critical
-        //static_assert(std::is_trivially_default_constructible<Pose<double>>(),"speed");
-        static_assert(std::is_trivially_copy_constructible<Pose<double>>(),"speed");
-        //static_assert(std::is_trivially_constructible<Pose<double>>(),"speed");
-        static_assert(std::is_trivially_assignable<Pose<double>,Pose<double>>(),"speed");
-        //static_assert(std::is_trivial<Pose<double>>(),"speed");
-
-    }
+    Pose():data{T(1.0),T(0.0),T(0.0),T(0.0),T(0.0),T(0.0),T(0.0)}{}
     mlib_host_device_
     static Pose Identity(){return Pose();}
 
@@ -220,12 +209,12 @@ public:
         return QuaternionRotate(q(),ins) + t();
     }
 
-    Vector4<T> operator*(const Vector4<T>& ray){
+    Vector4<T> operator*(const Vector4<T>& ray) const{
         // fast variant would be
         //return get4x4()*(ray.dehom()).homogeneous();
         // correct variant would be
         auto v3=QuaternionRotate(q(),Vector3<T>(ray[0],ray[1],ray[2])) + ray[3]*t();
-        return {v3[0],v3[1],v3[2],ray[3]};
+        return Vector4<T>(v3[0],v3[1],v3[2],ray[3]);
     }
 
     mlib_host_device_
@@ -234,7 +223,7 @@ public:
          * @param rhs
          * @return
          */
-    Pose<T> operator*(Pose<T> rhs) const{
+    inline Pose<T> operator*(Pose<T> rhs) const{
         return Pose(QuaternionProduct(q(),rhs.q()),
                     QuaternionRotate(q(),rhs.t())+t());
     }
@@ -243,7 +232,7 @@ public:
          * @brief inverse, note uses that the rotation inverse is its transpose
          * @return
          */
-    Pose<T> inverse() const{
+    inline Pose<T> inverse() const{
         //assert(isnormal());
         //Matrix3<T> Ri=getR().transpose();
         Vector<T,4> qi=conjugateQuaternion(q());
@@ -251,6 +240,11 @@ public:
         Vector3<T> ti=-QuaternionRotate(qi,t());
         return Pose(qi,ti);
     }
+    Vector3<T> apply_inverse(Vector3<T> x){
+        x-=t();
+        quaternionRotate(conjugateQuaternion(q()));
+    }
+
     mlib_host_device_
     /**
          * @brief invert, note uses that the rotation inverse is its transpose
@@ -314,7 +308,10 @@ public:
          * @brief get3x4
          * @return the 3x4 projection matrix corresp to the rigid transform
          */
-    Matrix3<T> get3x4() const{return get3x4(getR(),getT());}
+    Matrix<T,3,4> get3x4() const{
+        Matrix<T,3,3> R=getR();
+            return ::cvl::get3x4(R,t());
+    }
     mlib_host_device_
     /**
          * @brief get4x4
@@ -403,6 +400,15 @@ public:
         return Vector<T,6>(v[0],v[1],v[2],
                 p[0],p[1],p[2]);
     }
+    Vector<T,6> geodesic_vector() // component wize makes it convenient as residual
+    {
+
+        Vector3<T> v=unit_quaternion::log(q()).drop_first();
+
+        Vector3<T> p=t(); // think about this again...
+        return Vector<T,6>(v[0],v[1],v[2],
+                p[0],p[1],p[2]);
+    }
     /// returns true if no value is strange
     mlib_host_device_
     /**
@@ -440,9 +446,9 @@ public:
         ss<<data;
         return ss.str();
     }
-    Vector4<T> q() const {return Vector4<T>(data[0],data[1],data[2],data[3]);}
-    Vector3<T> t() const {return Vector3<T>(data[4],data[5],data[6]);}
-    Vector<T,7> qt() const{return data;}
+    inline Vector4<T> q() const {return Vector4<T>(data[0],data[1],data[2],data[3]);}
+    inline Vector3<T> t() const {return Vector3<T>(data[4],data[5],data[6]);}
+    inline Vector<T,7> qt() const{return data;}
 
 };
 /// convenience alias for the standard pose
@@ -469,7 +475,22 @@ std::vector<Pose<T>> scaled_translations(const std::vector<Pose<T>>& ps, double 
     scale_translations(ret,scale);
     return ret;
 }
+template<class T> std::vector<Pose<T>> invert(const std::vector<Pose<T>>& ps){
+    std::vector<Pose<T>> rets;rets.reserve(ps.size());
+    for(const PoseD& p:ps)rets.push_back(p.inverse());
+    return rets;
+}
 
+
+// if it wasnt because i rely on the pose() is identity in so many places, this would be a nice fix
+static_assert(std::is_trivially_destructible<Pose<double>>(),"speed");
+static_assert(std::is_trivially_copyable<Pose<double>>(),"speed");
+// the following constraints are good, but not critical
+//static_assert(std::is_trivially_default_constructible<Pose<double>>(),"speed");
+static_assert(std::is_trivially_copy_constructible<Pose<double>>(),"speed");
+//static_assert(std::is_trivially_constructible<Pose<double>>(),"speed");
+static_assert(std::is_trivially_assignable<Pose<double>,Pose<double>>(),"speed");
+//static_assert(std::is_trivial<Pose<double>>(),"speed");
 
 }// en<T> namespace cvl
 

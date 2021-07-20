@@ -37,4 +37,8 @@ bool imshow(cv::Mat im, std::string name){
 bool imshow(std::string name, cv::Mat im){
     return imshow(im,name);
 }
+void input_window(){
+    cv::Mat1b im(100,100,uchar(0));
+    imshow("input window", im);
+}
 }

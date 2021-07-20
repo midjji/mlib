@@ -47,7 +47,7 @@ public:
             coeffs[i]=arr[i];
     }
 
-    std::string str(){
+    std::string str(long double factor=1){
 
 
         auto rev=coeffs.reverse();
@@ -59,7 +59,7 @@ public:
         {
             std::stringstream ss;
             if(rev[i]==0.0) continue;
-            ss<<rev[i];
+            ss<<rev[i]*factor;
 
             if(i!=coeffs.size()-1)
                 ss<<"x";
@@ -70,6 +70,8 @@ public:
         if(parts.size()==0) parts.push_back("0");
         std::stringstream ss;
         ss<<"p(x) = ";
+        if(factor!=1.0)
+            ss<<"(";
         for(uint i=0;i<parts.size();++i){
             ss<<parts[i];
             if(i!=parts.size()-1){
@@ -94,7 +96,8 @@ public:
             tmp2.push_back(tmp[tmp.size()-1]);
 
 
-
+        if(factor!=1.0)
+            ss<<")/"<<factor;
         return ss.str();
     }
 
@@ -337,6 +340,9 @@ public:
     {
         return(bounds[0]<bounds[1]);
     }
+    bool lower_bounded(){return bounds[0]!=std::numeric_limits<long double>::lowest();}
+    bool upper_bounded(){return bounds[1]!=std::numeric_limits<long double>::max();}
+
 
     void bound(Vector2<long double> b)
     {
@@ -361,8 +367,9 @@ public:
 
 
 
-    std::string str(){
-        std::stringstream ss;
+    std::string str(long double factor=1){
+        std::stringstream ss;ss.precision(17);
+
         ss<<"";
         if(bounds[0]==std::numeric_limits<long double>::lowest())
             ss<<"(-inf";
@@ -373,8 +380,10 @@ public:
             ss<<"inf";
         else
             ss<<bounds[1];
-        ss<<") "; // in either case, its always up to non inclusive!
-        ss<<p.str();
+        ss<<")"; // in either case, its always up to non inclusive!
+
+        ss<<p.str(factor);
+
         return ss.str();
     }
 
@@ -383,6 +392,51 @@ public:
         std::stringstream ss;
         ss<<"bounds: ["<<bounds[0]<<","<<bounds[1]<<") ";
         ss<<p.str2();
+        return ss.str();
+    }
+
+    std::string code_str(long double factor){
+
+
+        std::stringstream ss;
+        ss.precision(17);
+
+        //ss<<"double v=0;\n";
+        if(lower_bounded() && upper_bounded())
+            ss<<"if("<<bounds[0]<<"<=x && x<"<<bounds[1]<<")";
+        if(lower_bounded() && !upper_bounded())
+            ss<<"if("<<bounds[0]<<"<=x)";
+        if(!lower_bounded() && upper_bounded())
+            ss<<"if(x<"<<bounds[1]<<")";
+        ss<<"{\n";
+        std::string tab="    ";
+
+        auto ks=p.coeffs;
+        ks*=factor;
+        ss<<tab<<" double val=";
+        if(ks[0]!=0.0)
+            ss<<ks[0];
+        for(int i=1;i<int(ks.size());++i)
+        {
+            if(ks[i]!=0.0)
+            {
+                if(ks[i]==1){
+                    ss<<"+ xp("<<i<<") "; continue;
+                }
+                if(ks[i]==-1){
+                    ss<<"- xp("<<i<<") "; continue;
+                }
+                if(ks[i]>0.0)
+                    ss<<"+ "<<ks[i];
+                else
+                    ss<<"- "<<-ks[i];
+                ss<<"*xp("<<i<<") ";
+            }
+        }
+        ss<<";\n";
+        ss<<tab<<"v+=val;\n";
+
+        ss<<"}\n";
         return ss.str();
     }
 
@@ -520,10 +574,10 @@ public:
         return derivative(N-1).derivative(); // cast up is ok
     }
 
-    std::string str(){
+    std::string str(long double factor=1){
         std::stringstream ss;
         for(auto p:polys)
-            ss<<p.str()<<"\n";
+            ss<<p.str(factor)<<"\n";
         return ss.str();
 
 
@@ -532,6 +586,28 @@ public:
         std::stringstream ss;
         for(auto p:polys)
             ss<<p.str2()<<"\n";
+        return ss.str();
+    }
+    std::string code_str(long double factor)
+    {
+
+        std::stringstream ss;
+        ss<<"////////////////////////////\n";
+        ss<<"if(degree=="<<degree<<"){";
+        ss<<"/*\n";
+        ss<<str(factor)<<"";
+        ss<<"*/\n";
+        ss<<"double v=0;\n";
+        // precompute xs..
+        for(auto p:polys)
+            ss<<p.code_str(factor)<<"\n";
+        if(factor==1)
+            ss<<"return v;\n";
+        else{
+            ss.precision(17);
+            ss<<"return v/double("<<factor<<");\n";
+        }
+        ss<<"}\n";
         return ss.str();
     }
     Vector2<long double> span(){

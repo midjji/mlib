@@ -135,12 +135,12 @@ void Result::evaluate(){
     // interframe translation and angle error
     if(seq.is_training()){
 
-        interframe_angle_error.clear();interframe_angle_error.reserve(seq.gt_poses.size());
-        interframe_translation_error.clear();interframe_translation_error.reserve(seq.gt_poses.size());
-
-        for(uint i=1;i<seq.gt_poses.size();++i){
-            PoseD gta=seq.gt_poses[i-1];
-            PoseD gtb=seq.gt_poses[i];
+        interframe_angle_error.clear();interframe_angle_error.reserve(seq.samples());
+        interframe_translation_error.clear();interframe_translation_error.reserve(seq.samples());
+        auto gts=seq.gt_poses();
+        for(uint i=1;i<gts.size();++i){
+            PoseD gta=gts[i-1];
+            PoseD gtb=gts[i];
             PoseD gtd=gta.inverse()*gtb;
 
             PoseD pa=poses[i-1];
@@ -189,7 +189,7 @@ void Result::save_evaluation([[maybe_unused]] std::string basepath){
 }
 void Result::save_benchmark_metrics(std::string path){
     // big function ? well soso
-    if(seq.gt_poses.size()>0)
+    if(seq.is_training())
         plot_errors(kes,path,seq.name(),lengths);
 }
 
@@ -206,7 +206,7 @@ void Result::compute_benchmark_metrics(){
     // for all start positions do
 
     for (int first_frame=0; first_frame<seq.samples(); first_frame+=step_size) {
-        assert(seq.images==(int)seq.gt_poses.size());
+        assert(seq.images==(int)seq.samples());
 
         // for all segment lengths do
         for (double len : lengths){
@@ -217,13 +217,13 @@ void Result::compute_benchmark_metrics(){
             // continue, if sequence not long enough
             if (last_frame==-1)
                 continue;
-            if(last_frame<0 || last_frame>(int)seq.gt_poses.size())  {
+            if(last_frame<0 || last_frame>(int)seq.samples())  {
                 cout<<"Wierd"<<endl;
                 assert(false && "invalid index");
                 continue;
             }
 
-            PoseD pb_gt   =seq.gt_poses.at(last_frame);
+            PoseD pb_gt   =seq.gt_pose(last_frame);
             PoseD pb      =poses.at(last_frame);
 
             // compute speed
@@ -231,7 +231,7 @@ void Result::compute_benchmark_metrics(){
             float speed = len/(0.1*num_frames); // in meters per second
 
             // compute rotational and translational KittiError
-            PoseD pose_delta_gt     = seq.gt_poses.at(first_frame).inverse()*pb_gt;
+            PoseD pose_delta_gt     = seq.gt_pose(first_frame).inverse()*pb_gt;
             PoseD pose_delta_result = poses.at(first_frame).inverse()*pb;
             PoseD pose_error        = pose_delta_result.inverse()*pose_delta_gt;
 

@@ -17,6 +17,7 @@ public:
     std::vector<std::vector<cvl::PoseD>> posess;
     std::vector<Color> pose_colors;
     double coordinate_axis_length=1;
+void fill_colors();
 };
 PC default_scene();
 

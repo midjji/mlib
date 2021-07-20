@@ -1,8 +1,8 @@
-#include <daimler/sample.h>
+#include <mlib/datasets/daimler/sample.h>
 #include <mlib/utils/mlog/log.h>
 
 #include <mlib/utils/cvl/triangulate.h>
-#include <daimler/calibration.h>
+#include <mlib/datasets/daimler/calibration.h>
 using std::cout;
 using std::endl;
 namespace cvl {
@@ -42,8 +42,8 @@ cv::Mat1f convertw2grayf(cv::Mat1w img){
 DaimlerSample::DaimlerSample(std::vector<cv::Mat1w> images,
                              cv::Mat1f disparity_,
                              cv::Mat1b labels,
-                             int frameid):images(images), disparity_(disparity_),
-    labels(labels), frameid_(frameid){}
+                             int frameid, double time_):images(images), disparity_(disparity_),
+    labels(labels), frameid_(frameid),time_(time_){}
 
 float DaimlerSample::disparity(double row, double col) const{ // row,col
 
@@ -65,6 +65,9 @@ Vector3d DaimlerSample::get_3d_point(double row, double col) const
 }
 bool DaimlerSample::is_car(Vector2d rowcol) const{
     return is_car(rowcol(0),rowcol(1));
+}
+double DaimlerSample::time() const{
+    return time_;
 }
 bool DaimlerSample::is_car(double row, double col) const{
 

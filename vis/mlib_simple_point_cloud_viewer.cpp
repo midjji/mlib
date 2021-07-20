@@ -113,7 +113,8 @@ void PointCloudViewer::sink_(std::unique_ptr<Order>& order){
 void PointCloudViewer::add(const FlowField& ff, bool clear_scene){
     queue.push(std::make_unique<FlowOrder>(ff,clear_scene));
 }
-void PointCloudViewer::add(const PC& pc, bool clear_scene){
+void PointCloudViewer::add(PC pc, bool clear_scene){
+    pc.fill_colors();
     queue.push(std::make_unique<PCOrder>(pc, clear_scene));
 }
 

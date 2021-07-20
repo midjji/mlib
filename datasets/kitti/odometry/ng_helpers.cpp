@@ -117,7 +117,7 @@ void writeNgSequence(const Sequence& seq,std::string outputpath){
         saferSystemCall("mkdir -p "+path);
         for(int i=0;i<seq.samples();++i){
             std::stringstream ss;
-            ss<<"Timestamp: "<<seq.times[i]<<"\n";
+            ss<<"Timestamp: "<<seq.times()[i]<<"\n";
             ss<<"Framestamp: "<<i<<"\n";
             std::ofstream file; file.open(path+mlib::toZstring(i,5)+"_c0.txt");  file<<ss.str()<<endl;  file.close();
         }
