@@ -1,7 +1,8 @@
+#include <fstream>
 #include <kitti/odometry/matlab_plot.h>
 #include <mlib/utils/matlab_helpers.h>
 #include <mlib/utils/string_helpers.h>
-
+#include <mlib/datasets/kitti/odometry/eval.h>
 
 using std::cout;using std::endl;
 using namespace mlib;

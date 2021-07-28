@@ -21,7 +21,7 @@ using namespace kitti;
 int main()
 {
     KittiDataset kd("/home/mikael/datasets/kitti/odometry/");
-    kd.init();
+
     while(true){
         for(uint seq=0;seq<kd.sequences.size();++seq){
             Sequence sq=kd.getSequence(seq);

@@ -6,6 +6,7 @@
 #include <mlib/utils/mlibtime.h>
 #include <mlib/utils/cvl/convertopencv.h>
 #include <kitti/odometry/sequence.h>
+
 using namespace mlib;
 using std::cout;using std::endl;
 namespace cvl{
@@ -21,7 +22,17 @@ int Sequence::sequence() const{return sequence_;}
 std::string Sequence::name() const{ return toZstring(sequence_,2);}
 std::string Sequence::description() const{return description_;}
 double Sequence::baseline() const{return baseline_;}
-double Sequence::fps() const{return 10;}
+double Sequence::fps() const{return 10.0;}
+Fid2Time Sequence::fid2time() const
+{
+    std::vector<double> ts;ts.reserve(times_.size());
+
+    for(int i=0;i<int(times_.size());++i){
+        ts.push_back(i*0.1);
+    }
+    auto f2t=Fid2Time(ts);
+    return f2t;
+}
 std::shared_ptr<KittiOdometrySample> Sequence::get_sample(int index) const{
     std::vector<cv::Mat1w> images;
     cv::Mat1f disparity;
@@ -82,18 +93,20 @@ bool Sequence::getImages(std::vector<cv::Mat1w>& images,cv::Mat1f& disparity, in
     disparity=cv::imread(stereopath,cv::IMREAD_ANYDEPTH);
 
 
-    assert(disparity.rows==rows);
-    assert(disparity.cols==cols);
+    assert(disparity.rows==rows());
+    assert(disparity.cols==cols());
 
     return true;
 
 }
-std::vector<double> Sequence::times() const{return times_;}
+std::vector<double> Sequence::times() const{
+    return times_;
+}
 std::vector<PoseD> Sequence::gt_poses() const{return gt_poses_;} // Pwc(t)
 int Sequence::samples() const{return samples_;}
 bool Sequence::is_training() const{return sequence()<11;}
 std::vector<unsigned int> Sequence::getDistantFrames(){
-    assert(isTraining());
+    assert(is_training());
     // shouldnt be any loop closures in it...
     // so check each pose distance to every other
     std::vector<PoseD>        solitaries; solitaries.reserve(gt_poses_.size());
@@ -188,7 +201,7 @@ cv::Mat3b Sequence::getMap(){
 
         //4.276802385584e-04 -9.999672484946e-01 -8.084491683471e-03 -1.198459927713e-02
         //-7.210626507497e-03 8.081198471645e-03 -9.999413164504e-01 -5.403984729748e-02
-         //9.999738645903e-01 4.859485810390e-04 -7.206933692422e-03 -2.921968648686e-01
+        //9.999738645903e-01 4.859485810390e-04 -7.206933692422e-03 -2.921968648686e-01
 
 
 
@@ -227,7 +240,9 @@ PoseD Sequence::P_camera_vehicle() const{
 }
 
 
-
+namespace  {
+bool warned_on_kitti_times=false;
+}
 
 
 Sequence::Sequence(std::string path_,
@@ -236,14 +251,29 @@ Sequence::Sequence(std::string path_,
                    int cols_,
                    int samples_):
     path_(path_), sequence_(sequence_),rows_(rows_),cols_(cols_),samples_(samples_){
-    times_=readTimes(seqpath()+"times.txt");
 
+    times_=readTimes(seqpath()+"times.txt");
+    {
+        // problem is these are difficult to use
+        if(!warned_on_kitti_times){
+            warned_on_kitti_times=true;
+            cout<<"approximate kitti times"<<endl;
+        }
+        std::vector<double> ts; ts.reserve(gt_poses().size());
+        for(int i=0;i<int(times_.size());++i)
+            ts.push_back(0.1*i);
+        times_=ts;
+    }
+
+
+    gt_poses_.resize(times_.size());
     if(sequence_<11)
     {
         gt_poses_=readKittiPoses(path_+"poses/"+name()+".txt");
         if(int(gt_poses_.size())!=samples())
             mlog()<<"Configuration missmatch\n";
     }
+
 
     ks=readCalibrationFile(seqpath()+"calib.txt");
     assert(ks.size()==5);
@@ -258,7 +288,7 @@ Sequence::Sequence(std::string path_,
     //P_camera_vehicle_ = PoseD(Vector4d(0.644979, -0.146418, 0.471854, -0.583025),Vector3d(0.248715, 0.0942763, -0.046136));
     double f=3.1415/180.0;
     // 1,-1.7 kinda makes sense, its at the back of the car...
-    P_camera_vehicle_=PoseD(Vector3d(0,1,-1))*PoseD(getRotationMatrixX(1.0*f)*getRotationMatrixY(-0.75*f));
+    P_camera_vehicle_=PoseD(getRotationMatrixX(1.0*f)*getRotationMatrixY(-0.75*f))*PoseD(Vector3d(0,-1.35,1.01));
 
     inited=true;
 }
@@ -272,50 +302,39 @@ Sequence Sequence::shrunk(int newsize) const{
     return seq;
 }
 
+DistLsh Sequence::dist_lsh(){
+    if(!distlsh)
+        distlsh=DistLsh(gt_poses());
+    return distlsh;
+}
 
-
-
-
-
-
-
-
-
-
-std::vector<cvl::PoseD> readKittiPoses(std::string path){
+std::vector<cvl::PoseD> readKittiPoses(std::string path, bool require_found){
     //  cout<<"readKittiPoses: "<<path<<endl;
     // verify path
     if(!fileexists(path)){
-        throw new std::logic_error(path + "file not found ");
+        mlog()<<path<< "not found\n";
+        if(require_found)
+            exit(1);
     }
     // read file
     std::vector<double> vals;double val; vals.reserve(100000);
     {
         std::ifstream fin; fin.open(path);
         while(fin>>val) vals.push_back(val);
-        fin.close();
     }
-
     // parse file
-    if(vals.size()==0)          throw new std::logic_error("Failure to parse data - no doubles"+path);
-
-
-    if(vals.size()%12!=0)       throw new std::logic_error("Failure to parse data - to few values"+path);
-    std::vector<cvl::PoseD> poses;poses.reserve(vals.size()/12+1);
-    for(uint i=0;i<vals.size();i+=12){
+    if(vals.empty()) mlog()<<"no data found\n";
+    if(vals.size()%12!=0)       mlog()<<"incorrect data format"<<vals.size()<<"\n";
+    std::vector<cvl::PoseD> poses;poses.reserve(vals.size()/12);
+    for(uint i=0;i<vals.size();i+=12)
+    {
         cvl::Matrix34d M(vals[i],vals[i+1],vals[i+2],vals[i+3],
-                        vals[i+4],vals[i+5],vals[i+6],vals[i+7],
-                        vals[i+8],vals[i+9],vals[i+10],vals[i+11]);
+                vals[i+4],vals[i+5],vals[i+6],vals[i+7],
+                vals[i+8],vals[i+9],vals[i+10],vals[i+11]);
 
         cvl::PoseD pose(M);
-
-        //auto rek=pose.get3x4();// error is like 10^-8 which is ok...
-        // the gt is shittier though...
-        //std::cout<<"kitti:\n"<<M<< "\n"<<rek<< "\n"<<M-rek<<std::endl;
         poses.push_back(pose);
     }
-    //assert(validPoses(poses));
-
     return poses;
 }
 
@@ -324,6 +343,7 @@ void writeKittiPoses(std::string name, std::vector<PoseD> ps){
 
     //  saferSystemCall("mkdir -p "+dir);
     std::stringstream ss;
+    ss.precision(19);
     for(PoseD p:ps){
         if(!p.is_normal()) cout<<"bad pose when writing kitti"<<p<<endl;
         p.normalize();
@@ -337,10 +357,8 @@ void writeKittiPoses(std::string name, std::vector<PoseD> ps){
                 ss<<M(row,col)<<" ";
         ss<<"\n";
     }
-    std::ofstream ofs;
-    ofs.open(name);
+    std::ofstream ofs(name);
     ofs<<ss.str()<<endl;
-    ofs.close();
 }
 
 std::vector<double> readTimes(std::string path){
@@ -377,9 +395,9 @@ readCalibrationFile(std::string path  )
     //           0, 0, 1}; // for both cameras
     // So the kitti matrixes assume col, row, so convert it.
 
-Matrix3d R(0,1,0,
-           1,0,0,
-           0,0,1);
+    Matrix3d R(0,1,0,
+               1,0,0,
+               0,0,1);
 
 
 

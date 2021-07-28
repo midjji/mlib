@@ -223,7 +223,7 @@ public:
          * @param rhs
          * @return
          */
-    inline Pose<T> operator*(Pose<T> rhs) const{
+    inline Pose<T> operator*(const Pose<T>& rhs) const{
         return Pose(QuaternionProduct(q(),rhs.q()),
                     QuaternionRotate(q(),rhs.t())+t());
     }
@@ -240,7 +240,7 @@ public:
         Vector3<T> ti=-QuaternionRotate(qi,t());
         return Pose(qi,ti);
     }
-    Vector3<T> apply_inverse(Vector3<T> x){
+    inline Vector3<T> apply_inverse(Vector3<T> x){
         x-=t();
         quaternionRotate(conjugateQuaternion(q()));
     }
@@ -323,19 +323,14 @@ public:
     /**
          * @brief getAngle
          * @return the angle of the rotation in radians
+         * double the theta for quaternions
          */
-    double angle() const
+    T angle() const
     {
-        // assumes unit quaternion!
-        double sin_squared_theta = data[1] * data[1] + data[2] * data[2] + data[3] * data[3];
-        double sin_theta = std::sqrt(sin_squared_theta);
-        double cos_theta = data[0];
-        double theta =(cos_theta < T(0.0)) ? std::atan2(-sin_theta, -cos_theta)
-                                           : std::atan2(sin_theta, cos_theta);
-        return T(2.0)*theta;
+        return T(2.0)*unit_quaternion::theta(q());
     }
     T angle_degrees(){ // visualization only
-        return angle()*180.0/3.14159265359;
+        return angle()*T(180.0/3.14159265359);
     }
 
     /// get the position of th     //time+=delta_t*0.5;e camera center in world coordinates
@@ -383,32 +378,29 @@ public:
         return angle;
     }
 
-    T geodesic(Pose<T> b){
+     T geodesic(Pose<T> b){
         return geodesic_vector(b).norm();
     }
-    Vector<T,3> q_geodesic_vector(const Pose<T>& b) // component wize makes it convenient as residual
-    {
-        return Quaternion<T>(data).geodesic_vector(b.data);
-
+    inline Vector<T,3> q_geodesic_vector(const Pose<T>& Pbw)
+    {        
+       Vector<T,6> gv=geodesic_vector(Pbw);
+        return Vector<T,3> (gv[0],gv[1],gv[2]);
     }
-    Vector<T,6> geodesic_vector(const Pose<T>& b) // component wize makes it convenient as residual
+
+    inline Vector<T,6> geodesic_vector(const Pose<T>& Pbw)
     {
-
-        Vector3<T> v=Quaternion<T>(data).geodesic_vector(b.data);
-
-        Vector3<T> p=(b.inverse()*(*this)).t(); // think about this again...
-        return Vector<T,6>(v[0],v[1],v[2],
-                p[0],p[1],p[2]);
+        Pose<T>& Paw=*this;
+        Pose<T> Pab = Paw*Pbw.inverse();
+        return Pab.geodesic_vector();
     }
-    Vector<T,6> geodesic_vector() // component wize makes it convenient as residual
-    {
 
+    inline Vector<T,6> geodesic_vector()
+    {
         Vector3<T> v=unit_quaternion::log(q()).drop_first();
-
-        Vector3<T> p=t(); // think about this again...
         return Vector<T,6>(v[0],v[1],v[2],
-                p[0],p[1],p[2]);
+                data[4],data[5],data[6]);
     }
+
     /// returns true if no value is strange
     mlib_host_device_
     /**
@@ -437,7 +429,7 @@ public:
          * @param x
          * @return  the rotated but not translated vector
          */
-    Vector3<T> rotate(const Vector3<T>& x) const{
+    inline Vector3<T> rotate(const Vector3<T>& x) const{
         return QuaternionRotate(q(),x);
     }
 

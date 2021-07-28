@@ -1,4 +1,4 @@
-#if 0
+
 #pragma once
 /* ********************************* FILE ************************************/
 /** \file    mgenerator.hpp
@@ -20,6 +20,23 @@
 #include <assert.h>
 #include <type_traits>
 #include <iostream>
+
+struct IndexableGenerator
+{
+    std::vector<double> ts;
+    double t0;
+    double delta;
+    int max_index;
+    IndexableGenerator(std::vector<double> ts):ts(ts), max_index(ts.size()){}
+    IndexableGenerator(double t0, double delta=1, int max_index=std::numeric_limits<int>::max()):t0(t0),delta(delta),max_index(max_index){}
+    double operator[](int index){
+        if(ts.empty()) return t0+ index*delta;
+        return ts[index % max_index];
+    }
+};
+
+
+#if 0
 using namespace std;
 namespace cvl {
 

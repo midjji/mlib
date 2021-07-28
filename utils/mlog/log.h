@@ -41,6 +41,7 @@
 #include <string>
 #include <memory>
 #include <sstream>
+#include <atomic>
 
 static_assert(__cplusplus>=201103L, " must be c++11 or greater");
 
@@ -53,12 +54,22 @@ static_assert(__cplusplus>=201103L, " must be c++11 or greater");
 
 namespace cvl{
 
+struct Tosser{};
+template<class T> const Tosser& operator<<(const Tosser& tosser, [[maybe_unused]] T){    return tosser;}
+
+
 class Log;
+
 
 class Logger
 {
+
     // should possibly be public ostream, so sprint_f works
 public:
+    void precision(int digits=6);
+    void set_precision_float();
+    void set_precision_double();
+    void set_precision_long_double();
 
     // configuration options
     /**
@@ -106,8 +117,8 @@ public:
     // take extreme care when modifying this class.    
     mutable std::stringstream ss;
     mutable bool flush=false;
+    static std::atomic<int> digits;
 private:
-
     long int time_ns=0;
     bool display_timestamp=true;
     bool display_caller_name=true;
@@ -122,7 +133,7 @@ private:
 // a less shit version of string formatting ala printf
 template<class ...Args> std::string format_str(std::string format, Args... args){
 
-    // ideally reimplement, but ...    
+    // ideally reimplement, but ...   std::format in c++20
     constexpr uint len=2048;
     char buff[len];
     int cx=snprintf( buff, len, format.c_str(), args... );
@@ -151,6 +162,7 @@ template<class T>
  *
  */
 const Logger& operator<<(const Logger& logger, const T& t) noexcept{
+    logger.ss.precision(int(logger.digits));
     logger.ss<<t;
     return logger;
 }

@@ -73,7 +73,7 @@ public:
         // normalize?
         return Vector3<T>(q[1],q[2],q[3]);
     }
-    inline Vector3<T> unit_rotate(Vector3<T>& x)
+    inline Vector3<T> unit_rotate(const Vector3<T>& x)
     {
         return ((*this)*Quaternion<T>(x)*conj()).x();
     }
@@ -82,7 +82,7 @@ public:
         return Vector4<T>(q[0],-q[1],-q[2],-q[3]);
     }
 
-    inline Vector3<T> imag_of_multiply(Quaternion b){
+    inline Vector3<T> imag_of_multiply(const Quaternion& b){
         // this is for when you only want the imaginary part,
         //like when you know the scalar part will be zero!
         // such as for the second mult of unit rotate, or omega or alpha
@@ -91,7 +91,7 @@ public:
                         q(3),           -q(2),        q(1),         q(0));
         return M*b.q;
     }
-    inline Vector3<T> imag_of_multiply_b_conj(Quaternion b){ // multiply by conjugate of b
+    inline Vector3<T> imag_of_multiply_b_conj(const Quaternion& b){ // multiply by conjugate of b
         // this is for when you only want the imaginary part,
         //like when you know the scalar part will be zero!
         // such as for the second mult of unit rotate, or omega or alpha
@@ -194,7 +194,7 @@ public:
         // dont use this for ceres, use geodesic_vector instead!
         return (conj()*b).ulog().x().norm();
     }
-    inline Vector3<T> geodesic_vector(Quaternion<T> b){
+    inline Vector3<T> geodesic_vector(Quaternion<T> b){        
         return (conj()*b).ulog().x();
     }
     inline Vector3<T> vec() const{return Vector3<T>(q[1],q[2],q[3]);}

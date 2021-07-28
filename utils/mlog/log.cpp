@@ -100,6 +100,7 @@ template<class Key, class Value> bool value_exists(const Value& v, const std::ma
  */
 class Log{
     std::ofstream ofs;
+
 public:
     Log(std::string name):name(name){
         if(name.empty())
@@ -121,7 +122,8 @@ public:
     bool log_thread_information;
     bool save2file=true;
     bool log_time=true;
-    void set_thread_name(std::string name_)  {
+    void set_thread_name(std::string name_)
+    {
         std::unique_lock<std::mutex> ul(log_mtx);
         if(!value_exists(name_,names)){
             names[std::this_thread::get_id()]=name_;
@@ -322,4 +324,13 @@ const Logger& Logger::operator<<(StandardEndLine manip) const
 void Logger::set_thread_name(const std::string& name){
     log->set_thread_name(name);
 }
+std::atomic<int> Logger::digits{6};
+void Logger::precision(int digits_){
+    digits=digits_;
+}
+void Logger::set_precision_float(){precision(6);}
+void Logger::set_precision_double(){precision(12);}
+void Logger::set_precision_long_double(){precision(20);}
+
+
 }

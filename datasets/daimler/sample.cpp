@@ -69,6 +69,7 @@ bool DaimlerSample::is_car(Vector2d rowcol) const{
 double DaimlerSample::time() const{
     return time_;
 }
+int DaimlerSample::sequenceid() const{return 0;}
 bool DaimlerSample::is_car(double row, double col) const{
 
     assert(row>=0);

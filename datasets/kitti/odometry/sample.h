@@ -3,7 +3,8 @@
 namespace cvl {
 
 namespace kitti {
-class KittiOdometrySample{
+class KittiOdometrySample
+{
 public:
 
     KittiOdometrySample(std::vector<cv::Mat1w> images,

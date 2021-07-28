@@ -1,7 +1,7 @@
 #pragma once
 #include <map>
 #include <set>
-//#include <mlib/utils/cvl/bi_directional_map.h>
+
 
 
 namespace cvl
@@ -18,8 +18,12 @@ public:
     virtual double time_of(int frameid) const=0;
     virtual int frameid_of(double time) const=0;
     virtual double predict_time_of(int frameid) const=0;
+    // rounds down
     virtual int predict_frameid_of(double time) const=0;
+    virtual std::string str() const=0;
 };
+std::string str(const Frameid2TimeMap& f2t);
+
 class FixedFps :public Frameid2TimeMap
 {
 
@@ -52,10 +56,15 @@ public:
     // these are terrible for the default, override them
     virtual double predict_time_of(int frameid) const override;
     virtual int predict_frameid_of(double time) const override;
-
+    std::string str() const override;
 private:
     std::map<int,double> fid2time;
     std::map<double,int> time2fid;
 };
+
+
+
+
+
 
 }

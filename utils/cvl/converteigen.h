@@ -1,8 +1,9 @@
 #pragma once
+#ifdef EIGEN_MATRIX_H
 // eigen is column major!
 //#pragma GCC diagnostic push
-#include <Eigen/Core>// no need
-#include <Eigen/Geometry>
+//#include <Eigen/Core>// no need
+//#include <Eigen/Geometry>
 //#pragma GCC diagnostic pop
 
 
@@ -63,3 +64,4 @@ Eigen::Transform<T,3,Eigen::Isometry> convert2isometry(const cvl::Pose<T>& pose)
 
 
 }// end namespace cvl
+#endif

@@ -1,11 +1,11 @@
 #pragma once
 
-
+#if 0
 
 #define MLIB_USE_INFORMATIVE_ASSERTS 1
 
 #if MLIB_USE_INFORMATIVE_ASSERTS
-#include <assert.h>
+#include <cassert>
 #include <string>
 #include <iostream>
 // needs to check for linux enviroment!
@@ -52,3 +52,4 @@ void print_trace();
 
 
 
+#endif

@@ -6,13 +6,13 @@
 
 #include "mlib/utils/string_helpers.h"
 
-#include <experimental/filesystem>
+#include <filesystem>
 using std::cout;using std::endl;
 namespace mlib{
 
 Configuration::Configuration(std::string configurationfile){
     this->path=configurationfile;
-    if(std::experimental::filesystem::exists(configurationfile))
+    if(std::filesystem::exists(configurationfile))
         cout<<"Reading conf: "<<this->path<<endl;
     else
         cout<<"Creating conf: "<<this->path<<endl;
@@ -45,7 +45,7 @@ void Configuration::init()
     if(inited)
         return;
     inited=true;
-    if(!std::experimental::filesystem::exists(path)) cout<<path<<endl;
+    if(!std::filesystem::exists(path)) cout<<path<<endl;
 
 
     std::ifstream fin(path.c_str());

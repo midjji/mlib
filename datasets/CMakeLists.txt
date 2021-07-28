@@ -2,8 +2,19 @@ cmake_minimum_required(VERSION 3.16)
 
 add_library(mlib-datasets INTERFACE)
 
+file(GLOB srcs  "*.h" "*.cpp" )
 
-add_library(mlib-datasets-interface interface.h interface.cpp)
+add_library(mlib-datasets-interface ${srcs})
+target_compile_features(mlib-datasets-interface PRIVATE cxx_std_17)
+
+find_package( OpenCV 4 REQUIRED)
+target_link_libraries(mlib-datasets-interface )
+message("OpenCV_INCLUDE_DIRS: ${OpenCV_INCLUDE_DIRS}")
+target_include_directories(mlib-datasets-interface SYSTEM PUBLIC ${OpenCV_INCLUDE_DIRS})
+target_link_libraries(mlib-datasets-interface PUBLIC ${OpenCV_LIBS})
+
+
+
 target_include_directories(mlib-datasets-interface INTERFACE PRIVATE "${MLIB_TOP_PATH}")
 target_link_libraries(mlib-datasets INTERFACE mlib-datasets-interface)
 
@@ -29,4 +40,5 @@ if(WITH_SQLite)
         target_link_libraries(mlib-datasets INTERFACE mlib-daimler-dataset)
     endif(WITH_Daimler)
 endif()
+
 endif()

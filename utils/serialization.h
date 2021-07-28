@@ -30,7 +30,7 @@
 #include <fstream>
 #include <sstream>
 #include <mlib/utils/files.h>
-
+#include <map>
 
 #include <mlib/utils/checksum.h>
 #include <mlib/utils/mlog/log.h>
@@ -89,48 +89,75 @@ template<typename T> struct bits_t { T t; }; //no constructor necessary
 template<typename T> bits_t<T&> bits(T& t) {    return bits_t<T&>{t};}
 template<typename T> bits_t<const T&> bits(const T& t) {    return bits_t<const T&>{t};}
 
-//insertion operator to call ::write() on whatever type of stream
-template<typename S, typename T>
-S& operator<<(S& s,bits_t<T> b) {
+
+template <class Value>
+struct is_pair : public std::false_type{};
+template <class First, class Second>
+struct is_pair< std::pair<First,Second> > : public std::true_type{};
+
+template <class Value>
+struct is_map : public std::false_type{};
+template <class Key, class Value,class Less, class Alloc>
+struct is_map< std::map<Key,Value,Less,Alloc> > : public std::true_type{};
+
+
+template<typename Stream, typename T>
+Stream& operator<<(Stream& s,bits_t<T> b) {
     if(!s) return s;
-
-
-if constexpr (std::is_trivially_copyable<std::remove_reference_t<T>>()){
-                //mlog()<<"should be a basic "<<type_name(b.t)<<"\n";
+    using Type=std::remove_reference_t<T>;
+    if constexpr (std::is_trivially_copyable<Type>()){
         s.write(reinterpret_cast<const char*>(&b.t), sizeof(T));
-        return s;
     }
-    else
-    {
-        //mlog()<<"should be a string, or a vector: "<<type_name(b.t)<<"\n";
+    else if constexpr(is_pair<Type>()){ // add tuple one too..
+        s<<bits(b.t.first);
+        s<<bits(b.t.second);
+    }
+    else if constexpr(is_map<Type>()){ // add tuple one too..
         uint64_t size=b.t.size();
         s<<bits(size);
-        //mlog()<<"size: "<<size<<"\n";
-        for(const auto& e:b.t)
-            s<<bits(e);
-        return s;
+        for(const auto& [a,b]:b.t) {
+            s<<bits(a);
+            s<<bits(b);
+        }
     }
+    else{
+        // covers vector and string and lots others...
+        uint64_t size=b.t.size();
+        s<<bits(size);
+        for(const auto& e:b.t) s<<bits(e);
+    }
+    return s;
 }
 
 
 
 
 //extraction operator to call ::read(), require a non-const reference here
-template<typename S, typename T>
-S& operator>>(S& s, bits_t<T&> b) {
-   /*
-    uint32_t ar[4];
- static_assert(sizeof(ar)==16,"ok?");
- auto arr=bits(ar);
- static_assert(sizeof(arr.t) ==16, "ok?");
-*/
-
+template<typename Stream, typename T>
+Stream& operator>>(Stream& s, bits_t<T&> b) {
     if(!s) return s;
-    if constexpr (std::is_trivially_copyable<std::remove_reference_t<T>>()){
-        //mlog()<<"should be a pod "<<type_name(b.t)<<"\n";
-
+    using Type=std::remove_reference_t<T>;
+    if constexpr (std::is_trivially_copyable<Type>()){
         s.read(reinterpret_cast<char*>(&b.t), sizeof(T));
-        return s;
+    }
+    else if constexpr(is_pair<Type>()){
+        s>>bits(b.t.first);
+        s>>bits(b.t.second);
+    }
+    else if constexpr(is_map<Type>())
+    {
+        b.t.clear();
+        using Key= typename Type ::key_type;
+        using Value= typename Type:: mapped_type;
+        Key key;
+        Value value;
+        uint64_t size;
+        s>>bits(size);
+        for(uint i=0;i<size;++i) {
+            s>>bits(key);
+            s>>bits(value);
+            b.t[key]=value;
+        }
     }
     else
     {
@@ -139,13 +166,13 @@ S& operator>>(S& s, bits_t<T&> b) {
         uint64_t size;
         s>>bits(size);
 
-       // mlog()<<"should be a string, or a vector: "<<type_name(b.t)<<" size: "<<size<<"\n";
+        // mlog()<<"should be a string, or a vector: "<<type_name(b.t)<<" size: "<<size<<"\n";
         b.t.resize(size);
         for(uint i=0;i<size;++i)
             s>>bits(b.t[i]);
-        return s;
-    }
 
+    }
+    return s;
 }
 
 template<typename T> struct vbits_t { T t; }; //no constructor necessary

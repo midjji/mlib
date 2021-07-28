@@ -5,41 +5,22 @@ namespace cvl{
 namespace kitti{
 
 
-/**
- * @brief The Evaluator class provides the evaluation output for the kitti benchmark
- *
- *
- * \todo
- * - support for extended gt in evaluation
- *
- */
-class Evaluator{
+std::map<int,Result> evaluate(KittiDataset& kd,
+                              std::string estimatepath,  /** @param estimatepath path to the estimation output directories */
+                              std::string estimate_name,  /** estimate names */
+                              std::string outputpath    /** @param outputpath   where to store the resulting files */);
 
-public:
-    /**
-     * @brief Evaluator basic constructor
-     */
-    Evaluator(std::string basepath      /** @param basepath     path to the kitti dataset */,
-              std::vector<std::string> estimatepath  /** @param estimatepath path to the estimation output directories */,
-              std::vector<std::string> names  /** estimate names */,
-              std::string outputpath    /** @param outputpath   where to store teh resulting files */);
+std::map<int,Result> evaluate(KittiDataset& kd,
+                              // sequence to estimate poses
+                              std::map<int,std::vector<PoseD>> Pwcs,
+                              std::string estimate_name,
+                              std::string outputpath    );
+
+Result evaluate(Sequence& kd,
+                std::vector<PoseD> Pwcs,
+                std::string estimate_name,
+                std::string outputpath    );
 
 
-
-    /// perform the evaluation and save the results
-    void evaluate();
-
-
-private:
-    /// costly internal initialization
-    void init();
-    bool inited=false;
-
-    KittiDataset kd;
-    std::vector<Result> results;
-    std::vector<std::string> estimatepaths,names;
-    std::string output_path="./";
-
-};
 }// end kitti namespace
 }// end namespace cvl

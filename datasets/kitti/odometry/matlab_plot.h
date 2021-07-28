@@ -1,5 +1,5 @@
 #pragma once
-#include <mlib/datasets/kitti/odometry/eval.h>
+#include <mlib/datasets/kitti/odometry/result.h>
 
 namespace cvl{
 namespace kitti{

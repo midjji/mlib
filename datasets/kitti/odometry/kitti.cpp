@@ -60,7 +60,7 @@ int count_png_in_dir(std::string path){
 }
 
 bool KittiDataset::checkFiles(){
-    init();
+
     std::vector<cv::Mat1b> imgs;
 
 
@@ -91,15 +91,13 @@ bool KittiDataset::checkFiles(){
     return true;
 
 }
-KittiDataset::KittiDataset(std::string basepath):basepath(basepath){init();}
-void KittiDataset::init(){
-    if(inited) return;
-    inited=true;
+KittiDataset::KittiDataset(const std::string& basepath):basepath(basepath) {
     for(int seq:sequences){
         Sequence s(basepath,seq,rowss[seq],colss[seq],seqimgs[seq]);
         seqs.push_back(s);
     }
 }
+
 std::vector<Sequence> KittiDataset::get_training_sequences(){
     std::vector<Sequence> ss; ss.reserve(11);
     for(int i=0;i<training_sequences;++i)
@@ -134,12 +132,14 @@ std::shared_ptr<KittiOdometrySample> KittiDataset::get_sample(int sequence, int 
     Sequence seq= getSequence(sequence);
     return seq.get_sample(frameid);
 }
-Sequence KittiDataset::getSequence(int index){init();
-                                              if(index<0){
-                                                  Sequence seq=seqs.at(-index).shrunk();
-                                                  return seq;
-                                              }
-                                              return seqs.at(index);    }
+Sequence KittiDataset::getSequence(int index)
+{
+    if(index<0){
+        Sequence seq=seqs.at(-index).shrunk();
+        return seq;
+    }
+    return seqs.at(index);
+}
 std::shared_ptr<KittiOdometrySample> KittiDataset::next(){
     return get_sample(sequence,index++);
 }
@@ -148,7 +148,7 @@ std::shared_ptr<KittiOdometrySample> KittiDataset::next(){
 
 void testKitti(std::string basepath, bool withstereo){
     KittiDataset kd(basepath);
-    kd.init();
+
 
     while(true){
         for(uint seq=0;seq<kd.sequences.size();++seq){
@@ -225,8 +225,6 @@ void testKitti(std::string basepath, bool withstereo){
 
 std::vector<std::vector<PoseD>> trajectories(std::string basepath){
     KittiDataset kd(basepath);
-    kd.init();
-
     std::vector<std::vector<PoseD>> trs; trs.reserve(100);
     for(const auto& seq : kd.seqs){
         trs.push_back(seq.gt_poses());

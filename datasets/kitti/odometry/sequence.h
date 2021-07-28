@@ -2,11 +2,10 @@
 #include <opencv2/core/mat.hpp>
 #include <mlib/utils/cvl/pose.h>
 #include <mlib/datasets/kitti/odometry/sample.h>
+#include <mlib/datasets/kitti/odometry/fid2time.h>
+#include <mlib/datasets/kitti/odometry/distlsh.h>
 namespace cvl{
 namespace kitti{
-
-
-
 
 /**
  * @brief The Sequence class
@@ -26,6 +25,7 @@ public:
 
     sample_type get_sample(int index) const;
     double fps() const;
+    Fid2Time fid2time() const;
 
 
 
@@ -65,6 +65,9 @@ public:
     std::string seqpath() const;
     Sequence shrunk(int newsize=100) const;
 
+    // evaluation
+    DistLsh dist_lsh();
+
 private:
 
     std::vector<double> times_;
@@ -81,7 +84,10 @@ private:
     // baseline in meters!
     double baseline_; // >0 P10(-Vector3d(baseline,0,0)); x_1=P10*x0 . 0 is left, 1 is right. 
     bool inited=false;
+    DistLsh distlsh;
 };
+
+
 
 /** Reading kitti style groundtruth */
 /**
@@ -91,7 +97,7 @@ private:
  *
  *  x_w=P*x_ci where P are 3x4 matrixes, with a implicit row of 0 0 0 1 at the bottom.
  */
-std::vector<cvl::PoseD> readKittiPoses(std::string path);
+std::vector<cvl::PoseD> readKittiPoses(std::string path, bool require_found=true);
 /**
  * @brief writeKittiPoses write poses to path in the kitti format, see read poses
  * @param path

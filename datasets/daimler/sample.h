@@ -25,6 +25,7 @@ public:
     bool is_car(double row, double col) const;
     bool is_car(Vector2d rowcol) const;
     double time() const;
+    int sequenceid() const;
 
 
     cv::Mat1b disparity_image()const;  // for visualization, new clone

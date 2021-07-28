@@ -54,8 +54,8 @@ std::string getIsoDateTime()
 }
 std::string getNospaceIsoDateTime(){
     std::string datetime=getIsoDateTime();
-for(auto& c:datetime) if(c==' ')c='_';
-return datetime;
+    for(auto& c:datetime) if(c==' ')c='_';
+    return datetime;
 
     //return datetime.substr(0,10)+"_"+datetime.substr(11,8);
 }
@@ -104,7 +104,7 @@ std::chrono::time_point<std::chrono::steady_clock,std::chrono::nanoseconds > sta
 
 }// end time
 float128  get_steady_now(){
-     return (mlibtime::clock.now()-mlibtime::start).count();
+    return (mlibtime::clock.now()-mlibtime::start).count();
 }
 
 
@@ -174,15 +174,10 @@ ScopedDelay::~ScopedDelay(){
     std::this_thread::sleep_until(mark);
 }
 
-Timer::Timer(){
-    ts.reserve(8*256);
-    dotic=true;
-}
-Timer::Timer(std::string name,uint capacity){
-    ts.reserve(capacity+256);
-    this->name=name;
-    dotic=true;
-}
+Timer::Timer():dotic(true){    ts.reserve(8*256);}
+Timer::Timer(std::string name,uint capacity): name(name),dotic(true){    ts.reserve(capacity);        }
+Timer::Timer(const std::string& name,
+      const std::vector<Time>& ts):name(name),ts(ts){};
 void Timer::reserve(unsigned int size){
     ts.reserve(size);
 }
@@ -212,6 +207,11 @@ Time Timer::toc(){
     Time d(diff.count());
     ts.push_back(d);
     return d;
+}
+void Timer::toss_warmup(){
+    if(ts.size()>2){
+        ts[0]=ts[1];
+    }
 }
 
 
@@ -394,26 +394,42 @@ Time Timer::max()    const{return max_<Time>(ts);}
 Time Timer::min()    const{return min_<Time>(ts);}
 
 
-Timer& NamedTimerPack::make_or_get(std::string name){
+Timer& NamedTimerPack::make_or_get(const std::string& name){
     auto it=ts.find(name);
     if(it!=ts.end()) return ts[name];
     ts[name]=Timer(name);
     return ts[name];
 }
-void NamedTimerPack::tic(std::string name){        make_or_get(name).tic();    }
-void NamedTimerPack::toc(std::string name){        make_or_get(name).toc();    }
+Timer& NamedTimerPack::operator[](const std::string& name){return make_or_get(name);}
 
-std::ostream& operator<<(std::ostream &os, NamedTimerPack ntp){
+
+void NamedTimerPack::tic(const std::string& name){        make_or_get(name).tic();    }
+void NamedTimerPack::toc(const std::string& name){        make_or_get(name).toc();    }
+std::map<std::string, std::vector<Time>> NamedTimerPack::times(){
+    std::map<std::string, std::vector<Time>> trs;
+    for(const auto& [name, timer]:ts){
+        trs[name]=timer.times();
+    }
+    return trs;
+}
+std::ostream& operator<<(std::ostream &os, const NamedTimerPack& ntp){
     std::vector<Timer> ts;ts.reserve(ntp.ts.size());
     for(const auto& t:ntp.ts)
         ts.push_back(t.second);
     return os<<ts;
 }
+std::ostream& operator<<(std::ostream &os, const std::map<std::string, std::vector<Time>>& ntp){
+    std::vector<mlib::Timer> timers;timers.reserve(ntp.size());
+    for(const auto& [name,times]:ntp){
+        timers.emplace_back(name,times);
+    }
+    return os<<timers;
+}
 std::ostream& operator<<(std::ostream &os, const Timer& t){
     return os<<t.str();
 }
 std::ostream& operator<<(std::ostream &os,const std::vector<Timer>& ts){
-    if(ts.size()==0)
+    if(ts.empty())
         cout<<"Empty timer list";
     std::vector<std::string> headers=
     {"Timer","Total",  "Mean", "Median","Min", "Max", "Samples"};
@@ -423,4 +439,5 @@ std::ostream& operator<<(std::ostream &os,const std::vector<Timer>& ts){
     }
     return os<< local::DisplayTable(headers,rows);
 }
+
 }// end namespace mlib

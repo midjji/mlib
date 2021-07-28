@@ -4,7 +4,7 @@
 #include <mlib/utils/vector.h>
 #include <mlib/utils/files.h>
 #include <mlib/utils/sys.h>
- 
+#include <fstream>
 
 using std::cout;using std::endl;
 namespace cvl{
@@ -66,11 +66,6 @@ void write_error_data(std::vector<KittiError>& es, std::string output_path, std:
 
 void error_plot(std::string output_path,std::string name,std::string type)
 {
-
-
-
-
-
     std::string gpfile  =output_path+name+"_"+type+".gp";
     std::string gpdata  =output_path+name+"_"+type+".data";
     std::string gpout   =output_path+name+"_"+type+".eps";
@@ -131,12 +126,10 @@ void plot_errors(std::vector<KittiError>& es, std::string output_path, std::stri
     mlib::saferSystemCall(cmd);
 
     write_error_data(es,output_path,name,lengths);
-
     error_plot(output_path,name,"tl");
     error_plot(output_path,name,"rl");
     error_plot(output_path,name,"ts");
     error_plot(output_path,name,"rs");
-
 }
 
 
@@ -153,7 +146,11 @@ std::vector<cvl::PoseD> invert(std::vector<cvl::PoseD> ps){
 
 
 
-
+void plot_sequence(std::vector<cvl::PoseD> gt,std::vector<cvl::PoseD> res,std::string label,
+                   std::string output_path,
+                   std::string name){
+    plot_sequence(gt,{res},{label},output_path,name);
+}
 
 
 void plot_sequence(std::vector<cvl::PoseD> gt,

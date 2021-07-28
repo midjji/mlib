@@ -5,6 +5,7 @@
 #include <mlib/utils/mlibtime.h>
 #include <mlib/utils/files.h>
 #include <mlib/utils/cvl/convertopencv.h>
+#include <fstream>
 
 using mlib::toZstring;
 
@@ -243,8 +244,7 @@ void writeNgSequence(const Sequence& seq,std::string outputpath){
 }
 
 
-void convert2ng(KittiDataset kd,std::string outputpath){
-    kd.init();
+void convert2ng(KittiDataset kd,std::string outputpath){    
     // too slow without resume!
     for(int i=0;i<22;++i){
         writeNgSequence(kd.seqs[i],outputpath);

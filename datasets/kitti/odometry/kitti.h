@@ -1,5 +1,5 @@
 #pragma once
-#include <fstream>
+
 #include <opencv2/core.hpp>
 #include <mlib/utils/cvl/pose.h>
 #include <mlib/datasets/kitti/odometry/sequence.h>
@@ -38,8 +38,8 @@ class KittiDataset{
 public:
     using sample_type=std::shared_ptr<KittiOdometrySample>;
     KittiDataset()=default;
-    KittiDataset(std::string basepath);
-    void init();
+    KittiDataset(const std::string& basepath);
+
     bool checkFiles();
 
 

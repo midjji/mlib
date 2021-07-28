@@ -104,6 +104,7 @@ public:
     /// overflow also behaves more reasonably
     /// the downside is that it is slightly slower, but not much
     float128 ns;
+    Time()=default;
     /// from nano seconds @param ns
     Time(float128 ns):ns(ns){}
 
@@ -174,9 +175,11 @@ class Timer{
     /// the last toc
     std::chrono::time_point<std::chrono::steady_clock,std::chrono::nanoseconds > recall;
     /// the time deltas
-    std::vector<Time> ts;
-    bool dotic=true;
     std::string name="unnamed";
+    bool dotic=true;
+    std::vector<Time> ts;
+
+
 
 
 public:
@@ -185,6 +188,8 @@ public:
 
     Timer();
     Timer(std::string name, uint capacity=1024);
+    Timer(const std::string& name,
+          const std::vector<Time>& ts);
     void reserve(uint initialsize);
     /**
      * @brief tic mark the beginning of a new time delta
@@ -195,6 +200,7 @@ public:
      * @return Time in nanoseconds
      */
     Time toc();
+    void toss_warmup();
 
 
     /**
@@ -284,13 +290,20 @@ struct ScopedDelay{
 class NamedTimerPack{
 public:
     std::map<std::string, Timer> ts;
-    Timer& make_or_get(std::string name);
-    void tic(std::string name);
-    void toc(std::string name);
+    Timer& make_or_get(const std::string& name);
+    Timer& operator[](const std::string& name);
+
+
+    // have a significant penalty in time due to lookup
+    // get the timer reference first instead
+    void tic(const std::string& name);
+    void toc(const std::string& name);
+    std::map<std::string, std::vector<Time>> times();
 };
 
+std::ostream& operator<<(std::ostream &os, const std::map<std::string, std::vector<Time>>& ntp);
 
-std::ostream& operator<<(std::ostream &os, NamedTimerPack ntp);
+std::ostream& operator<<(std::ostream &os, const NamedTimerPack& ntp);
 
 /**
  * @brief operator << human readable timer information
