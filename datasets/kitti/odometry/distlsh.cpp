@@ -35,7 +35,7 @@ mlib::Timer timer("distlsh");
 }
 DistLsh::DistLsh(const std::vector<cvl::PoseD>& ps)
 {
-    mlog()<<"begin\n";
+   // mlog()<<"begin\n";
     timer.tic();
     // potentially heavy constructor...
     dists=getDistanceTraveled(ps);
@@ -51,7 +51,7 @@ DistLsh::DistLsh(const std::vector<cvl::PoseD>& ps)
         distmap.at((uint)dists[i]).push_back(std::make_pair(i,dists[i]));
     }
     timer.toc();
-    mlog()<<timer<<"\n";
+  //  mlog()<<timer<<"\n";
 }
 
 int DistLsh::getIndexPlusDist(uint index, double dist) const{

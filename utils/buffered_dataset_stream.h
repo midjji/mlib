@@ -10,9 +10,8 @@ public:
     using sample_type=typename Dataset::sample_type;
 
     template<class... Args>
-    BufferedStream(uint offset,
-                   Args... args):
-        offset(offset),ds(std::make_shared<Dataset>(args...)){
+    BufferedStream(uint offset,std::shared_ptr<Dataset> ds):
+        offset(offset),ds(ds){
         running=true;
         thread=std::thread([&] { loop(); running=false;});
     }
@@ -55,7 +54,7 @@ private:
             if(!running)
                 break;
             loadtimer.tic();
-            auto sample=ds->get_sample(index);
+            auto sample=ds->sample(index);
             loadtimer.toc();
             queue.push(sample);
         }

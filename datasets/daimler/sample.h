@@ -2,13 +2,14 @@
 #include <map>
 #include <opencv2/core/mat.hpp>
 #include <mlib/utils/cvl/pose.h>
-#include <mlib/utils/bounding_box.h>
+
+#include <mlib/datasets/stereo_sample.h>
 
 
 namespace cvl{
 
 
-class DaimlerSample{
+class DaimlerSample: public StereoSample{
 public:
     DaimlerSample()=default;
     // dataset contains 1w images, 1f disparity, and 1b label images
@@ -18,30 +19,27 @@ public:
                   int frameid, double time);
 
 
-    // returns -1 for missing or out of image...
-    float disparity(double row, double col) const;
-    float disparity(Vector2d rowcol) const;
-    Vector3d get_3d_point(double row, double col) const;
+    // StereoSample overrides
+    int rows()        const override;
+    int cols()        const override;
+    int frame_id()    const override;
+    int sequence_id() const override;
+    double time()     const override;
+
+
+    cv::Mat1f disparity_image() const override;
+    cv::Mat1f grey1f(int i)     const override;
+    cv::Mat1b grey1b(int i)     const override;
+    cv::Mat3f rgb3f(int i)      const override;
+    cv::Mat3b rgb(int i) const override; // for display, copy yes!
+    //Other
+
     bool is_car(double row, double col) const;
     bool is_car(Vector2d rowcol) const;
-    double time() const;
-    int sequenceid() const;
-
-
-    cv::Mat1b disparity_image()const;  // for visualization, new clone
-    cv::Mat1f disparity_imagef()const;  // for visualization, new clone
-    cv::Mat3b disparity_image_rgb()const; // for visualization, new clone
-    cv::Mat3b rgb(uint id)const; // for visualization, new clone
-    cv::Mat1b gray(uint id)const; // for visualization, new clone
-    cv::Mat1f grayf(uint id)const;
-    cv::Mat3b show_labels()const;// for visualization, new clone
-    int rows() const;
-    int cols() const;
-    int frameid() const;
-
-
+    cv::Mat3b show_labels() const;// for visualization, new clone
 
 private:
+    float disparity_impl(double row, double col) const override;
     std::vector<cv::Mat1w> images;
     cv::Mat1f disparity_; // holds floating point disparities
     cv::Mat1b labels;
@@ -51,6 +49,6 @@ private:
 
 };
 using sDaimlerSample=std::shared_ptr<DaimlerSample>;
-
+std::shared_ptr<StereoSample> convert2StereoSample(std::shared_ptr<DaimlerSample> sd);
 
 }

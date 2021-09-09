@@ -225,11 +225,9 @@ struct Tensor
         // implicitly either refers or copies depending on storage?
         // that makes for a very strange kind of
         static_assert(Dimensions==sizeof...(Indexes),"not the right index count");
-
-
         index_type index=0;
         {
-            index_type is[sizeof...(Indexes)]={index_type(indexes)...};
+            index_type is[sizeof...(Indexes)]={index_type(indexes)...};            
             for(int i=0;i<int(Dimensions);++i){            assert(is[i]<uint(dimensions[i]));        }
 
             //std::cout<<0<<" "<<index<<std::endl;
@@ -246,31 +244,12 @@ struct Tensor
         return data[index];
     }
     auto clone(){
-        return Tensor(data.clone());
+        return Tensor(data.clone(), dimensions, strides);
     }
-
 };
 
 
 
-
-int test0(int* r){
-    Tensor<int*,2> ten{r,{3,5}};
-    return ten(1,2);
-}
-
-
-int test1(int a, int b, int c, int* r){
-    Tensor<int*,3> ten({r,{3,5,7}});
-    return ten(a,b,c);
-}
-
-
- int test2(int a, int b, int c, int* r, int d,  int e, int f){
-     Tensor<int*,3> ten({r,{d,e,f}});
-
-    return ten(a,b,c);
- }
 
 
 
@@ -384,7 +363,8 @@ public:
     TensorAdapter<T,dims> tensor;
     std::weak_ptr<TensorWrapper<T,dims>> self;
     TensorWrapper(TensorAdapter<T,dims> tensor):tensor(tensor){}
-    ~TensorWrapper(){
+    ~TensorWrapper()
+    {
 
         if(devicePointer(tensor.data)){
             cudaFree(tensor.data);
@@ -444,4 +424,5 @@ public:
 };
 
 }// end namespace cvl
+
 #endif

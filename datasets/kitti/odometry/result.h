@@ -70,6 +70,7 @@ public:
 
     void save_benchmark_metrics(std::string path);
     std::vector<KittiError> kes;
+    Vector2d mean_errs() const;
 
     std::vector<double> interframe_angle_error, interframe_translation_error;
     std::vector<double> interframe_delta_prediction_angle_error, interframe_delta_prediction_translation_error;

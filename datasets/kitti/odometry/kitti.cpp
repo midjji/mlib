@@ -15,6 +15,21 @@ using namespace mlib;
 namespace cvl{
 
 namespace kitti{
+
+
+
+std::vector<std::shared_ptr<StereoSequence>>
+KittiDataset::sequences() const{
+    std::vector<std::shared_ptr<StereoSequence>> rets;
+    for(const auto& seq:seqs)
+        rets.push_back(seq);
+    return rets;
+};
+
+
+
+
+
 /**
 cv::Point min_loc, max_loc
 bad idea though, it assumes alot of wierd shit
@@ -92,24 +107,19 @@ bool KittiDataset::checkFiles(){
 
 }
 KittiDataset::KittiDataset(const std::string& basepath):basepath(basepath) {
-    for(int seq:sequences){
-        Sequence s(basepath,seq,rowss[seq],colss[seq],seqimgs[seq]);
+    for(int seq:sequence_indexes){
+        auto s=std::make_shared<Sequence>(basepath,seq,rowss[seq],colss[seq],seqimgs[seq]);
         seqs.push_back(s);
     }
 }
 
-std::vector<Sequence> KittiDataset::get_training_sequences(){
-    std::vector<Sequence> ss; ss.reserve(11);
+std::vector<std::shared_ptr<Sequence>> KittiDataset::get_training_sequences(){
+    std::vector<std::shared_ptr<Sequence>> ss; ss.reserve(11);
     for(int i=0;i<training_sequences;++i)
         ss.push_back(seqs[i]);
     return ss;
 }
-std::vector<Sequence> KittiDataset::get_joke_sequences(){
-    std::vector<Sequence> ss=get_training_sequences();
-    for(auto& s:ss)
-        s=s.shrunk();
-    return ss;
-}
+
 
 std::string KittiDataset::getseqpath(int sequence){
     return basepath+"sequences/"+mlib::toZstring(sequence,2)+"/";
@@ -122,20 +132,20 @@ bool KittiDataset::getImage(std::vector<cv::Mat1b>& images, int number, int sequ
         number=number % (int)seqimgs.at(sequence);
     }
 
-    return seqs[sequence].getImages(images,number);
+    return seqs[sequence]->getImages(images,number);
 }
 
 int KittiDataset::images(int sequence){return seqimgs.at(sequence);}
 
 
 std::shared_ptr<KittiOdometrySample> KittiDataset::get_sample(int sequence, int frameid) {
-    Sequence seq= getSequence(sequence);
-    return seq.get_sample(frameid);
+    auto seq= getSequence(sequence);
+    return seq->get_sample(frameid);
 }
-Sequence KittiDataset::getSequence(int index)
+std::shared_ptr<Sequence> KittiDataset::getSequence(int index)
 {
     if(index<0){
-        Sequence seq=seqs.at(-index).shrunk();
+        std::shared_ptr<Sequence> seq=seqs.at(-index)->shrunk();
         return seq;
     }
     return seqs.at(index);
@@ -146,42 +156,20 @@ std::shared_ptr<KittiOdometrySample> KittiDataset::next(){
 
 
 
-void testKitti(std::string basepath, bool withstereo){
+void testKitti(std::string basepath){
     KittiDataset kd(basepath);
 
 
     while(true){
-        for(uint seq=0;seq<kd.sequences.size();++seq){
-            Sequence sq=kd.getSequence(seq);
-            for(int i=0;i<sq.samples();i+=1){
-                if(!withstereo){
-                    std::vector<cv::Mat1b> imgs;
-                    if(!sq.getImages(imgs,i)) continue;
-                    cv::imshow("Kitti Left",imgs[0]);
-                    cv::imshow("Kitti Right",imgs[1]);
+        for(std::shared_ptr<StereoSequence> seq:kd.seqs){
+            for(int i=0;i<seq->samples();++i){
+                auto sample=seq->sample(i);
+
+                    cv::imshow("Kitti Left",sample->rgb(0));
+                    cv::imshow("Kitti Right",sample->rgb(1));
+                    cv::imshow("Disparity",sample->display_disparity());
                     cv::waitKey(10);
 
-                }else{
-
-                    std::vector<cv::Mat1w> imgs;
-                    cv::Mat1f disp;
-                    if(!sq.getImages(imgs,disp,i)) continue;
-                    for(int r=0;r<disp.rows;++r)
-                        for(int c=0;c<disp.cols;++c){
-                            float v=disp(r,c);if(v<-1) v=-1;
-                            v+=64;
-                            disp(r,c)=v;
-
-                        }
-                    disp(0,0)=256-64;
-
-
-                    cv::imshow("Kitti Left",normalize01(imgs[0]));
-                    cv::imshow("Kitti Right",normalize01(imgs[1]));
-                    cv::imshow("Disparity", normalize01(disp));
-                    cv::waitKey(10);
-
-                }
 
             }
         }
@@ -227,7 +215,7 @@ std::vector<std::vector<PoseD>> trajectories(std::string basepath){
     KittiDataset kd(basepath);
     std::vector<std::vector<PoseD>> trs; trs.reserve(100);
     for(const auto& seq : kd.seqs){
-        trs.push_back(seq.gt_poses());
+        trs.push_back(seq->gt_poses());
     }
     return trs;
 }

@@ -103,10 +103,7 @@ protected:
     PnpParams params;
 
     /// number of inliers of best solution
-    uint best_inliers=0;
-
-
-
+    double best_inliers=0;
     /// the best pose so far
     PoseD best_pose;
 };

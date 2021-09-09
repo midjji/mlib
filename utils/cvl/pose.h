@@ -310,7 +310,7 @@ public:
          */
     Matrix<T,3,4> get3x4() const{
         Matrix<T,3,3> R=getR();
-            return ::cvl::get3x4(R,t());
+        return ::cvl::get3x4(R,t());
     }
     mlib_host_device_
     /**
@@ -321,7 +321,7 @@ public:
 
 
     /**
-         * @brief getAngle
+         * @brief angle
          * @return the angle of the rotation in radians
          * double the theta for quaternions
          */
@@ -331,6 +331,17 @@ public:
     }
     T angle_degrees(){ // visualization only
         return angle()*T(180.0/3.14159265359);
+    }
+    /**
+         * @brief angle_distance
+         * @param p
+         * @return the positive angle between two coordinate systems
+         */
+    double angle_distance(const Pose<double>& p) const{
+        Pose Pab=(*this)*p.inverse();
+        double angle=Pab.angle();
+        if(angle<0)return -angle;
+        return angle;
     }
 
     /// get the position of th     //time+=delta_t*0.5;e camera center in world coordinates
@@ -366,35 +377,25 @@ public:
         Pose Pab=(*this)*p.inverse();
         return Pab.t().length();
     }
-    /**
-         * @brief angleDistance
-         * @param p
-         * @return the positive angle between two coordinate systems
-         */
-    double angleDistance(const Pose<double>& p) const{
-        Pose Pab=(*this)*p.inverse();
-        double angle=Pab.getAngle();
-        if(angle<0)return -angle;
-        return angle;
-    }
 
-     T geodesic(Pose<T> b){
+
+    T geodesic(Pose<T> b) const {
         return geodesic_vector(b).norm();
     }
-    inline Vector<T,3> q_geodesic_vector(const Pose<T>& Pbw)
-    {        
-       Vector<T,6> gv=geodesic_vector(Pbw);
+    inline Vector<T,3> q_geodesic_vector(const Pose<T>& Pbw) const
+    {
+        Vector<T,6> gv=geodesic_vector(Pbw);
         return Vector<T,3> (gv[0],gv[1],gv[2]);
     }
 
-    inline Vector<T,6> geodesic_vector(const Pose<T>& Pbw)
+    inline Vector<T,6> geodesic_vector(const Pose<T>& Pbw) const
     {
-        Pose<T>& Paw=*this;
-        Pose<T> Pab = Paw*Pbw.inverse();
+        const Pose<T> Paw=*this;
+        const Pose<T> Pab = Paw*Pbw.inverse();
         return Pab.geodesic_vector();
     }
 
-    inline Vector<T,6> geodesic_vector()
+    inline Vector<T,6> geodesic_vector() const
     {
         Vector3<T> v=unit_quaternion::log(q()).drop_first();
         return Vector<T,6>(v[0],v[1],v[2],

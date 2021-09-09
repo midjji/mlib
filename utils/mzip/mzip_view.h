@@ -21,7 +21,7 @@
  *
  * \example
  * std::vector<int> as{1,2},bs{1,2,3};
- * for(auto [index, a,b]: zip(as,bs)){
+ * for(auto& [index, a,b]: zip(as,bs)){
  *  a++;
  * }
  * cout<<as<<endl; // shows (2, 3)
@@ -71,7 +71,6 @@
  * \author   Mikael Persson
  * \date     2019-09-01
  ******************************************************************************/
-
 static_assert(__cplusplus>=201703L, " must be c++17 or greater"); // could be rewritten in c++11, but the features you must use will be buggy in an older compiler anyways.
 #include <sstream>
 #include <iostream>

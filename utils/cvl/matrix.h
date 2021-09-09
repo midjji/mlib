@@ -64,12 +64,14 @@ template<unsigned int a,unsigned int b>  mlib_host_device_ constexpr unsigned in
     return a < b ? b : a;
 }
 
-// slightly improves alignment for common cases!
+// this was a bad idea!
+/*
 template<class T, int a> int constexpr good_mat_size(){return a;}
 template<> constexpr int good_mat_size<float,3>(){return 4;}
 template<> constexpr int good_mat_size<double,3>(){return 4;}
 template<> constexpr int good_mat_size<float,9>(){return 16;}
 template<> constexpr int good_mat_size<double,9>(){return 16;}
+*/
 // you can stride the matrix class implicitly, but lots of work
 
 // in c++ c17 and onwards, using align works as expected. except not really...
@@ -89,7 +91,7 @@ protected:
 
 public:
     /// the statically allocated data of the matrix.
-    T _data[good_mat_size<T,Rows*Cols>()];
+    T _data[Rows*Cols];
 
 
     ///@return Access element (i) with a static limit check. Useful for vectors and row-major iteration over matrices. () syntax is not pretty operator() < T >()

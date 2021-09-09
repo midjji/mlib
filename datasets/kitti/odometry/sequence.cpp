@@ -12,18 +12,50 @@ using std::cout;using std::endl;
 namespace cvl{
 namespace kitti{
 
-int Sequence::rows() const{return rows_;}
-int Sequence::cols() const{return cols_;}
+int Sequence::samples() const{return samples_;}
+int Sequence::rows()    const{return rows_;}
+int Sequence::cols()    const{return cols_;}
+
+std::string Sequence::name()    const{
+    return toZstring(sequence_,2);
+}
+StereoCalibration Sequence::calibration() const {
+
+    //std::cout<<"K: "<<K<<std::endl;
+    auto K=ks[0];
+
+    // Think its this one!
+    double fx=K(1,0);
+    double fy=K(0,1);
+    double px=K(1,2);
+    double py=K(0,2);
+    /*
+    double fx=K(0,0);
+    double fy=K(1,1);
+    double px=K(0,2);
+    double py=K(1,2);
+    */
+    double f=3.1415/180.0;
+
+    return StereoCalibration(rows_,cols_,fy,fx,py,py,baseline(), P_camera_vehicle());
+}
+std::shared_ptr<StereoSample>
+Sequence::sample(int index) const{return get_sample(index);}
+int Sequence::sequence_id() const{return sequence_;}
+std::vector<PoseD> Sequence::gt_poses() const {return gt_poses_;}
+
+
 std::string Sequence::seqpath() const{
-    std::string tmp=path_+"sequences/"+name()+"/";
+    std::string tmp=path_+"sequences/"+toZstring(sequence_,2)+"/";
     return tmp;
 }
 int Sequence::sequence() const{return sequence_;}
-std::string Sequence::name() const{ return toZstring(sequence_,2);}
+
 std::string Sequence::description() const{return description_;}
 double Sequence::baseline() const{return baseline_;}
 double Sequence::fps() const{return 10.0;}
-Fid2Time Sequence::fid2time() const
+
+std::shared_ptr<Frameid2TimeMap> Sequence::fid2time() const
 {
     std::vector<double> ts;ts.reserve(times_.size());
 
@@ -31,7 +63,7 @@ Fid2Time Sequence::fid2time() const
         ts.push_back(i*0.1);
     }
     auto f2t=Fid2Time(ts);
-    return f2t;
+    return std::make_shared<Fid2Time>(f2t);
 }
 std::shared_ptr<KittiOdometrySample> Sequence::get_sample(int index) const{
     std::vector<cv::Mat1w> images;
@@ -87,7 +119,7 @@ bool Sequence::getImages(std::vector<cv::Mat1w>& images,cv::Mat1f& disparity, in
             R(row,col)=imgs[1](row,col)*16; // bitshift is faster but it should be converted automatically by the compiler
     images.push_back(R);
 
-    std::string stereopath=path_+"stereo/"+name()+"/"+toZstring(number)+".exr";
+    std::string stereopath=path_+"stereo/"+toZstring(sequence_,2)+"/"+toZstring(number)+".exr";
 
     if(!mlib::fileexists(stereopath,false)) {cout<<"stereo image not found: "<<stereopath<<endl; assert(false);return false;}
     disparity=cv::imread(stereopath,cv::IMREAD_ANYDEPTH);
@@ -102,8 +134,8 @@ bool Sequence::getImages(std::vector<cv::Mat1w>& images,cv::Mat1f& disparity, in
 std::vector<double> Sequence::times() const{
     return times_;
 }
-std::vector<PoseD> Sequence::gt_poses() const{return gt_poses_;} // Pwc(t)
-int Sequence::samples() const{return samples_;}
+
+
 bool Sequence::is_training() const{return sequence()<11;}
 std::vector<unsigned int> Sequence::getDistantFrames(){
     assert(is_training());
@@ -125,14 +157,7 @@ std::vector<unsigned int> Sequence::getDistantFrames(){
     }
     return indexes;
 }
-std::vector<PoseD> Sequence::gt_vehicle_poses() const{
-    std::vector<PoseD> ps=gt_poses_;
-    // Should be Pwc*Pcv = Pwv
 
-    for(auto& p:ps){        p=p*P_camera_vehicle();    }
-
-    return ps;
-}
 cv::Mat1b Sequence::getPoseConfusionMatrix(){
     // the distance in translation and rotation from every image to every other...
     int rows=samples();
@@ -269,7 +294,7 @@ Sequence::Sequence(std::string path_,
     gt_poses_.resize(times_.size());
     if(sequence_<11)
     {
-        gt_poses_=readKittiPoses(path_+"poses/"+name()+".txt");
+        gt_poses_=readKittiPoses(path_+"poses/"+toZstring(sequence_,2)+".txt");
         if(int(gt_poses_.size())!=samples())
             mlog()<<"Configuration missmatch\n";
     }
@@ -294,11 +319,11 @@ Sequence::Sequence(std::string path_,
 }
 
 
-Sequence Sequence::shrunk(int newsize) const{
-    Sequence seq=*this;
-    seq.samples_=std::min(newsize,samples_);
-    seq.times_.resize(seq.samples_);
-    seq.gt_poses_.resize(seq.samples_);
+std::shared_ptr<Sequence> Sequence::shrunk(int newsize) const{
+    std::shared_ptr<Sequence> seq=std::make_shared<Sequence>(*this);
+    seq->samples_=std::min(newsize,samples_);
+    seq->times_.resize(seq->samples_);
+    seq->gt_poses_.resize(seq->samples_);
     return seq;
 }
 

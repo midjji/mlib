@@ -1,6 +1,6 @@
 #pragma once
 #include <cuda_runtime.h>
-#include <mlib/utils/cvl/MatrixAdapter.hpp>
+#include <mlib/utils/cvl/matrix_adapter.h>
 #include <mlib/cuda/common.cuh>
 
 

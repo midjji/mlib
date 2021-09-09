@@ -1,18 +1,8 @@
-#include <cuda_runtime.h>
-#include <mlib/kitti/odometry/kitti.h>
 #include <iostream>
-#include <mlib/utils/files.h>
-#include <mlib/cuda/mbm.h>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/highgui.hpp>
-#include <mlib/utils/memmanager.h>
-#include <mlib/cuda/devmemmanager.h>
-#include <mlib/utils/cvl/matrix.h>
- 
 
-#include <mlib/opencv_util/cv.h>
-#include <mlib/utils/simulator_helpers.h>
-#include <mlib/cuda/temporalstereo.h>
+#include <mlib/datasets/kitti/odometry/kitti.h>
+#include <mlib/cuda/mbm.h>
+#include <opencv2/highgui.hpp>
 #include <mlib/utils/cvl/convertopencv.h>
 
 
@@ -35,9 +25,6 @@ void testbmstereo(kitti::KittiDataset kd);
 
 int test(){
     std::string path="/home/mikael/datasets/kitti/odometry/";
-    if(!mlib::fileexists(path,true)){
-        return 1;
-    }    
     testKittiStereo(cvl::kitti::KittiDataset(path),true);
     return 0;
 }
@@ -64,28 +51,30 @@ void testKittiStereo(kitti::KittiDataset kd, bool testing){
     {
 
         cout<<"mbm"<<endl;
-        kd.init();
+
 
         // max size is fixed!
 
         std::vector<cv::Mat1b> imgs;
 
 
-        for(kitti::Sequence seq:kd.seqs){
-            cout<<"seq:"<<seq.name<<endl;
+        for(auto seq:kd.seqs)
+        {
+
+            cout<<"seq:"<<seq->name()<<endl;
 
             cvl::MBMStereoStream mbm;
             // cvl::TemporalStereoStream tss;
-            mbm.init(128,seq.rows,seq.cols);
+            mbm.init(128,seq->rows(),seq->cols());
 
             // tss.init(seq.rows,seq.cols,cvl::Matrix<float,3,3>(seq.getK()),seq.baseline);
 
             cv::Mat1f previousdispf;
             bool first=true;
-            for(int i=0;i<seq.images;i+=1)
+            for(int i=0;i<seq->samples();i+=1)
             {
 
-                if(!seq.getImages(imgs,i)) return;
+                if(!seq->getImages(imgs,i)) return;
                 //cout<<"read images"<<endl;
                 cv::Mat1b left=imgs[0];
                 cv::Mat1b right=imgs[1];

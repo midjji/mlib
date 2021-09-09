@@ -1,6 +1,7 @@
 #pragma once
 #include <opencv2/core/mat.hpp>
 #include <mlib/utils/cvl/pose.h>
+#include <mlib/datasets/stereo_sequence.h>
 #include <mlib/datasets/kitti/odometry/sample.h>
 #include <mlib/datasets/kitti/odometry/fid2time.h>
 #include <mlib/datasets/kitti/odometry/distlsh.h>
@@ -11,21 +12,33 @@ namespace kitti{
  * @brief The Sequence class
  * contains all info and functions relevant for one kitti sequence!
  */
-class Sequence{
+class Sequence: public StereoSequence
+{
 public:
-    using sample_type=std::shared_ptr<KittiOdometrySample>;
+    int samples() const override;
+    int rows()    const override;
+    int cols()    const override;
+    StereoCalibration calibration() const override;
+    std::string name() const override;
+    std::shared_ptr<StereoSample> sample(int index) const override;
+    std::shared_ptr<Frameid2TimeMap> fid2time() const override;
+    int sequence_id() const override;
+    std::vector<PoseD> gt_poses() const override;
 
-    int rows() const;
-    int cols() const;
+
+
+
+
+
     int sequence() const;
 
-    std::string name() const;
+
     std::string description() const;
     double baseline() const;
 
-    sample_type get_sample(int index) const;
+    std::shared_ptr<KittiOdometrySample> get_sample(int index) const;
     double fps() const;
-    Fid2Time fid2time() const;
+
 
 
 
@@ -49,10 +62,8 @@ public:
 
     std::vector<Matrix34d> ks; //ks[0] is the left cam, ks[1] is the right
     // in seconds from start
-    std::vector<double> times() const;
-    std::vector<PoseD> gt_poses() const; // Pwc(t)
-    std::vector<PoseD> gt_vehicle_poses() const;
-    int samples() const;
+    std::vector<double> times() const;    
+
 
     bool is_training() const;
 
@@ -63,7 +74,7 @@ public:
 
 
     std::string seqpath() const;
-    Sequence shrunk(int newsize=100) const;
+    std::shared_ptr<Sequence> shrunk(int newsize=100) const;
 
     // evaluation
     DistLsh dist_lsh();
@@ -82,7 +93,7 @@ private:
     std::string name_;
     std::string description_;
     // baseline in meters!
-    double baseline_; // >0 P10(-Vector3d(baseline,0,0)); x_1=P10*x0 . 0 is left, 1 is right. 
+    double baseline_; // >0 P10(-Vector3d(baseline,0,0)); x_1=P10*x0 . 0 is left, 1 is right.
     bool inited=false;
     DistLsh distlsh;
 };

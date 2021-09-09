@@ -34,7 +34,7 @@ double KittiError::t_err_relative() const{
     return 100.0*t_err;
 }
 double KittiError::r_err_relative() const{
-    return 100.0*r_err;
+    return r_err;
 }
 KittiError::KittiError(PoseD deltaPose, double len, double speed){
 
@@ -43,7 +43,11 @@ KittiError::KittiError(PoseD deltaPose, double len, double speed){
     this->len=len;
     this->speed=speed;
 }
-std::vector<KittiError> compute_benchmark_metrics(const DistLsh& distlsh, std::vector<PoseD> gt_poses, std::vector<PoseD> poses, std::vector<double> lengths )
+std::vector<KittiError>
+compute_benchmark_metrics(const DistLsh& distlsh,
+                          std::vector<PoseD> gt_poses,
+                          std::vector<PoseD> poses,
+                          std::vector<double> lengths )
 {
     std::vector<KittiError> kes;
     // computes the benchmark metrics
@@ -53,12 +57,13 @@ std::vector<KittiError> compute_benchmark_metrics(const DistLsh& distlsh, std::v
     // parameters
     // step size =10 => for every second
     // valid parameter as option? ie get the res for which the len permits equal accuracy? well they dont have so...
-    int step_size=10; // should be 1 for proper eval but 10 is faster for testing...
+    int step_size=1; // should be 1 for proper eval but 10 is faster for testing...
     // for all start positions do
 
     for (int first_frame=0; first_frame<(int)gt_poses.size(); first_frame+=step_size) {
         // for all segment lengths do
-        for (double len : lengths){
+        for (double len : lengths)
+        {
 
             // compute last frame
             int last_frame =distlsh.getIndexPlusDist(first_frame,len);
@@ -86,7 +91,7 @@ std::vector<KittiError> compute_benchmark_metrics(const DistLsh& distlsh, std::v
             kes.push_back(KittiError(pose_error,len,speed));
         }
     }
-    cout<<"done"<<endl;
+
     return kes;
 }
 
@@ -121,13 +126,17 @@ double Result::translation_error_average() const{
     for(auto ke:kes)
         terr+=ke.t_err_relative();
     terr/=double(kes.size());
-
+    return terr;
 }
 double Result::rotation_error_average() const{
     double rerr=0;
     for(auto ke:kes)
         rerr+=ke.r_err_relative();
     rerr/=double(kes.size());
+    return rerr;
+}
+Vector2d Result::mean_errs() const{
+    return {rotation_error_average(),translation_error_average()};
 }
 
 #if 0

@@ -17,6 +17,7 @@ namespace cvl {
 PoseD pnp_ransac(const std::vector<cvl::Vector3d>& xs,
                  const std::vector<cvl::Vector2d>& yns,
                  PnpParams params){
+    if(xs.size()<4) return PoseD::Identity();
     PNP pnp(xs,yns,params);
     return pnp.compute();
 }
@@ -124,10 +125,7 @@ public:
      * @param yns
      */
     PnPReprojectionError(const std::vector<Vector3d>& xs,
-                         const std::vector<Vector2d>& yns)  {
-        this->xs=xs;
-        this->yns=yns;
-    }
+                         const std::vector<Vector2d>& yns):xs(xs),yns(yns)  {}
 
     template <typename T>
     /**
@@ -149,9 +147,16 @@ public:
             cvl::Vector4<T> x=xs[i].homogeneous();
 
             cvl::Vector4<T> xr=M*x;
-            T iz=ceres::abs(T(1.0/xr[2]));
+            T iz=T(1.0)/xr[2];
 
-            residuals[0]   = xr[0] *iz - T(yns[i][0]);
+            if(iz<T(0))
+            {
+                // give it a chance to recover at low impact
+                residuals[0]=T(1e-6)*(T(1)-iz);
+                residuals[1]=T(0);
+                return true;
+            }
+            residuals[0] = xr[0] *iz - T(yns[i][0]);
             residuals[1] = xr[1] *iz - T(yns[i][1]);
             residuals+=2;
         }
@@ -245,56 +250,52 @@ PoseD PNP::compute(){
                     i>params.early_exit_min_iterations &&
                     best_inliers>params.early_exit_inlier_ratio*xs.size()
                     ) break;
+            if(i>10 && best_inliers/double(xs.size())>0.8 && best_inliers>10) break;
         }
     }
 
     total_iters=i;
     if(best_inliers/double(xs.size())<0.5)
         cout << "pnp total_iters: " << i << " inlier ratio: " << best_inliers/double(xs.size()) <<" inliers "<<best_inliers<< endl;
+    if(best_inliers<4) {
+        mlog()<< "pnp failure: "<<best_inliers<<"\n";
+        return PoseD::Identity();
+    }
+    refine();
 
-
-    // refine pose, if possible...
-    if(best_inliers>3)
-        refine();
     return best_pose; // will be identity if a complete failure...
 }
 
 
 
-/**
- * @brief PNP::refine
- * since we expect a high noise, low outlier ratio solution(<50%), we should refine using a cutoff loss twice...
- */
-void PNP::refine(){
+inline bool inlier(const PoseD& P,const Vector3d& x_w,const Vector2d& yn, double threshold_squared)
+{
+    auto x_c=P*x_w;
+    if(x_c[2]<1e-6) return false;
+    return (x_c.dehom() - yn).squaredNorm()<threshold_squared;
+}
 
+void refine_from(const std::vector<Vector3d>& xs,
+                 const std::vector<Vector2d>& yns,
+                 PoseD& P, double threshold_squared)
+{
+    //mlog()<<"samples: "<<xs.size()<<"\n";
     std::vector<Vector3d> inlier_xs;inlier_xs.reserve(xs.size());
     std::vector<Vector2d> inlier_yns;inlier_yns.reserve(xs.size());
-    std::vector<int> inliers; inliers.resize(xs.size(),0);
-    double thr=params.threshold*params.threshold;
+    ceres::Problem problem;
+    ceres::LossFunction* loss=nullptr;// implies squared
+    for(int i=0;i<xs.size(); ++i){
+        if(!inlier(P, xs[i],yns[i],threshold_squared)) continue;
+        inlier_xs.push_back(xs[i]);
+        inlier_yns.push_back(yns[i]);
+    }
 
+    if(inlier_xs.size()>3)
     {
-        // think about if you can use an explicit cutoff loss here...
-        // tests show its faster to separate the inliers and call it twice though...
-
-
-        inlier_xs.clear();
-        inlier_yns.clear();
-        for(uint i=0;i<xs.size();++i){
-            auto x=best_pose*xs[i];
-            if(x[2]<1e-6) continue;
-            if((x.dehom() - yns[i]).squaredNorm()>thr) continue;
-            inlier_xs.push_back(xs[i]);
-            inlier_yns.push_back(yns[i]);
-            inliers[i]=1;
-        }
-
-        ceres::Problem problem;
-        ceres::LossFunction* loss=nullptr;// implies squared
-        problem.AddResidualBlock(PnPReprojectionError::Create(inlier_xs,inlier_yns),loss,best_pose.getRRef(),best_pose.getTRef());
-
+        problem.AddResidualBlock(PnPReprojectionError::Create(inlier_xs,inlier_yns),nullptr,P.getRRef(),P.getTRef());
 
         ceres::LocalParameterization* qp = new ceres::QuaternionParameterization;
-        problem.SetParameterization(best_pose.getRRef(), qp);
+        problem.SetParameterization(P.getRRef(), qp);
 
         ceres::Solver::Options options;{
             options.linear_solver_type = ceres::DENSE_SCHUR;
@@ -305,64 +306,21 @@ void PNP::refine(){
         ceres::Solve(options, &problem, &summary);
         //cout<<"Report 1: \n"<<summary.FullReport()<<endl;
     }
-
-    double inliers_after_refine1=evaluate_inlier_set(xs,yns,params.threshold,best_pose,best_inliers);
-    int inliers_for_refine=inlier_xs.size();
-
-    // check somehow if there is a big difference in the inliers?
-
-
+    else
     {
-        // think about if you can use an explicit cutoff loss here...
-        // tests show its faster to separate the inliers and call it twice though...
-
-
-        inlier_xs.clear();
-        inlier_yns.clear();
-        int deltas=0;
-        for(uint i=0;i<xs.size();++i){
-            bool inlier=((best_pose*xs[i]).dehom() - yns[i]).squaredNorm()<thr;
-            if(inlier ^ (inliers[i]==1)) deltas++;
-            if(!inlier) continue;
-            inlier_xs.push_back(xs[i]);
-            inlier_yns.push_back(yns[i]);
-        }
-        if(inlier_xs.size()<5){
-            cout<<"pnp_ransac failed"<<endl;
-            //best_pose=PoseD(); // identity
-            return ;
-        }
-
-        // if to few changes hav occured, dont do a second refine...
-
-        ceres::Problem problem;
-
-        ceres::LossFunction* loss=nullptr;//
-
-
-        problem.AddResidualBlock(PnPReprojectionError::Create(inlier_xs,inlier_yns),loss,best_pose.getRRef(),best_pose.getTRef());
-
-
-        ceres::LocalParameterization* qp = new ceres::QuaternionParameterization;
-        problem.SetParameterization(best_pose.getRRef(), qp);
-
-        ceres::Solver::Options options;{
-            options.linear_solver_type = ceres::DENSE_SCHUR;
-            options.max_num_iterations=5;
-        }
-        ceres::Solver::Summary summary;
-        ceres::Solve(options, &problem, &summary);
-        //cout<<"Report 2: \n"<<summary.FullReport()<<endl;
+        mlog()<<"too few inliers in pnp refine: "<<inlier_xs.size()<<"\n";
+        exit(1);
     }
+}
 
-
-    double final_inliers=evaluate_inlier_set(xs,yns,params.threshold,best_pose,best_inliers);
-    if(final_inliers<10|| final_inliers<0.5*xs.size()){
-        if(inliers_after_refine1<10|| inliers_after_refine1<0.5*xs.size()){
-            std::cout<<"pnp_ransac refine inliers:"<<inliers_after_refine1<< " ratio "<<inliers_after_refine1/ double(xs.size())<<" refine used "<<inliers_for_refine<<endl;
-            std::cout<<"pnp_ransac refine2 inliers:"<<final_inliers<< " ratio "<<final_inliers/ double(xs.size())<<"refine 2 used:"<<inlier_xs.size()<<endl;
-        }
-    }
+/**
+ * @brief PNP::refine
+ * since we expect a high noise, low outlier ratio solution(<50%), we should refine using a cutoff loss twice...
+ */
+void PNP::refine(){
+    double thr=params.threshold*params.threshold;
+    refine_from(xs,yns,best_pose,thr);
+    refine_from(xs,yns,best_pose,thr);
 }
 
 

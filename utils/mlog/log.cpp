@@ -100,7 +100,7 @@ template<class Key, class Value> bool value_exists(const Value& v, const std::ma
  */
 class Log{
     std::ofstream ofs;
-
+    int id=0;
 public:
     Log(std::string name):name(name){
         if(name.empty())
@@ -157,7 +157,7 @@ public:
         // perhaps precompute a bunch of stuff, then lock? nah this is cheap!
         std::unique_lock<std::mutex> ul(log_mtx);
         // we always log to cout, but what varies
-        internal_log(get_log_string(msg,false,true,false));
+        internal_log(msg);
     }
 
 
@@ -167,12 +167,21 @@ public:
 
 
 private:
-    void internal_log(const std::string& msg_str){
+    void internal_log(const std::string& str){
 
-        std::cout<<msg_str;
+        std::cout<<str;
         std::cout.flush();
         if(save2file){
-            ofs<<msg_str;
+            ofs<<id++<<" "<<str;
+            ofs.flush();
+        }
+    }
+    void internal_log(const LogMessage& msg){
+
+        std::cout<<get_log_string(msg,false,true,false,false);
+        std::cout.flush();
+        if(save2file){
+            ofs<<id++<<": "<<get_log_string(msg,false,true,false,true);
             ofs.flush();
         }
     }
@@ -186,7 +195,7 @@ private:
     }
 
     // only called from within log which locks!
-    std::string get_log_string(const LogMessage& msg, bool with_thr_name, bool with_fun_sig, bool with_time){
+    std::string get_log_string(const LogMessage& msg, bool with_thr_name, bool with_fun_sig, bool with_time, bool with_file){
         // we also collect everything into one pile first,
         //so that we maximize the odds of it getting out in one piece,
         // even if others use std::cout unsynchronized.
@@ -197,8 +206,12 @@ private:
         std::stringstream ss;
         bool color_log_red=true;
 
+        if(with_file){
+            ss<<msg.file<<" ";
+        }
         if(color_log_red)
             ss<<"\033[1;31m";
+
 
 
         if(with_time){
@@ -211,7 +224,6 @@ private:
             while(ss.str().size()<9+12+10)
                 ss<<" ";
         }
-
 
 
 

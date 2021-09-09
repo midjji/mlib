@@ -1,49 +1,37 @@
 #pragma once
-#include <opencv2/core.hpp>
+#include <opencv2/core/mat.hpp>
 #include <mlib/utils/cvl/matrix.h>
 
 namespace cvl{
 
-class StereoSample{
-public:    
+struct StereoSample{
+
     StereoSample()=default;
     virtual ~StereoSample();
 
-    explicit StereoSample(int sample_id, double sample_time,
-                          cv::Mat3b left,cv::Mat3b right,
-                          cv::Mat1f disparity,
-                          cv::Mat1f lf,cv::Mat1f rf, int sequence_id);
-
-    int rows() const;
-    int cols() const;
-    int id() const;
-    double time() const;
+    virtual int rows() const=0;
+    virtual int cols() const=0;
+    virtual int frame_id() const=0;    
+    virtual int sequence_id() const=0;
+    virtual double time() const=0;
 
     // only supports single channel images.
-    cv::Mat1f get1f(int i); // real data
-    cv::Mat3b rgb(int i); // for display
-    cv::Mat3b display_disparity();
+    virtual cv::Mat1b grey1b(int i) const=0; // for display, copy yes!
+    virtual cv::Mat1f grey1f(int i) const =0; // copy?
+    virtual cv::Mat3f rgb3f(int i) const=0;// copy?
+    virtual cv::Mat3b rgb(int i) const=0; // for display, copy yes!
 
-    float disparity(int row, int col) const;
-    float disparity(double row, double col) const;
+
+    virtual cv::Mat1f disparity_image() const=0;
+    virtual cv::Mat3b display_disparity() const;
+
+
+    virtual float disparity(double row, double col) const;
     float disparity(Vector2d rowcol) const;
-    int sequenceid() const;
-private:
-    int sample_id;
-    double sample_time;
-    cv::Mat3b left, right; // for display,
-    cv::Mat1f disparity_image;
-    cv::Mat1f lf; // grayscale,
-    cv::Mat1f rf;
-    int sequence_id;
-};
 
-class DaimlerSample;
-namespace kitti {
-class KittiOdometrySample;
-}
-std::shared_ptr<StereoSample> convert2StereoSample(std::shared_ptr<DaimlerSample> sd);
-std::shared_ptr<StereoSample> convert2StereoSample(std::shared_ptr<kitti::KittiOdometrySample> sd);
+protected:
+    virtual float disparity_impl(double row, double col) const=0;
+};
 
 
 

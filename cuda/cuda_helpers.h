@@ -52,26 +52,13 @@
 #include <assert.h>
 #include <string>
 #include <iostream>
-
 #include <mlib/utils/cvl/matrix_adapter.h>
 
 
 namespace cvl{
-
-
-/**
- * @brief devicePointer
- * @param p the pointer
- * @return if the pointer is __null or allocated on the device, since __null can be either or
- * &p[5] works aleast for the length of the allocated data
- */
-bool devicePointer(const void* p);
 std::string getCudaErrorMsg(const cudaError_t& error);
 /// checks if a cuda command did what it supposed to and converts the error code to human readable format
 bool worked(const cudaError_t& error,std::string msg="");
-
-
-
 
 template <class T>
 
@@ -80,17 +67,67 @@ template <class T>
  * @param elements
  * @return nullptr or the pointer to the allocated memory on device
  */
-T* cudaNew(int elements){
+T* cudaNew(int elements)
+{
     T* data=nullptr;
     cudaError_t error;
+    // gives aligned memory.
     error = cudaMalloc((void **) &data, elements*sizeof(T));
     if (error != cudaSuccess)
     {
-        std::cout<<"Failed to allocate memory on the device: size is: "<<sizeof(T)*elements/(1024*1024)<<"MB"<< "cuda error code is "<<(int)error<<" which means "<<getCudaErrorMsg(error)<<std::endl;
-        exit(1);
+        std::cout<<"Failed to allocate memory on the device: size is: "<<sizeof(T)*elements/(1024.0*1024)<<"MB"<< "cuda error code is "<<(int)error<<" which means "<<getCudaErrorMsg(error)<<std::endl;
+        return nullptr;
     }
     return data;
 }
+
+
+namespace device
+{
+
+template <class T> T* allocate(int elements)
+{
+    T* data=nullptr;
+    cudaError_t error;
+    // gives aligned memory. probably... sigh...
+    error = cudaMalloc((void **) &data, elements*sizeof(T));
+    if (error != cudaSuccess)
+    {
+        std::cout<<"Failed to allocate memory on the device: size is: "<<sizeof(T)*elements/(1024.0*1024)<<"MB"<< "cuda error code is "<<(int)error<<" which means "<<getCudaErrorMsg(error)<<std::endl;
+        return nullptr;
+    }
+    return data;
+}
+
+
+// deallocates on destruction
+template<class T> struct Array
+{
+    //int device
+    T* data=nullptr;
+    int size=0;
+    Array()=default;
+    Array(T* ptr, int size):data(ptr),size(size){}
+    ~Array() {if(data) cudaFree(data); size=0;}
+    explicit operator bool() const { return data!=nullptr; }
+};
+
+}
+
+/**
+ * @brief devicePointer
+ * @param p the pointer
+ * @return if the pointer is __null or allocated on the device, since __null can be either or
+ * &p[5] works aleast for the length of the allocated data
+ */
+bool devicePointer(const void* p);
+
+
+
+
+
+
+
 
 
 template<class T>
@@ -144,14 +181,11 @@ void copy(const T*  from, T*& to, unsigned int elements, cudaStream_t& stream){
         if(to==nullptr)            to=new T[elements];
         bool good=worked(cudaMemcpyAsync(to,from, elements*sizeof(T), cudaMemcpyDeviceToHost, stream));
         assert(good && "cuda copy problem");
-
-
     }else{
         //std::cout<<"copy to dev: "<<elements<<std::endl;
         if(to==nullptr)            to=cudaNew<T>(elements);
         bool good=worked(cudaMemcpyAsync(to,from, elements*sizeof(T), cudaMemcpyHostToDevice, stream));
         assert(good && "cuda copy problem");
-
     }
     assert(to!=nullptr);
 }

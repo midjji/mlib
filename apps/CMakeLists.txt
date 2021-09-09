@@ -1,4 +1,3 @@
-
 cmake_minimum_required(VERSION 3.16)
 #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
@@ -9,20 +8,21 @@ file(GLOB apps "*.cpp" "../utils/mlog/mlog_example.cpp" "../utils/mzip/test_mzip
 set(apps "")
 #list(APPEND apps "test_stereo.cpp")
 #list(APPEND apps "test_undistort.cpp")
-list(APPEND apps "../utils/mlog/mlog_example.cpp")
-list(APPEND apps "../utils/mzip/test_mzip.cpp")
+#list(APPEND apps "../utils/mlog/mlog_example.cpp")
+#list(APPEND apps "../utils/mzip/test_mzip.cpp")
 if(WITH_KITTI)
 list(APPEND apps "inspect_kitti_odometry.cpp")
 list(APPEND apps "inspect_kitti_mots.cpp")
+list(APPEND apps "inspect_stereo_dataset.cpp")
 endif()
 if(WITH_VIS)
-list(APPEND apps "vis_manip.cpp")
-list(APPEND apps "test_lookat.cpp")
+#list(APPEND apps "vis_manip.cpp")
+#list(APPEND apps "test_lookat.cpp")
 endif()
 if(WITH_SQLite)
-list(APPEND apps "sqlite.cpp")
+#list(APPEND apps "sqlite.cpp")
 endif()
-list(APPEND apps "verified_write2file.cpp")
+#list(APPEND apps "verified_write2file.cpp")
 
 
 

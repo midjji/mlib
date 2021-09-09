@@ -19,6 +19,7 @@ find_package( OpenCV 4 REQUIRED)
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PUBLIC ${OpenCV_LIBS})
 target_link_libraries(${PROJECT_NAME} PUBLIC mlib-utils)
+target_link_libraries(${PROJECT_NAME} PUBLIC mlib-datasets-interface)
 
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)

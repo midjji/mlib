@@ -15,7 +15,7 @@ int main()
 
     KittiMotsDataset kmd("/home/mikael/datasets/kitti/mots/");
 
-    return 0;
+
 
     bool training=true;
     int seq=0;

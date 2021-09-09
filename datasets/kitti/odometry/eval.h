@@ -21,6 +21,9 @@ Result evaluate(Sequence& kd,
                 std::string estimate_name,
                 std::string outputpath    );
 
+Result evaluate(Sequence& seq, const std::vector<PoseD>& Pwcs);
+
+
 
 }// end kitti namespace
 }// end namespace cvl

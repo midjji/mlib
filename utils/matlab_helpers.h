@@ -34,21 +34,10 @@
 #include <iomanip>
 namespace mlib{
 
-template<class T> std::string getMatlabVector(std::vector<T> vs){
-    std::stringstream ss;
-    ss<<std::setprecision(5);
-    ss<<"[";
-    for(uint i=0;i<vs.size();++i){
-        ss<<vs[i];
-        if(i!=(vs.size()-1))
-            ss<<"; ";
-        if(i>40)
-            if((i%50)==0)
-            ss<<"\n";
-    }
-    ss<<"]";
-    return ss.str();
-}
+std::string matlab_vector(const std::vector<float>& vs, int precision=6);
+std::string matlab_vector(const std::vector<double>& vs, int precision=12);
+std::string matlab_vector(const std::vector<long double>& vs, int precision=24);
+
 
 template<class T>
 std::string getMatlabMatrix(std::vector<T> m){
@@ -71,7 +60,7 @@ std::string getMatlabMatrix(std::vector<T> m){
 }
 
 
-template<class T> std::string getMatlabMatrix(cvl::Pose<T> pose, int precision=6){
+template<class T> std::string getMatlabMatrix(cvl::Pose<T> pose, int precision=19){
     std::stringstream ss;
     cvl::Matrix<T,4,4> M=pose.get4x4();
     ss<<"["<<std::setprecision(precision);

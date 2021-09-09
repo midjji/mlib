@@ -19,6 +19,7 @@ add_library(${PROJECT_NAME} ${SRCS} ${HDRS})
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC mlib-opencv-utils)
+target_link_libraries(${PROJECT_NAME} PUBLIC mlib-datasets-interface)
 
 target_configure_warnings(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME} PUBLIC sqlite_orm)

@@ -244,12 +244,7 @@ void writeNgSequence(const Sequence& seq,std::string outputpath){
 }
 
 
-void convert2ng(KittiDataset kd,std::string outputpath){    
-    // too slow without resume!
-    for(int i=0;i<22;++i){
-        writeNgSequence(kd.seqs[i],outputpath);
-    }
-}
+
 
 }// end kitti namespace
 }// end namespace cvl

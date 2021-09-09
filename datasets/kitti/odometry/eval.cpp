@@ -28,10 +28,11 @@ std::map<int,Result> evaluate(KittiDataset& kd,
 std::map<int,Result> evaluate(KittiDataset& kd,
                               std::map<int,std::vector<PoseD>> pwcss,
                               std::string estimate_name,
-                              std::string outputpath   ){
+                              std::string outputpath   )
+{
     std::map<int,Result> results;
     for(auto& [seq, pcws]:pwcss){
-        results[seq]=evaluate(kd.seqs[seq], pcws,estimate_name,outputpath);
+        results[seq]=evaluate(*kd.seqs[seq], pcws,estimate_name,outputpath);
     }
     return results;
 }
@@ -39,23 +40,25 @@ std::map<int,Result> evaluate(KittiDataset& kd,
 Result evaluate(Sequence& seq,
                 std::vector<PoseD> Pwcs,
                 std::string name,
-                std::string outputpath    ){
+                std::string outputpath    )
+{
+
     std::string op=outputpath+"evaluation_output/classic/";
-    mlib::makefilepath(mlib::ensure_dir(op));
+
     Result result(seq,Pwcs, name);
-
-    plot_sequence(seq.gt_poses(),Pwcs,name,op,seq.name());
-
+    if(name!="" && outputpath!=""){
+        mlib::makefilepath(mlib::ensure_dir(op));
+        plot_sequence(seq.gt_poses(),Pwcs,name,op,seq.name());
+    }
     return result;
 }
 
 
-
-
-
-
-
-
+Result evaluate(Sequence& seq,
+                const std::vector<PoseD>& Pwcs)
+{
+    return evaluate(seq,Pwcs,"","");
+}
 
 
 }// end kitti namespace

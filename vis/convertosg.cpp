@@ -35,7 +35,7 @@ osg::Matrixd cvl2osg(cvl::Matrix4d m){
 
         m=m.transpose(); // why? this inverts the rotation, but also places the translation in a wierd place
     //std::cout<<"convert osg: \n" <<m<<std::endl;
-#warning" this is probably wrong in a very weird way"
+//FIXME: WHYYYYYY?
     return osg::Matrixd(m(0, 0), m(0, 1), m(0, 2), m(0, 3),
                         m(1, 0), m(1, 1), m(1, 2), m(1, 3),
                         m(2, 0), m(2, 1), m(2, 2), m(2, 3),

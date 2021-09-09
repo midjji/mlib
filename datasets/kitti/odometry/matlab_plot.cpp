@@ -102,9 +102,9 @@ void tomatlabfile(const std::vector<Result>& results, std::string filename){
     std::stringstream ss;
     ss<<"%% matlab file for plotting the kitti error graphs... \n\n";
     ss<<"clear;close all;clc;\n";
-    ss<<"speeds="<<getMatlabVector(speeds)<<" % in meters per second\n";
+    ss<<"speeds="<<matlab_vector(speeds)<<" % in meters per second\n";
     for(uint i=0;i<results.size();++i)
-        ss<<"lengths"+toZstring(i,2)+" = "<<getMatlabVector(results.at(i).lengths)<<" % in meters\n";
+        ss<<"lengths"+toZstring(i,2)+" = "<<matlab_vector(results.at(i).lengths)<<" % in meters\n";
 
 
 
@@ -129,10 +129,10 @@ void tomatlabfile(const std::vector<Result>& results, std::string filename){
         std::vector<double> rl=results.at(i).getRL(results.at(i).lengths);
         std::vector<double> ts=results.at(i).getTS(speeds);
         std::vector<double> rs=results.at(i).getRS(speeds);
-        ss<<"tl"<<toZstring(i,2)<<"="<<getMatlabVector(tl)<<"\n";
-        ss<<"rl"<<toZstring(i,2)<<"="<<getMatlabVector(rl)<<"\n";
-        ss<<"ts"<<toZstring(i,2)<<"="<<getMatlabVector(ts)<<"\n";
-        ss<<"rs"<<toZstring(i,2)<<"="<<getMatlabVector(rs)<<"\n";
+        ss<<"tl"<<toZstring(i,2)<<"="<<matlab_vector(tl)<<"\n";
+        ss<<"rl"<<toZstring(i,2)<<"="<<matlab_vector(rl)<<"\n";
+        ss<<"ts"<<toZstring(i,2)<<"="<<matlab_vector(ts)<<"\n";
+        ss<<"rs"<<toZstring(i,2)<<"="<<matlab_vector(rs)<<"\n";
         ss<<"\n";
 
         std::vector<double> rld,tld;
@@ -141,8 +141,8 @@ void tomatlabfile(const std::vector<Result>& results, std::string filename){
         results.at(i).getDistributions(rld,tld);
         cout<<"getdist for delay 0 "<<endl;
 
-        ss<<"tld"<<toZstring(i,2)<<"="<<getMatlabVector(tld)<<"\n";
-        ss<<"rld"<<toZstring(i,2)<<"="<<getMatlabVector(rld)<<"\n";
+        ss<<"tld"<<toZstring(i,2)<<"="<<matlab_vector(tld)<<"\n";
+        ss<<"rld"<<toZstring(i,2)<<"="<<matlab_vector(rld)<<"\n";
         maxtl=std::max(max(tl),maxtl);
         maxrl=std::max(max(rl),maxrl);
         maxts=std::max(max(ts),maxts);

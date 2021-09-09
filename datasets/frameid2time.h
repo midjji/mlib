@@ -34,8 +34,9 @@ public:
     double time_of(int frameid) const override;
     int frameid_of(double time_seconds) const override;
     // these are terrible for the default, override them
-    virtual double predict_time_of(int frameid) const override;
-    virtual int predict_frameid_of(double time) const override;
+    double predict_time_of(int frameid) const override;
+    int predict_frameid_of(double time) const override;
+    std::string str() const override;
 
 private:
     std::map<int,double> fid2time;
