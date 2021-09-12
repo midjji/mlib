@@ -22,6 +22,7 @@ public:
     std::string name() const override;
     std::shared_ptr<StereoSample> sample(int index) const override;
     std::shared_ptr<Frameid2TimeMap> fid2time() const override;
+    std::vector<double> times() const override;
     int sequence_id() const override;
     std::vector<PoseD> gt_poses() const override;
 
@@ -61,8 +62,7 @@ public:
 
 
     std::vector<Matrix34d> ks; //ks[0] is the left cam, ks[1] is the right
-    // in seconds from start
-    std::vector<double> times() const;    
+
 
 
     bool is_training() const;

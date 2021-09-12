@@ -61,10 +61,11 @@ std::string Frameid2TimeMapLive::str() const{
     return ss.str();
 }
 
-
+FixedFps::FixedFps(double fps):fps(fps){}
+FixedFps::~FixedFps(){}
 std::string FixedFps::str() const{return "fixed fps";}
-double FixedFps::time_of(int frameid) const {return frameid/33.0;}
-int FixedFps::frameid_of(double time_seconds) const {return time_seconds*33.0;}
+double FixedFps::time_of(int frameid) const {return frameid/fps;}
+int FixedFps::frameid_of(double time_seconds) const {return time_seconds*fps;}
 // these are terrible for the default, override them
 double FixedFps::predict_time_of(int frameid) const{return time_of(frameid);}
 int FixedFps::predict_frameid_of(double time) const {return frameid_of(time);}

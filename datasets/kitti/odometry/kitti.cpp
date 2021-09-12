@@ -176,7 +176,12 @@ void testKitti(std::string basepath){
     }
 }
 
-
+const KittiDataset& dataset(std::string path)
+{
+    // magic static, thread safe as of C++11, mostly, always for 17?
+    static kitti::KittiDataset ds(path);
+    return ds;
+}
 
 
 

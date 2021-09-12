@@ -37,7 +37,7 @@ StereoCalibration Sequence::calibration() const {
     */
     double f=3.1415/180.0;
 
-    return StereoCalibration(rows_,cols_,fy,fx,py,py,baseline(), P_camera_vehicle());
+    return StereoCalibration(rows_,cols_,fy,fx,py,px,baseline(), P_camera_vehicle());
 }
 std::shared_ptr<StereoSample>
 Sequence::sample(int index) const{return get_sample(index);}
@@ -65,6 +65,7 @@ std::shared_ptr<Frameid2TimeMap> Sequence::fid2time() const
     auto f2t=Fid2Time(ts);
     return std::make_shared<Fid2Time>(f2t);
 }
+
 std::shared_ptr<KittiOdometrySample> Sequence::get_sample(int index) const{
     std::vector<cv::Mat1w> images;
     cv::Mat1f disparity;

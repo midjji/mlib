@@ -88,7 +88,8 @@ public:
 
 };
 
-
+// there really only ever needs to be one of these!
+const KittiDataset& dataset(std::string path="/storage/datasets/kitti/odometry/");
 
 
 void testKitti(std::string basepath="/store/datasets/kitti/dataset/", bool withstereo=false);

@@ -3,9 +3,6 @@ project(mlib-kitti VERSION 1.0
     DESCRIPTION "Very nice project"
     LANGUAGES CXX)
 
-include_directories(".")
-
-
 add_library(mlib-kitti INTERFACE)
 add_subdirectory(odometry)
 target_link_libraries(mlib-kitti INTERFACE mlib-kitti-odometry)

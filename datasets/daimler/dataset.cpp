@@ -16,4 +16,6 @@ std::vector<std::shared_ptr<StereoSequence>> DaimlerDataset::sequences() const{
 
 DaimlerDataset::DaimlerDataset(std::string dataset_path, std::string gt_path):
     seq(std::make_shared<DaimlerSequence>(dataset_path,gt_path)){}
+
+
 } // end namespace cvl

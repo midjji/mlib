@@ -1,5 +1,5 @@
 #pragma once
-#include <opencv2/core/core.hpp>
+#include <opencv2/core/mat.hpp>
 #include <mlib/utils/cvl/matrix.h>
 #include <mlib/utils/colormap.h>
 namespace mlib{

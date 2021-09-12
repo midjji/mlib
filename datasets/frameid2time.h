@@ -39,6 +39,7 @@ public:
     std::string str() const override;
 
 private:
+    double fps;
     std::map<int,double> fid2time;
     std::map<double,int> time2fid;
 };

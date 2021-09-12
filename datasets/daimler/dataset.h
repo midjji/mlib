@@ -32,6 +32,4 @@ struct DaimlerDataset :public StereoDataset{
 };
 
 
-
-
 } // end namespace daimler

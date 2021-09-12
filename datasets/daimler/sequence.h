@@ -17,6 +17,7 @@ public:
      std::string name() const override;
      StereoCalibration calibration() const override;
      std::shared_ptr<Frameid2TimeMap> fid2time() const override;
+     std::vector<double> times() const override;
      int sequence_id() const override;
      std::vector<PoseD> gt_poses() const override;
 

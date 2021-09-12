@@ -30,6 +30,9 @@ StereoCalibration DaimlerSequence::calibration() const{
 std::shared_ptr<Frameid2TimeMap> DaimlerSequence::fid2time() const{
     return std::make_shared<FixedFps>(33);
 }
+std::vector<double> DaimlerSequence::times() const{
+    return std::vector<double>();
+}
 int DaimlerSequence::sequence_id() const{
     return 0;
 }

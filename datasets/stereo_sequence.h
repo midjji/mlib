@@ -14,9 +14,15 @@ struct StereoSequence{
     virtual std::string name() const=0;
     virtual StereoCalibration calibration() const=0;
     virtual std::shared_ptr<Frameid2TimeMap> fid2time() const =0;
+    virtual std::vector<double> times() const=0;
     virtual int sequence_id() const=0;
     virtual std::vector<PoseD> gt_poses() const=0;
     std::vector<PoseD> gt_vehicle_poses() const;
+
+    //int index=0;
+    //std::shared_ptr<StereoSample> next();
+
+
 
 };
 }

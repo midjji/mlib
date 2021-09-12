@@ -3,18 +3,18 @@
 #include <mlib/utils/mlibtime.h>
 namespace cvl{
 
-template<class Dataset>
+template<class Stream>
 class BufferedStream
 {
 public:
-    using sample_type=typename Dataset::sample_type;
+    using sample_type=typename Stream::sample_type;
 
     template<class... Args>
-    BufferedStream(uint offset,std::shared_ptr<Dataset> ds):
+    BufferedStream(uint offset,std::shared_ptr<Stream> ds):
         offset(offset),ds(ds){
         running=true;
         thread=std::thread([&] { loop(); running=false;});
-    }
+    }    
     ~BufferedStream(){
 
         running=false;
@@ -33,7 +33,7 @@ public:
 
 
     uint offset=0;
-    std::shared_ptr<Dataset> ds;
+    std::shared_ptr<Stream> ds;
 
 private:
 
