@@ -1,5 +1,5 @@
 #include <QApplication>
-#include <param_gui.h>
+#include <editor.h>
 
 
 
@@ -14,7 +14,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    MainWindow w;
+    ParameterEditor w;
     w.show();
     return a.exec();
 }

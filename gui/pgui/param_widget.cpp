@@ -26,7 +26,7 @@ using std::endl;
 ParamWidget::ParamWidget(QWidget* parent):
     QWidget(parent),
     tree(new ParamTree(this)),
-    display(new ParamDisplayWidget(this))
+    display(new ParamDisplayWidget(nullptr, this))
 {
     // no need for this to be a member of ParamWidget too,
     // get it from widget instead if needed...
@@ -34,6 +34,7 @@ ParamWidget::ParamWidget(QWidget* parent):
     auto layout=new QGridLayout(this);
     layout->addWidget(tree,0,0);
     layout->addWidget(display,0,1);
+
 }
 void ParamWidget::set(ParamSet * ps) {
     tree->clear();
