@@ -87,11 +87,13 @@ bool KittiDataset::checkFiles(){
 
 
     // check the number of images
+    /*
     assert([&](){
         for(int seq:sequences)
             assert(seqimgs[seq]==count_png_in_dir(basepath+"sequences/"+toZstring(seq,2)+"/"));
         return true;
     }());
+    */
 
 
     for(uint seq=0;seq<seqimgs.size();++seq)
@@ -125,7 +127,7 @@ std::string KittiDataset::getseqpath(int sequence){
     return basepath+"sequences/"+mlib::toZstring(sequence,2)+"/";
 }
 bool KittiDataset::getImage(std::vector<cv::Mat1b>& images, int number, int sequence, bool cycle){
-    assert(inited);
+
     // cycle
     if(cycle){
         sequence=sequence % (int)seqimgs.size();
