@@ -70,8 +70,8 @@ if(WITH_MLIB_CUDA)
     target_link_libraries(mlib INTERFACE mlib-cuda)
 endif()
 
-get_directory_property(hasParent PARENT_DIRECTORY)
-option(BUILD_MLIB_APPS "build mlib apps" NOT ${hasParent})
+get_directory_property(MLIB_SUBDIR PARENT_DIRECTORY)
+option(BUILD_MLIB_APPS "build mlib apps" NOT ${MLIB_SUBDIR})
 
 
 if(BUILD_MLIB_APPS)

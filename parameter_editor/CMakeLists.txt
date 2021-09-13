@@ -12,4 +12,6 @@ target_compile_features(editor PUBLIC cxx_std_17)
 target_include_directories(editor PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(editor PUBLIC Qt5::Core Qt5::Gui Qt5::Widgets)
 
+add_subdirectory(apps)
+
 

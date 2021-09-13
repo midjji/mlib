@@ -18,14 +18,9 @@ target_configure_warnings(mlib-vis)
 target_link_libraries(mlib-vis PUBLIC mlib-utils)
 target_link_libraries(mlib-vis PUBLIC mlib-stream)
 
-#find_package( OpenCV 4 REQUIRED)
-#target_include_directories(mlib-vis SYSTEM PUBLIC ${OpenCV_INCLUDE_DIRS})
-#target_link_libraries(mlib-vis PUBLIC ${OpenCV_LIBS})
-
 
 macro(FIND_OSG)
     message("\n${line}\n")
-    message("OSG\n")
     find_package(OpenSceneGraph 3 REQUIRED osgDB osgUtil osgViewer osgGA osgWidget REQUIRED)
     message("\nFound OSG Version: ${OPENSCENEGRAPH_VERSION}")
 
@@ -54,9 +49,8 @@ macro(FIND_OSG)
 
 
     if(verbose)
-        message("OpenSceneGraph include directories: ${OPENSCENEGRAPH_INCLUDE_DIR}")
-        message("OpenSceneGraph libraries: ")
-        Print_List(OPENSCENEGRAPH_LIBRARIES OPENSCENEGRAPH_LIBRARIES)
+        Print_List("OpenSceneGraph include directories: " OPENSCENEGRAPH_INCLUDE_DIR)
+        Print_List("OpenSceneGraph libraries: " OPENSCENEGRAPH_LIBRARIES)
     endif()
 endmacro()
 FIND_OSG()

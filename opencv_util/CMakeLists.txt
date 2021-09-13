@@ -16,11 +16,10 @@ add_library(mlib-opencv-utils ${utils-srcs} ${utils-headers})
 target_compile_features(mlib-opencv-utils PUBLIC cxx_std_17)
 target_configure_warnings(mlib-opencv-utils)
 
-# find opencv and add it
-find_package( OpenCV 4 REQUIRED)
-message("OpenCV_INCLUDE_DIRS: ${OpenCV_INCLUDE_DIRS}")
-target_include_directories(mlib-opencv-utils SYSTEM PUBLIC ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(mlib-opencv-utils PUBLIC ${OpenCV_LIBS})
+
+Find_OpenCV()
+target_link_libraries(mlib-opencv-utils PUBLIC opencv)
+
 target_link_libraries(mlib-opencv-utils PUBLIC mlib-utils)
 
 endif()
