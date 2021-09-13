@@ -9,8 +9,9 @@ add_library(mlib INTERFACE)
 
 # top level directory
 get_filename_component(MLIB_TOP_PATH ../ REALPATH)
-target_include_directories(mlib INTERFACE "${MLIB_TOP_PATH}")
-
+target_include_directories(mlib INTERFACE "")
+get_directory_property(MLIB_SUBDIR PARENT_DIRECTORY)
+option(BUILD_MLIB_APPS "build mlib apps" ${MLIB_SUBDIR})
 
 # set some fixes for module path
 include("mlib.cmake")
@@ -70,15 +71,14 @@ if(WITH_MLIB_CUDA)
     target_link_libraries(mlib INTERFACE mlib-cuda)
 endif()
 
-get_directory_property(MLIB_SUBDIR PARENT_DIRECTORY)
-option(BUILD_MLIB_APPS "build mlib apps" NOT ${MLIB_SUBDIR})
 
 
-if(BUILD_MLIB_APPS)
-    add_subdirectory(apps)
-endif()
 
-option(BUILD_MLIB_TESTS "build internal module tests"  NOT ${hasParent})
+
+add_subdirectory(apps)
+
+
+option(BUILD_MLIB_TESTS "build internal module tests" NOT ${MLIB_SUBDIR})
 if(BUILD_MLIB_TESTS)
     add_subdirectory(tests)
 endif()

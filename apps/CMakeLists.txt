@@ -2,11 +2,11 @@ cmake_minimum_required(VERSION 3.16)
 #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 
-
+if(BUILD_MLIB_APPS)
 file(GLOB apps "*.cpp" "../utils/mlog/mlog_example.cpp" "../utils/mzip/test_mzip.cpp")
 
-set(apps "")
-list(APPEND apps "parameter_editor_test.cpp")
+#set(apps "")
+
 #list(APPEND apps "test_stereo.cpp")
 #list(APPEND apps "test_undistort.cpp")
 #list(APPEND apps "../utils/mlog/mlog_example.cpp")
@@ -48,3 +48,4 @@ endforeach()
 
 message("apps done\n")
 
+endif()
