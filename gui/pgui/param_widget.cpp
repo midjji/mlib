@@ -22,6 +22,8 @@
 
 using std::cout;
 using std::endl;
+namespace cvl {
+
 
 ParamWidget::ParamWidget(QWidget* parent):
     QWidget(parent),
@@ -39,4 +41,5 @@ ParamWidget::ParamWidget(QWidget* parent):
 void ParamWidget::set(ParamSet * ps) {
     tree->clear();
     tree->add(ps);
+}
 }

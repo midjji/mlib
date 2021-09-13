@@ -1,7 +1,10 @@
 #pragma once
 #include <QWidget>
-#include <params.h>
+#include <pset.h>
 class Label;
+namespace cvl {
+
+
 class ParamDisplayWidget: public QWidget{
     Q_OBJECT
 public:
@@ -12,3 +15,4 @@ public:
 
 };
 
+}

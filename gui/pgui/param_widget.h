@@ -4,8 +4,10 @@ QT_BEGIN_NAMESPACE
 class QTreeView; //forward declarations
 //class QStandardItem;// add latter...
 QT_END_NAMESPACE
-class ParamTree;
+namespace cvl {
 
+
+class ParamTree;
 class ParamSet;
 
 
@@ -22,3 +24,4 @@ public:
 
 };
 
+}

@@ -1,7 +1,7 @@
 #pragma once
-#include <params.h>
+
 #include <QWidget>
-#include <QStandardItem>
+
 
 QT_BEGIN_NAMESPACE
 class QTreeView; //forward declarations
@@ -11,15 +11,12 @@ class QLayout;
 class QLabel;
 //class QStandardItem;// add latter...
 QT_END_NAMESPACE
+namespace cvl {
 
 
 
-class ParamItem:public QStandardItem{
-public:
-    ParamItem(ParamSet* ps);
-    std::string name="pi";
-    ParamSet* ps;
-};
+class ParamItem;
+class ParamSet;
 
 class ParamTree:public QWidget
 {
@@ -33,9 +30,7 @@ public:
     void add(ParamSet* ps);
 private slots:
 
-    void selected(
-            //const QItemSelection &newSelection,
-            //const QItemSelection &oldSelection
-            );
+    void selected();
 };
 
+}

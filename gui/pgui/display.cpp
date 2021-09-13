@@ -3,24 +3,8 @@
 #include <QLabel>
 #include <label.h>
 
-
-QWidget* parameter_widget_int_range(IntRangeParameter* param){
-
-}
-
-QWidget* parameter_widget_float_range(IntRangeParameter* param){
-
-}
-
-QWidget* parameter_widget(Parameter* param)
+namespace cvl
 {
-    switch (param->type){
-    case Parameter::type_t::integer_range:
-        return parameter_widget_int_range();
-    case Parameter::type_t::float_range:
-        return
-    }
-}
 
 ParamDisplayWidget::ParamDisplayWidget(
         ParamSet* ps,
@@ -46,3 +30,4 @@ ParamDisplayWidget::ParamDisplayWidget(
 
 
 
+}

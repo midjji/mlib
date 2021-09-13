@@ -3,10 +3,9 @@
 #include <QTreeView>
 #include <QStandardItemModel>
 #include <QItemSelectionModel>
-
+#include <QStandardItem>
 #include <QTreeView>
-#include <QStandardItemModel>
-#include <QItemSelectionModel>
+
 #include <QGridLayout>
 #include <QLabel>
 #include <QMenuBar>
@@ -14,8 +13,21 @@
 
 #include <QHeaderView>
 #include <iostream>
+
+#include <pset.h>
 using std::cout;
 using std::endl;
+
+namespace cvl {
+
+
+
+class ParamItem:public QStandardItem{
+public:
+    ParamItem(ParamSet* ps);
+    std::string name="pi";
+    ParamSet* ps;
+};
 
 ParamItem::ParamItem(ParamSet* ps):
     QStandardItem(ps->name.c_str()), ps(ps){
@@ -92,3 +104,4 @@ void ParamTree::selected(
 }
 
 
+}
