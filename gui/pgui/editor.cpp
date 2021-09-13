@@ -5,21 +5,18 @@
 #include <QStatusBar>
 
 #include <param_widget.h>
+#include <pset.h>
 
 using std::cout;
 using std::endl;
+namespace cvl {
+
 
 ParameterEditor::ParameterEditor(QWidget *parent)
     : QMainWindow(parent),
       central(new ParamWidget(this))
 {
-    auto central=new ParamWidget(this);
-    ParamSet* top=new ParamSet("top");
-    ParamSet* psa=new ParamSet("a");
-    ParamSet* psb=new ParamSet("b");
-    top->pss.push_back(psa);
-    top->pss.push_back(psb);
-    central->set(top);
+
     setCentralWidget(central);
 
 
@@ -34,5 +31,9 @@ ParameterEditor::ParameterEditor(QWidget *parent)
     //statusBar()->showMessage(tr("Ready"));
 
 }
+void ParameterEditor::set(std::shared_ptr<ParamSet> p){
+    central->set(p);
+}
 
 
+}

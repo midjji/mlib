@@ -1,13 +1,8 @@
-#include <param_widget.h>
-#include <param_gui.h>
 #include <iostream>
-#include <display.h>
-
 
 #include <QTreeView>
 #include <QStandardItemModel>
 #include <QItemSelectionModel>
-
 #include <QTreeView>
 #include <QStandardItemModel>
 #include <QItemSelectionModel>
@@ -15,8 +10,12 @@
 #include <QLabel>
 #include <QMenuBar>
 #include <QStatusBar>
-
 #include <QHeaderView>
+
+#include <param_widget.h>
+#include <pset.h>
+#include <display.h>
+#include <param_tree.h>
 
 
 
@@ -38,7 +37,7 @@ ParamWidget::ParamWidget(QWidget* parent):
     layout->addWidget(display,0,1);
 
 }
-void ParamWidget::set(ParamSet * ps) {
+void ParamWidget::set(std::shared_ptr<ParamSet> ps) {
     tree->clear();
     tree->add(ps);
 }

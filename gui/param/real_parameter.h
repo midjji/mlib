@@ -22,6 +22,7 @@ struct RealParameter:public Parameter {
     double value() const;
     // the user selects when to update
     bool update_value() override;
+    type_t type() const override;
 
     //USED BY THE GUI
     // The value the gui wants to set

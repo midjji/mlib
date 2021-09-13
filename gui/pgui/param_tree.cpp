@@ -1,4 +1,5 @@
-#include "param_gui.h"
+#include "param_tree.h"
+#include <pset.h>
 
 #include <QTreeView>
 #include <QStandardItemModel>
@@ -14,7 +15,7 @@
 #include <QHeaderView>
 #include <iostream>
 
-#include <pset.h>
+
 using std::cout;
 using std::endl;
 
@@ -24,12 +25,12 @@ namespace cvl {
 
 class ParamItem:public QStandardItem{
 public:
-    ParamItem(ParamSet* ps);
+    ParamItem(ParamSetPtr ps);
     std::string name="pi";
-    ParamSet* ps;
+    ParamSetPtr ps;
 };
 
-ParamItem::ParamItem(ParamSet* ps):
+ParamItem::ParamItem(ParamSetPtr ps):
     QStandardItem(ps->name.c_str()), ps(ps){
     setEditable(false);
 }
@@ -68,14 +69,14 @@ void ParamTree::clear()
 }
 
 
-void addtree(ParamSet* ps,
+void addtree(ParamSetPtr ps,
              QStandardItem * node){
     auto pi=new ParamItem(ps);
     node->appendRow(pi);
-    for(auto p:ps->pss)
+    for(const auto& p:ps->subsets())
         addtree(p,pi);
 }
-void ParamTree::add(ParamSet* ps)
+void ParamTree::add(ParamSetPtr ps)
 {
     addtree(ps, item_model()->invisibleRootItem());
 

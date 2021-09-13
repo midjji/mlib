@@ -33,6 +33,7 @@ bool IntParameter::update_value() {
     current=true;
     return c;
 }
+Parameter::type_t IntParameter::type() const {return type_t::integer;}
 
 // The value the gui wants to set
 int IntParameter::gui_value()const{return new_value;}

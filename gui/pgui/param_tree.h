@@ -1,16 +1,11 @@
 #pragma once
 
 #include <QWidget>
+#include <memory>
 
-
-QT_BEGIN_NAMESPACE
-class QTreeView; //forward declarations
+class QTreeView;
 class QStandardItemModel;
-class QItemSelection;
-class QLayout;
-class QLabel;
-//class QStandardItem;// add latter...
-QT_END_NAMESPACE
+
 namespace cvl {
 
 
@@ -27,7 +22,7 @@ public:
     ParamItem* selected_item();
     ParamTree(QWidget* parent = nullptr);
     void clear();
-    void add(ParamSet* ps);
+    void add(std::shared_ptr<ParamSet> ps);
 private slots:
 
     void selected();

@@ -33,6 +33,9 @@ bool RealParameter::update_value() {
     current=true;
     return c;
 }
+Parameter::type_t RealParameter::type() const{
+    return Parameter::type_t::real;
+}
 
 // The value the gui wants to set
 double RealParameter::gui_value()const{return new_value;}

@@ -1,9 +1,11 @@
 #pragma once
 #include <QWidget>
-#include <pset.h>
-class Label;
-namespace cvl {
 
+
+
+namespace cvl {
+class Label;
+class ParamSet;
 
 class ParamDisplayWidget: public QWidget{
     Q_OBJECT

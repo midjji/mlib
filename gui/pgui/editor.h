@@ -1,5 +1,9 @@
 #pragma once
 #include <QMainWindow>
+#include <memory>
+namespace cvl {
+
+class ParamSet;
 class ParamWidget;
 /**
  * @brief The ParameterEditor class
@@ -22,4 +26,6 @@ private:
 
 public:
     ParameterEditor(QWidget *parent = 0);
+    void set(std::shared_ptr<ParamSet> p);
 };
+}

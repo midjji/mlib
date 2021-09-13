@@ -1,8 +1,9 @@
-#include <display.h>
 #include <QGridLayout>
 #include <QLabel>
-#include <label.h>
 
+#include <display.h>
+#include <label.h>
+#include <pset.h>
 namespace cvl
 {
 
@@ -17,9 +18,9 @@ ParamDisplayWidget::ParamDisplayWidget(
     if(!ps) return; // its wrong, qt takes care of it
     layout->addWidget(new Label(ps->name, this));
     layout->addWidget(new Label(ps->desc, this));
-    for(auto param:ps->ps) {
-        layout->addWidget(parameter_widget(param));
-    }
+    //for(auto param:ps->ps) {
+    //    layout->addWidget(parameter_widget(param));
+    //}
 
     // only add the params!
 
