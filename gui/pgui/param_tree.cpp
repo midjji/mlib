@@ -1,4 +1,5 @@
 #include "param_tree.h"
+#include <param_tree_item.h>
 #include <pset.h>
 
 #include <QTreeView>
@@ -23,34 +24,28 @@ namespace cvl {
 
 
 
-class ParamItem:public QStandardItem{
-public:
-    ParamItem(ParamSetPtr ps);
-    std::string name="pi";
-    ParamSetPtr ps;
-};
-
-ParamItem::ParamItem(ParamSetPtr ps):
-    QStandardItem(ps->name.c_str()), ps(ps){
-    setEditable(false);
-}
 
 ParamTree::ParamTree(QWidget* parent):
     QWidget(parent),
     tree(new QTreeView(this))
-{
+{    
+    setMinimumSize(200,640);
     // sets item model
     tree->setModel(new QStandardItemModel(tree));
+    tree->expandAll();
+    tree->setHeaderHidden(true);
+
 
 
 
 
     //selection changes shall trigger a slot
-
+#if 0
     connect(tree->selectionModel(),
             &QItemSelectionModel::selectionChanged,
             this,
-            &ParamTree::selected);
+            [&](){do});
+#endif
 
 }
 QStandardItemModel* ParamTree::item_model() {
@@ -79,30 +74,6 @@ void addtree(ParamSetPtr ps,
 void ParamTree::add(ParamSetPtr ps)
 {
     addtree(ps, item_model()->invisibleRootItem());
-
-
-
-
-    //treeView->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
-    //treeView->header()->setStretchLastSection(false);
-    //treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    //treeView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-
 }
-
-
-
-void ParamTree::selected(
-//        [[maybe_unused]] const QItemSelection & curr/*newSelection*/,
-  //      [[maybe_unused]] const QItemSelection & prev/*oldSelection*/
-)
-{
-    auto* item=selected_item();
-    if(!item) return;
-    cout<<"pi->ps->name: "<<item->ps->name<<endl;
-
-
-}
-
 
 }

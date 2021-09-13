@@ -1,7 +1,7 @@
 #pragma once
 #include <QWidget>
 #include <memory>
-
+#include <QScrollArea>
 
 namespace cvl {
 class Label;
@@ -14,8 +14,7 @@ public:
     // so the name and desc, plus the params in groupss
     ParamSetDisplayWidget(std::shared_ptr<ParamSet> ps,
                        QWidget* parent = nullptr);
-    Label* name;
-    Label* desc;
+
 
 };
 

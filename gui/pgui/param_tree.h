@@ -23,9 +23,7 @@ public:
     ParamTree(QWidget* parent = nullptr);
     void clear();
     void add(std::shared_ptr<ParamSet> ps);
-private slots:
 
-    void selected();
 };
 
 }
