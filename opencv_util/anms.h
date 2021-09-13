@@ -1,7 +1,7 @@
 #pragma once
-typedef unsigned int uint;
+#include <cstdio>
 #include <vector>
-#include "mlib/opencv_util/cv.h"
+#include <opencv2/core/types.hpp>
 
 namespace mlib{
 

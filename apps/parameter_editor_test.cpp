@@ -1,7 +1,7 @@
 #include <QApplication>
-#include <editor.h>
-#include <pset.h>
-#include <int_parameter.h>
+#include <mlib/parameter_editor/editor.h>
+#include <mlib/param/pset.h>
+#include <mlib/param/int_parameter.h>
 using namespace cvl;
 
 std::shared_ptr<ParamSet> test_paramset(){
@@ -24,8 +24,6 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     ParameterEditor w;
-
-
     w.set(test_paramset());
     w.show();
     return a.exec();

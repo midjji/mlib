@@ -2,63 +2,55 @@ cmake_minimum_required(VERSION 3.16)
 
 project(mlib VERSION 2.0
     DESCRIPTION "general utility library"
-    LANGUAGES CXX C)
+    LANGUAGES CXX)
 message("\n\nmlib configuration begin\n\n")
-
-include("extern/cmake/common.cmake")
-# add this path to module path, so any find modules here are founds
-get_filename_component(MLIB_COMMON_CMAKE_PATH ./ REALPATH)
-LIST(APPEND CMAKE_MODULE_PATH "${MLIB_COMMON_CMAKE_PATH}/extern/cmake/" )
-LIST(APPEND CMAKE_MODULE_PATH "/usr/local/lib/cmake/" )
-print_list(CMAKE_MODULE_PATH CMAKE_MODULE_PATH) # uncomment to list where you are looking
-include("extern/cmake/dependencies.cmake")
-set(BUILD_MLIB_EXTRAS_DEFAULT ON)
-get_directory_property(hasParent PARENT_DIRECTORY)
-if(hasParent)
-    set(BUILD_MLIB_EXTRAS_DEFAULT OFF)
-endif()
-option(BUILD_MLIB_APPS "build mlib apps" ${BUILD_MLIB_EXTRAS_DEFAULT})
-option(BUILD_MLIB_TESTS "build internal module tests"  ${BUILD_MLIB_EXTRAS_DEFAULT})
-
+# everything at once
 add_library(mlib INTERFACE)
 
-# cmake strips duplicate include paths, but it requires the real paths to do so.
-# it fails for ../ which messes with autocomplete
+# top level directory
 get_filename_component(MLIB_TOP_PATH ../ REALPATH)
 target_include_directories(mlib INTERFACE "${MLIB_TOP_PATH}")
-message("Found MLIB: ${MLIB_TOP_PATH}")
-message("CMAKE_MODULE_PATH")
-print_list("${CMAKE_MODULE_PATH}" "")
 
 
-add_subdirectory(extern)
-target_link_libraries(mlib INTERFACE mlib-extern)
-
-
+# set some fixes for module path
+include("mlib.cmake")
 
 INIT_BUILD()
 if(build_mlib_tests)
     include(CTest)
 endif()
 
+# a c++11 only parameter gui
+add_subdirectory(param)
+
+# a qt based parameter editor
+add_subdirectory(parameter_editor)
+
+# a bunch of different external stuff
+add_subdirectory(extern)
+
+# dependes on c++11
 add_subdirectory(utils)
 target_link_libraries(mlib INTERFACE mlib-utils)
-
+# crossdependency on header only stream, stream belongs in utils // TODO
 add_subdirectory(stream)
 target_link_libraries(mlib INTERFACE mlib-stream)
+
+#depends on opencv
+add_subdirectory(opencv_util)
+target_link_libraries(mlib INTERFACE mlib-opencv-utils)
 
 add_subdirectory(sfm)
 target_link_libraries(mlib INTERFACE mlib-sfm)
 
-add_subdirectory(opencv_util)
-target_link_libraries(mlib INTERFACE mlib-opencv-utils)
+
 
 add_subdirectory(datasets)
 target_link_libraries(mlib INTERFACE mlib-datasets)
 
 
 
-
+# set in extern
 if(WITH_JKQTPLOTTER)
     # requires with_MLIB_QT and WITH_JKQTPLOTTER
     add_subdirectory(plotter)
@@ -72,16 +64,21 @@ if(WITH_VIS)
     target_link_libraries(mlib INTERFACE mlib-vis)
 endif(WITH_VIS)
 
-option(WITH_MLIB_CUDA "build mlib-cuda" ON)
+option(WITH_MLIB_CUDA "build mlib-cuda" OFF)
 if(WITH_MLIB_CUDA)
     add_subdirectory(cuda)
     target_link_libraries(mlib INTERFACE mlib-cuda)
 endif()
 
+get_directory_property(hasParent PARENT_DIRECTORY)
+option(BUILD_MLIB_APPS "build mlib apps" NOT ${hasParent})
+
 
 if(BUILD_MLIB_APPS)
     add_subdirectory(apps)
 endif()
+
+option(BUILD_MLIB_TESTS "build internal module tests"  NOT ${hasParent})
 if(BUILD_MLIB_TESTS)
     add_subdirectory(tests)
 endif()

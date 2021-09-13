@@ -1,3 +1,5 @@
+
+#include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include "mlib/opencv_util/cv.h"
@@ -115,7 +117,11 @@ cv::Mat resize(cv::Mat im,double factor){
     cv::Mat tmp;
     cv::resize(im,tmp,cv::Size(),factor,factor);
     return tmp;
-
+}
+cv::Mat resize(cv::Mat im, int rows, int cols){
+    cv::Mat tmp;
+    cv::resize(im,tmp,cv::Size(cols,rows));
+    return tmp;
 }
 cv::Scalar convert(Color color){
     return cv::Scalar(color.getB(),color.getG(),color.getR());

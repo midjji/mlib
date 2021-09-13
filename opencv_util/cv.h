@@ -20,21 +20,10 @@
 /***
  * Convenient but missing opencv functionality
  */
-
-
-
-#include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-//#include <opencv2/features2d/features2d.hpp>
-//#include <opencv2/calib3d/calib3d.hpp>
-//#include <opencv2/contrib/contrib.hpp>
-//#include "opencv2/imgproc/imgproc.hpp"
-//#include <opencv2/nonfree/nonfree.hpp>  // would be great to get rid of this one, its just the surf im using && nothing else
-
+#include <opencv2/core/mat.hpp>
+#include <opencv2/core/types.hpp>
 #include <mlib/utils/cvl/matrix.h>
 #include <mlib/utils/colormap.h>
-#include <mlib/opencv_util/draw_arrow.h>
-
 
 
 namespace mlib{
@@ -68,11 +57,8 @@ void drawCircle(cv::Mat3b im,
 cv::Mat getSubMat(cv::Mat im,uint col, uint row, uint width, uint height);
 cv::Mat smooth(cv::Mat im,double sigma=1);
 cv::Mat resize(cv::Mat im,double factor);
-template<class T> cv::Mat_<T> resize(cv::Mat_<T> im,uint rows, uint cols){
-    cv::Mat tmp;
-    cv::resize(im,tmp,cv::Size(cols,rows));
-    return tmp;
-}
+cv::Mat resize(cv::Mat im,int rows, int cols);
+
 cv::Scalar convert(Color color);
 
 
