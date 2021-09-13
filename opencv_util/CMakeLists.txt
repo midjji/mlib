@@ -3,8 +3,6 @@ project(mlib-opencv-utils VERSION 1.0
     DESCRIPTION "Very nice project"
     LANGUAGES CXX)
 
-
-
 option(WITH_MLIB_OPENCV_UTILS "build OPENCV_UTILS" ON)
 if(NOT WITH_MLIB_OPENCV_UTILS)
     add_library(mlib-opencv-utils INTERFACE)

@@ -14,10 +14,9 @@ target_compile_features(mtgui PUBLIC cxx_std_17)
 
 target_include_directories(mtgui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(mtgui PRIVATE Qt5::Core Qt5::Gui Qt5::Widgets)
-FIND_PACKAGE(Threads REQUIRED )
-target_link_libraries(mtgui PUBLIC Threads::Threads)
-get_directory_property(hasParent PARENT_DIRECTORY)
-if(NOT hasParent)
+
+
+if(NOT ${MLIB_SUBDIR})
     set(CMAKE_AUTOMOC ON)
     set(CMAKE_INCLUDE_CURRENT_DIR ON) # not needed
     add_executable(main main.cpp)

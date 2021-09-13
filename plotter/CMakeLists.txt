@@ -8,8 +8,6 @@ target_link_libraries(mlib-plotter PRIVATE mtgui)
 target_link_libraries(mlib-plotter PRIVATE jkqtplotter)
 target_link_libraries(mlib-plotter PRIVATE mlib-utils)
 
-FIND_PACKAGE(Threads REQUIRED )
-target_link_libraries(mlib-plotter PRIVATE Threads::Threads)
 
 
 

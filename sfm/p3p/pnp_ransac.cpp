@@ -214,6 +214,8 @@ Vector4<uint> get4RandomInRange0(uint max){
 
 
 PoseD PNP::compute(){
+    params.update_all(); // read any new parameters
+    double threshold=params.threshold->value();
     double inlier_estimate=best_inliers/((double)xs.size());
     uint iters=params.get_iterations(inlier_estimate);
 
@@ -232,7 +234,7 @@ PoseD PNP::compute(){
         // evaluate inlier set
         // timer.tic();
 
-        uint inliers=evaluate_inlier_set(xs,yns,params.threshold,pose,best_inliers);
+        uint inliers=evaluate_inlier_set(xs,yns,threshold,pose,best_inliers);
 
         // timer.toc();
 
@@ -318,12 +320,12 @@ void refine_from(const std::vector<Vector3d>& xs,
  * since we expect a high noise, low outlier ratio solution(<50%), we should refine using a cutoff loss twice...
  */
 void PNP::refine(){
-    double thr=params.threshold*params.threshold;
+
+    double thr=params.threshold->value();
+    thr*=thr;
     refine_from(xs,yns,best_pose,thr);
     refine_from(xs,yns,best_pose,thr);
 }
-
-
 
 } // end namespace cvl
 

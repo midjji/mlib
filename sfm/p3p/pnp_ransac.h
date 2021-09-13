@@ -28,10 +28,11 @@
  *
  ******************************************************************************/
 
+#include <vector>
 
 #include <mlib/utils/cvl/pose.h>
 #include <mlib/sfm/p3p/parameters.h>
-#include <vector>
+
 
 
 

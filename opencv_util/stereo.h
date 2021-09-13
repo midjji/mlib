@@ -1,5 +1,5 @@
 #pragma once
-#include <opencv2/core.hpp>
+#include <opencv2/core/mat.hpp>
 
 namespace cvl{
 cv::Mat1f stereo(cv::Mat3b l, cv::Mat3b r,int max_disparity);

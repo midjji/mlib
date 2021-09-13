@@ -1,6 +1,8 @@
 #pragma once
+
 #include <mlib/sfm/p3p/lambdatwist/p3p_timers.h>
 #include <mlib/sfm/p3p/lambdatwist/solve_cubic.h>
+#include <mlib/utils/cvl/matrix.h>
 namespace cvl{
 /**
  * @brief eigwithknown0 eigen decomp of a matrix which has a 0 eigen value
@@ -9,8 +11,8 @@ namespace cvl{
  * @param L eigenvalues
  */
 template<class T>   void eigwithknown0(Matrix3<T> x,
-                                             Matrix3<T>& E,
-                                             Vector3<T>& L){
+                                       Matrix3<T>& E,
+                                       Vector3<T>& L){
     // one eigenvalue is known to be 0.
 
     TIC(teig1);
@@ -79,9 +81,9 @@ template<class T>   void eigwithknown0(Matrix3<T> x,
     // v2=(v2-v2.dot(v3)*v3);v2.normalize();
     // v2=(v2-v1.dot(v2)*v2);v2.normalize();
 
-E=Matrix<T,3,3>(v1[0],v2[0],v3[0],  v1[1],v2[1],v3[1],  v1[2],v2[2],v3[2]);
+    E=Matrix<T,3,3>(v1[0],v2[0],v3[0],  v1[1],v2[1],v3[1],  v1[2],v2[2],v3[2]);
 
-TOC(teig1);
+    TOC(teig1);
 }
 
 }

@@ -1,11 +1,19 @@
 #include <mlib/sfm/p3p/parameters.h>
 namespace cvl {
+
+PnpParams::PnpParams(double thr, std::string name)
+    :Parametrized(name, " ransac desc... ")
+{
+    threshold->set_value(thr);threshold->update_value();
+}
+
 int PnpParams::get_iterations(double estimated_inliers,
                    double p_meets_treshold_given_inlier_and_gt){
 
+
     double p_inlier=std::min(0.9,estimated_inliers*p_meets_treshold_given_inlier_and_gt);
     p_inlier  = std::min(std::max(p_inlier,1e-2),1-1e-8);
-    if(p_inlier<0.01) return max_iterations;
+    if(p_inlier<0.01) return max_iterations->value();
 
     // this is the range in which the approximation is resonably valid.
     double p_failure = std::min(std::max( 1.0-min_probability,1e-8),0.01);
@@ -25,8 +33,8 @@ int PnpParams::get_iterations(double estimated_inliers,
     if(max_angle<2*3.1415)
         iterations= iterations / (max_angle/(2*3.1415));
 
-    if(iterations<min_iterations) return min_iterations;
-    if(iterations>max_iterations) return max_iterations;
+    if(iterations<min_iterations->value()) return min_iterations->value();
+    if(iterations>max_iterations->value()) return max_iterations->value();
 
     return int(std::ceil(iterations));
 

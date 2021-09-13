@@ -3,26 +3,19 @@ project(mlib-vis CXX)
 
 
 
-message("Processing Module mlib-vis")
+message("\nProcessing Module mlib-vis")
 # module requires osg, opencv
 
 # packages
 
 
 # provide HDRS SRCS
-FILE(GLOB HDRS "*.h")
-FILE(GLOB SRCS "*.cpp")
 
-add_library(mlib-vis ${SRCS} ${HDRS})
-target_configure_warnings(mlib-vis)
-target_link_libraries(mlib-vis PUBLIC mlib-utils)
-target_link_libraries(mlib-vis PUBLIC mlib-stream)
 
 
 macro(FIND_OSG)
-    message("\n${line}\n")
     find_package(OpenSceneGraph 3 REQUIRED osgDB osgUtil osgViewer osgGA osgWidget REQUIRED)
-    message("\nFound OSG Version: ${OPENSCENEGRAPH_VERSION}")
+    message("Found OSG Version: ${OPENSCENEGRAPH_VERSION}")
 
     # hide clutter
     mark_as_advanced(FORCE OPENTHREADS_INCLUDE_DIR)
@@ -54,6 +47,14 @@ macro(FIND_OSG)
     endif()
 endmacro()
 FIND_OSG()
+
+FILE(GLOB HDRS "*.h")
+FILE(GLOB SRCS "*.cpp")
+
+add_library(mlib-vis ${SRCS} ${HDRS})
+target_configure_warnings(mlib-vis)
+target_link_libraries(mlib-vis PUBLIC mlib-utils)
+target_link_libraries(mlib-vis PUBLIC mlib-stream)
 
 target_link_libraries(mlib-vis PUBLIC ${OPENSCENEGRAPH_LIBRARIES})
 target_include_directories(mlib-vis SYSTEM PUBLIC ${OPENSCENEGRAPH_INCLUDE_DIR})

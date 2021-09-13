@@ -22,6 +22,7 @@
 
 #include <cmath>
 #include <mlib/utils/cvl/pose.h>
+#include <mlib/param/parametrized.h>
 
 namespace cvl{
 
@@ -29,10 +30,19 @@ namespace cvl{
  * @brief The PNPParams class
  * common PNP ransac parameters
  */
-class PnpParams {
+class PnpParams :public Parametrized{
 public:
 
-    PnpParams(double threshold=0.001 /*=pixel_threshold/K(0,0), approx 1-3 pixels*/):threshold(threshold){}
+    /// pixeldist/focallength
+    RealParameter* threshold=preal(0.01,"pnp ransac threshold","","pixel_threshold/K(0,0), approx 1-3 pixels",0.0,1.0);
+    /// the minimum number of iterations to perform to ensure the required number of iterations is correctly computed
+    IntParameter* min_iterations=pint(1000,"minimum ransac iterations","","",100);
+    /// a maximum number of iterations to perform to limit the amount of time spent
+    IntParameter* max_iterations=pint(2000,"maximum ransac iterations","","",10e6);
+
+
+
+    PnpParams(double thr=0.001 /*=pixel_threshold/K(0,0), approx 1-3 pixels*/, std::string name="Pnp ransac");
     PoseD reference;
     double max_angle = 2*3.1415+10; // what is the maximum angle of interest in radians, default any, compared to reference;
 
@@ -44,8 +54,8 @@ public:
     /// minimum probability for never findning a single full inlier set
     double min_probability=0.99999; // effectively capped by the max_iterations too...
 
-    /// pixeldist/focallength
-    double threshold=0.001;
+
+
 
     /// perform maximum likelihood sampling consensus,
     //bool MLESAC=false;// not supported at this time... its not better in any of my cases anyways...
@@ -59,10 +69,6 @@ public:
     //uint max_support_eval=500; not used...
 
 
-    /// a maximum number of iterations to perform to limit the amount of time spent
-    uint max_iterations=1000;
-    /// the minimum number of iterations to perform to ensure the required number of iterations is correctly computed
-    uint min_iterations=1000;
 
 
 

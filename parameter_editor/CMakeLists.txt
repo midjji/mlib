@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(paramgui CXX)
 set(CMAKE_AUTOMOC ON)
-#set(CMAKE_INCLUDE_CURRENT_DIR ON) # not needed
+
 
 find_package(Qt5 5.9 REQUIRED Core Gui Widgets )
 file(GLOB srcs  "*.cpp" "*.h" )
