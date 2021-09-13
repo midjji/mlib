@@ -1,20 +1,24 @@
 #pragma once
 #include <QWidget>
-
+#include <memory>
 
 
 namespace cvl {
 class Label;
 class ParamSet;
 
-class ParamDisplayWidget: public QWidget{
+class ParamSetDisplayWidget: public QWidget{
     Q_OBJECT
 public:
-    ParamDisplayWidget(ParamSet* ps,
+    // Only shows the top level,
+    // so the name and desc, plus the params in groupss
+    ParamSetDisplayWidget(std::shared_ptr<ParamSet> ps,
                        QWidget* parent = nullptr);
     Label* name;
     Label* desc;
 
 };
+
+
 
 }

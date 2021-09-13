@@ -1,26 +1,10 @@
 #pragma once
-#include <QWidget>
-#include <memory>
-class QTreeView;
+#include <string>
+#include <vector>
+class QWidget;
 
 namespace cvl {
-
-
-class ParamTree;
-class ParamSet;
-class ParamDisplayWidget;
-
-class ParamWidget: public QWidget
-{
-    Q_OBJECT
-public:
-    ParamWidget(QWidget* parent = nullptr);
-    ParamTree* tree;
-    ParamDisplayWidget* display;
-    // once this thing gets the parametset,
-    // the parameter set may no longer change?
-    void set(std::shared_ptr<ParamSet> ps);
-
-};
-
+class Parameter;
+QWidget* display(Parameter* p, QWidget* parent);
+QWidget* display_group(std::vector<Parameter*> group, std::string groupname, QWidget* parent);
 }

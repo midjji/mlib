@@ -4,7 +4,7 @@
 namespace cvl {
 
 class ParamSet;
-class ParamWidget;
+class ParamSetWidget;
 /**
  * @brief The ParameterEditor class
  * QMainWindow provides ready layout for
@@ -22,7 +22,7 @@ class ParameterEditor: public QMainWindow
     Q_OBJECT
 private:
     // does not need to be a member unless you will add or remove stuff
-    ParamWidget* central;
+    ParamSetWidget* central;
 
 public:
     ParameterEditor(QWidget *parent = 0);

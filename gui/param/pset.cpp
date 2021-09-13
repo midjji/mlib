@@ -21,4 +21,14 @@ void ParamSet::add(std::shared_ptr<ParamSet> ps){
 const std::vector<std::shared_ptr<ParamSet>>& ParamSet::subsets(){
     return subsets_;
 }
+std::map<std::string,
+std::vector<Parameter*>> ParamSet::param_groups(){
+    std::map<std::string,
+    std::vector<Parameter*>> groups;
+    for(auto* p:params)
+        groups[p->group].push_back(p);
+return groups;
+}
+
+
 }
