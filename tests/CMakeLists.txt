@@ -1,7 +1,8 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 
 
-
+option(BUILD_MLIB_TESTS "build internal module tests" ${BUILD_MLIB_APPS_DEFAULT})
+if(BUILD_MLIB_TESTS)
 
 #testit(matrix "mlib;doctest")
 #testit(triangulate_nl "mlib;doctest")
@@ -19,3 +20,4 @@ cmake_minimum_required(VERSION 3.10)
 add_executable(test_include_all test_include_all.cpp)
 target_link_libraries(test_include_all mlib)
 #target_configure_warnings(test_include_all)
+endif()

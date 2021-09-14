@@ -4,8 +4,8 @@ project(mlib-cuda VERSION 1.0
     LANGUAGES CUDA)
 
 
-add_subdirectory(cuda-api-wrappers)
-add_subdirectory(cuda-kat)
+#add_subdirectory(cuda-api-wrappers)
+#add_subdirectory(cuda-kat)
 #set(CMAKE_CUDA_SEPARABLE_COMPILATION ON)
 add_definitions(-DWITH_CUDA)
 

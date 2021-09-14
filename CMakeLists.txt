@@ -7,19 +7,21 @@ message("\n\nmlib configuration begin\n\n")
 # everything at once
 add_library(mlib INTERFACE)
 
-# top level directory
-get_filename_component(MLIB_TOP_PATH ../ REALPATH)
-target_include_directories(mlib INTERFACE "")
-get_directory_property(MLIB_SUBDIR PARENT_DIRECTORY)
-option(BUILD_MLIB_APPS "build mlib apps" ${MLIB_SUBDIR})
 
-# set some fixes for module path
+
+find_package (Threads)
+target_link_libraries (mlib INTERFACE Threads::Threads)
+
+
+#preconfig, also sets
+#BUILD_MLIB_APPS_DEFAULT which is true if mlib is
+# and
+#MLIB_TOP_PATH which is ../, but as a hard path, which is better for ides
 include("mlib.cmake")
 
+
 INIT_BUILD()
-if(build_mlib_tests)
-    include(CTest)
-endif()
+
 
 # a c++11 only parameter gui
 add_subdirectory(param)
@@ -74,14 +76,13 @@ endif()
 
 
 
-
+# these only get built if mlib isnt a dependency by default
 add_subdirectory(apps)
-
-
-option(BUILD_MLIB_TESTS "build internal module tests" NOT ${MLIB_SUBDIR})
-if(BUILD_MLIB_TESTS)
-    add_subdirectory(tests)
+if(build_mlib_tests)
+    include(CTest)
 endif()
+add_subdirectory(tests)
+
 #add_executable(doctest_common_main doctest_common_main.cpp) # must be somewhere once atleast!
 #target_link_libraries(doctest_common_main mlib)
 message("\n\nmlib configuration complete!\n\n")
