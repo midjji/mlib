@@ -22,5 +22,9 @@ bool is_mat1w(cv::Mat im){   return im.type()==CV_16U;}
 bool is_mat1f(cv::Mat im){   return im.type()==CV_32F;}
 bool is_mat3b(cv::Mat im){   return im.type()==CV_8UC3;}
 bool is_mat3f(cv::Mat im){   return im.type()==CV_32FC3;}
+template<> int Tnum<uint8_t>(){ return CV_8U;}
+template<> int Tnum<uint16_t>(){ return CV_16U;}
+template<> int Tnum<float>(){ return CV_32F;}
+template<> int Tnum<cv::Vec3b>(){ return CV_8UC3;}
 
 }

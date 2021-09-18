@@ -30,7 +30,7 @@ template<class T> cv::Mat_<T> read_image_(std::string path)  noexcept{
 }
 template<class T> std::future<cv::Mat_<T>> future_read_image_(std::string path /* should not be ref, as async launch may mean ref has been invalidated!*/) noexcept
 {
-return std::async(std::launch::async, [path]()->cv::Mat_<T>{ read_image_<T>(path); });
+return std::async(std::launch::async, [path]()->cv::Mat_<T>{ return read_image_<T>(path); });
 }
 
 // paralell read many

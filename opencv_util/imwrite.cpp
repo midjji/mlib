@@ -30,12 +30,14 @@ bool write_image_safe(std::string pth, cv::Mat img) noexcept
         if(!(ext==".png"|| ext==".bmp"))
         {
             mlog()<<"warning writing image to unsupported format"<<pth<<"\n";
-            break;
+
         }
+        break;
     case CV_16U:
-        if(ext==".png")
+        if(ext!=".png")
         {
             mlog()<<"warning writing image to unsupported format"<<pth<<"\n";
+
         }
         break;
     case CV_32F:
