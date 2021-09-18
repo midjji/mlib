@@ -10,8 +10,8 @@ namespace cvl
 {
 
 
-ParamSetDisplayWidget::ParamSetDisplayWidget(
-        ParamSetPtr ps,
+PSetDisplayWidget::PSetDisplayWidget(
+        PSetPtr ps,
         QWidget* parent):
     QWidget(parent)
 {

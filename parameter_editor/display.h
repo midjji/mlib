@@ -5,14 +5,14 @@
 
 namespace cvl {
 class Label;
-class ParamSet;
+class PSet;
 
-class ParamSetDisplayWidget: public QWidget{
+class PSetDisplayWidget: public QWidget{
     Q_OBJECT
 public:
     // Only shows the top level,
     // so the name and desc, plus the params in groupss
-    ParamSetDisplayWidget(std::shared_ptr<ParamSet> ps,
+    PSetDisplayWidget(std::shared_ptr<PSet> ps,
                        QWidget* parent = nullptr);
 
 

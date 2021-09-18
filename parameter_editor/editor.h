@@ -3,8 +3,8 @@
 #include <memory>
 namespace cvl {
 
-class ParamSet;
-class ParamSetWidget;
+class PSet;
+class PSetWidget;
 /**
  * @brief The ParameterEditor class
  * QMainWindow provides ready layout for
@@ -22,10 +22,10 @@ class ParameterEditor: public QMainWindow
     Q_OBJECT
 private:
     // does not need to be a member unless you will add or remove stuff
-    ParamSetWidget* central;
+    PSetWidget* central;
 
 public:
     ParameterEditor(QWidget *parent = 0);
-    void set(std::shared_ptr<ParamSet> p);
+    void set(std::shared_ptr<PSet> p);
 };
 }

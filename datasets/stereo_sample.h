@@ -17,6 +17,7 @@ struct StereoSample{
 
     // only supports single channel images.
     virtual cv::Mat1b grey1b(int i) const=0; // for display, copy yes!
+    virtual cv::Mat1w grey1w(int i) const =0; // copy?
     virtual cv::Mat1f grey1f(int i) const =0; // copy?
     virtual cv::Mat3f rgb3f(int i) const=0;// copy?
     virtual cv::Mat3b rgb(int i) const=0; // for display, copy yes!

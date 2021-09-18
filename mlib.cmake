@@ -9,8 +9,8 @@ LIST(APPEND CMAKE_MODULE_PATH "/usr/local/lib/cmake/" )
 include("extern/cmake/dependencies.cmake")
 
 # top level directory
-get_filename_component(MLIB_TOP_PATH ../ REALPATH)
-target_include_directories(mlib INTERFACE "")
+get_filename_component(MLIB_TOP_PATH ../ REALPATH PARENT_SCOPE)
+target_include_directories(mlib INTERFACE "${MLIB_TOP_PATH}")
 get_directory_property(MLIB_SUBDIR PARENT_DIRECTORY)
 set(BUILD_MLIB_APPS_DEFAULT ON)
 if(MLIB_SUBDIR)

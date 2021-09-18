@@ -24,6 +24,7 @@
 #include <opencv2/core/types.hpp>
 #include <mlib/utils/cvl/matrix.h>
 #include <mlib/utils/colormap.h>
+#include <mlib/opencv_util/type2str.h>
 
 
 namespace mlib{
@@ -124,26 +125,9 @@ void increaseContrast(cv::Mat1f& im);
 
 
 
-template<class T> std::string get_mat_type(cv::Mat m){
-    switch(m.type()){
-    case CV_8U:        return "8U";
-    case CV_8S:        return "8S";
-    case CV_16U:        return "16U";
-    case CV_16S:        return "16S";
-    case CV_32S:        return "32S";
-    case CV_32F:        return "32F";
-    case CV_64F:        return "64F";
-    case CV_8UC3:        return "8UC3";
-    default: break;
-    }
- return "unknown";
-}
 
-template <class T> std::string display_mat(cv::Mat m){
-std::stringstream ss;
-    ss<<m.rows<<" "<<m.cols<<" "<<m.type()<<" which is: "<<get_mat_type<T>(m);
-    return ss.str();
-}
+
+std::string str(cv::Mat m);
 
 
 

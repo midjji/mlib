@@ -26,13 +26,13 @@ using std::endl;
 namespace cvl {
 
 
-ParamSetWidget::ParamSetWidget(QWidget* parent):
+PSetWidget::PSetWidget(QWidget* parent):
     QWidget(parent),
     tree(new ParamTree(this)),
-    display(new ParamSetDisplayWidget(nullptr, this))
+    display(new PSetDisplayWidget(nullptr, this))
 {
 
-    // no need for this to be a member of ParamSetWidget too,
+    // no need for this to be a member of PSetWidget too,
     // get it from widget instead if needed...
     // auto does setlayout when called with parent this
     auto* layout=new QGridLayout(this);
@@ -59,17 +59,17 @@ ParamSetWidget::ParamSetWidget(QWidget* parent):
     });
 
 }
-void ParamSetWidget::set_display(std::shared_ptr<ParamSet> ps){
+void PSetWidget::set_display(std::shared_ptr<PSet> ps){
     layout()->removeWidget(display);
     delete display;
-    display=new ParamSetDisplayWidget(ps, this);
+    display=new PSetDisplayWidget(ps, this);
 
     Layout(layout())->addWidget(display,0,1);
 
 }
 
 
-void ParamSetWidget::set(std::shared_ptr<ParamSet> ps) {
+void PSetWidget::set(std::shared_ptr<PSet> ps) {
     tree->clear();
     tree->add(ps);
     set_display(ps);

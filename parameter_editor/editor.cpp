@@ -14,7 +14,7 @@ namespace cvl {
 
 ParameterEditor::ParameterEditor(QWidget *parent)
     : QMainWindow(parent),
-      central(new ParamSetWidget(this))
+      central(new PSetWidget(this))
 {
 
     setCentralWidget(central);
@@ -31,7 +31,7 @@ ParameterEditor::ParameterEditor(QWidget *parent)
     //statusBar()->showMessage(tr("Ready"));
 }
 
-void ParameterEditor::set(std::shared_ptr<ParamSet> p){
+void ParameterEditor::set(std::shared_ptr<PSet> p){
     central->set(p);
 }
 

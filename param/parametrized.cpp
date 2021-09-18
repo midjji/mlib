@@ -2,9 +2,9 @@
 #include <pset.h>
 namespace cvl {
 Parametrized::Parametrized(std::string name,std::string desc):
-    param(std::make_shared<ParamSet>(name,desc)){}
+    param(std::make_shared<PSet>(name,desc)){}
 Parametrized::~Parametrized(){        param->set_alive(false);    }
-std::shared_ptr<ParamSet> Parametrized::params(){return param;}
+std::shared_ptr<PSet> Parametrized::params(){return param;}
 void Parametrized::update_all(){
     param->update_all();
 }

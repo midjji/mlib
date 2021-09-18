@@ -107,6 +107,23 @@ sqct<GTRow, float>, sqct<GTRow, float>, sqct<GTRow, float>, sqct<GTRow, float>,
 sqct<GTRow, float>, sqct<GTRow, float>, sqct<GTRow, float> > >;
 
 
+struct GTDB{
+    mtable::gt_db_type db;
+    GTDB(std::string path):db(sqlite_orm::make_storage(path.c_str(),
+                                                 sqlite_orm::make_table("boundingboxes",
+                                                           sqlite_orm::make_column("id", &mtable::GTRow::uid, sqlite_orm::autoincrement(), sqlite_orm::primary_key()),
+                                                           sqlite_orm::make_column("frame_id", &mtable::GTRow::frame_id),
+                                                           sqlite_orm::make_column("imo_id", &mtable::GTRow::imo_id),
+                                                           sqlite_orm::make_column("row_start", &mtable::GTRow::row_start),
+                                                           sqlite_orm::make_column("col_start", &mtable::GTRow::col_start),
+                                                           sqlite_orm::make_column("row_end", &mtable::GTRow::row_end),
+                                                           sqlite_orm::make_column("col_end", &mtable::GTRow::col_end),
+                                                           sqlite_orm::make_column("x", &mtable::GTRow::x),
+                                                           sqlite_orm::make_column("y", &mtable::GTRow::y),
+                                                           sqlite_orm::make_column("z", &mtable::GTRow::z)))){};
+};
+
+
 }
 
 }

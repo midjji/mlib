@@ -9,7 +9,7 @@ struct Parametrized {
                  std::string desc="no desc");
     virtual ~Parametrized();
 
-    std::shared_ptr<ParamSet> params();
+    std::shared_ptr<PSet> params();
     void update_all();
 
     IntParameter* pint(
@@ -27,7 +27,7 @@ struct Parametrized {
                          double minv=std::numeric_limits<double>::lowest(),
                          double maxv=std::numeric_limits<double>::max());
 private:
-    std::shared_ptr<ParamSet> param;
+    std::shared_ptr<PSet> param;
 };
 
 }

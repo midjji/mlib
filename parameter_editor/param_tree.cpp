@@ -64,14 +64,14 @@ void ParamTree::clear()
 }
 
 
-void addtree(ParamSetPtr ps,
+void addtree(PSetPtr ps,
              QStandardItem * node){
     auto pi=new ParamItem(ps);
     node->appendRow(pi);
     for(const auto& p:ps->subsets())
         addtree(p,pi);
 }
-void ParamTree::add(ParamSetPtr ps)
+void ParamTree::add(PSetPtr ps)
 {
     addtree(ps, item_model()->invisibleRootItem());
 }

@@ -194,6 +194,35 @@ void increaseContrast(cv::Mat1f& im){
         }
 }
 
+template<class T>
+double mean_(cv::Mat_<T> im){
+    double v=0;
+    for(int r=0;r<im.rows;++r)
+        for(int c=0;c<im.rows;++c)
+            v+=im(r,c);
+    int size=im.rows*im.cols;
+    if(size>0)
+        v/=size;
+    return v;
+}
+
+double mean(cv::Mat im){
+
+    switch(im.type()){
+    case CV_8U:        return  mean_<uint8_t>(im);
+    case CV_16U:        return mean_<uint16_t>(im);
+    case CV_32F:        return mean_<float>(im);
+    }
+    return -1;
+}
+
+std::string str(cv::Mat m)
+{
+    std::stringstream ss;
+    ss<<m.rows<<" "<<m.cols<<" "<<m.type()<<" which is: "<<type2str(m.type())<<" with mean: "<<mean(m);
+    return ss.str();
+}
+
 }// end namespace mlib
 
 

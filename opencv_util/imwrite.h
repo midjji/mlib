@@ -1,5 +1,9 @@
 #pragma once
+#include <map>
+#include <future>
+
 #include <opencv2/core/mat.hpp>
+
 namespace mlib{
 /**
  * @brief write_image_safe
@@ -8,11 +12,16 @@ namespace mlib{
  * @return if successful
  *
  * guarantees that the entire image is written if return true
+ * writes to unique intermediate file first, then moves
  * creates the directory if needed,
+ *
+ * Will warn on extension not matching image type.
+ *
+ *
  */
-bool write_image_safe(std::string path, cv::Mat img);
-bool write_image_safe_auto_type(std::string path_without_ext, cv::Mat1b img);
-bool write_image_safe_auto_type(std::string path_without_ext, cv::Mat3b img);
-bool write_image_safe_auto_type(std::string path_without_ext, cv::Mat1w img);
+bool write_image_safe(std::string path, cv::Mat img) noexcept;
+std::future<bool> future_write_image(std::string path, cv::Mat img) noexcept;
+std::map<std::string, bool> future_write_image(std::map<std::string, cv::Mat> images) noexcept;
+bool all_good(const std::map<std::string, bool>& fwis) noexcept;
 
 }

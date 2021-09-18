@@ -35,3 +35,8 @@ if(WITH_SQLite)
     endif(WITH_Daimler)
 endif()
 
+option(WITH_HILTI "build HILTI" ON)
+if(WITH_HILTI)
+    add_subdirectory(hilti)
+    target_link_libraries(mlib-datasets PUBLIC mlib-hilti)
+endif()

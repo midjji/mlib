@@ -3,10 +3,10 @@
 #include <QStandardItem>
 
 namespace cvl {
-class ParamSet;
+class PSet;
 class ParamItem:public QStandardItem{
 public:
-    ParamItem(std::shared_ptr<ParamSet> ps);
-    std::shared_ptr<ParamSet> ps;
+    ParamItem(std::shared_ptr<PSet> ps);
+    std::shared_ptr<PSet> ps;
 };
 }

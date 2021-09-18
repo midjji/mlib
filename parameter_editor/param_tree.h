@@ -11,7 +11,7 @@ namespace cvl {
 
 
 class ParamItem;
-class ParamSet;
+class PSet;
 
 class ParamTree:public QWidget
 {
@@ -22,7 +22,7 @@ public:
     ParamItem* selected_item();
     ParamTree(QWidget* parent = nullptr);
     void clear();
-    void add(std::shared_ptr<ParamSet> ps);
+    void add(std::shared_ptr<PSet> ps);
 
 };
 

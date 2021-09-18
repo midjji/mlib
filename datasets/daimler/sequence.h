@@ -1,11 +1,14 @@
 #pragma once
+#include <memory>
 
 #include <mlib/datasets/stereo_dataset.h>
 #include <mlib/datasets/daimler/sample.h>
-#include <mlib/datasets/daimler/database.h>
+
 
 namespace cvl{
-
+namespace mtable{
+struct GTDB;
+}
 class DaimlerSequence:public StereoSequence
 {
 
@@ -27,8 +30,9 @@ public:
     using sample_type=std::shared_ptr<DaimlerSample>;
 
     DaimlerSequence(std::string dataset_path, std::string gt_path="");
+
     std::string path;
-    mtable::gt_db_type gt_storage;
+    std::shared_ptr<mtable::GTDB> gt_storage;
     std::shared_ptr<DaimlerSample> get_sample(uint index) const;
 
     double fps() const;

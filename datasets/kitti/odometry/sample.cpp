@@ -27,6 +27,9 @@ cv::Mat3f KittiOdometrySample::rgb3f(int id) const{
 cv::Mat1f KittiOdometrySample::grey1f(int id) const{
     return image2grey1f(images.at(id),1.0F/16.0F);
 }
+cv::Mat1w KittiOdometrySample::grey1w(int id) const{
+    return images.at(id).clone();
+}
 cv::Mat1b KittiOdometrySample::grey1b(int id) const{
     return image2grey1b(images.at(id),1.0F/16.0F);
 }

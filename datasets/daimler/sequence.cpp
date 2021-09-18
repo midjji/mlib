@@ -1,18 +1,23 @@
-#include <opencv4/opencv2/imgcodecs.hpp>
-#include <opencv4/opencv2/highgui.hpp>
 #include <thread>
 #include <fstream>
 #include <filesystem>
+
+#include <opencv4/opencv2/imgcodecs.hpp>
+#include <opencv4/opencv2/highgui.hpp>
+
 #include <sqlite_orm.h>
-#include <mlib/datasets/daimler/dataset.h>
+
+
 #include <mlib/utils/string_helpers.h>
 #include <mlib/utils/cvl/matrix_adapter.h>
 
+#include <mlib/datasets/daimler/database.h>
+#include <mlib/datasets/daimler/dataset.h>
 
 namespace fs = std::filesystem;
 using std::cout;
 using std::endl;
-using namespace sqlite_orm;
+
 namespace cvl{
 
 
@@ -61,19 +66,11 @@ std::string parse(std::string path2, std::string gt_path){
     return gt_path;
 }
 
-DaimlerSequence::DaimlerSequence(std::string path2, std::string gt_path):path(path2),
-    gt_storage(make_storage(parse(path2, gt_path).c_str(),
-                            make_table("boundingboxes",
-                                       make_column("id", &mtable::GTRow::uid, autoincrement(), primary_key()),
-                                       make_column("frame_id", &mtable::GTRow::frame_id),
-                                       make_column("imo_id", &mtable::GTRow::imo_id),
-                                       make_column("row_start", &mtable::GTRow::row_start),
-                                       make_column("col_start", &mtable::GTRow::col_start),
-                                       make_column("row_end", &mtable::GTRow::row_end),
-                                       make_column("col_end", &mtable::GTRow::col_end),
-                                       make_column("x", &mtable::GTRow::x),
-                                       make_column("y", &mtable::GTRow::y),
-                                       make_column("z", &mtable::GTRow::z)))){
+
+DaimlerSequence::DaimlerSequence(std::string path2, std::string gt_path):path(path2)
+{
+
+    gt_storage=std::make_shared<mtable::GTDB>(parse(path2, gt_path));
 
     cout<<"created daimler dataset"<<endl;
     if(path.size()> 0 && path.back()!='/')

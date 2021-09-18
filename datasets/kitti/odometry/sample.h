@@ -24,6 +24,7 @@ public:
     cv::Mat1f disparity_image() const override;
     cv::Mat1f grey1f(int i)     const override;
     cv::Mat1b grey1b(int i)     const override;
+    cv::Mat1w grey1w(int i)     const override;
     cv::Mat3f rgb3f(int i)      const override;
     cv::Mat3b rgb(int i)        const override; // for display, copy yes!
 

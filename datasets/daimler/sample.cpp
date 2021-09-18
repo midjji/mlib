@@ -16,7 +16,8 @@ double DaimlerSample::time() const{    return time_;}
 cv::Mat1f DaimlerSample::disparity_image() const{return disparity_;}
 cv::Mat3b DaimlerSample::rgb(int id) const {    return image2rgb3b(images.at(id),1.0/16.0);}
 cv::Mat1b DaimlerSample::grey1b(int id) const{    return image2grey1b(images.at(id),1.0/16.0);}
-cv::Mat1f DaimlerSample::grey1f(int id) const{    return image2grey1f(images.at(id),1.0/16.0);}
+cv::Mat1w DaimlerSample::grey1w(int id) const{    return images.at(id).clone();}
+cv::Mat1f DaimlerSample::grey1f(int id) const{    return image2grey1f(images.at(id));}
 cv::Mat3f DaimlerSample::rgb3f(int id) const{    return image2rgb3f(images.at(id),1.0/16.0);}
 float DaimlerSample::disparity_impl(double row, double col) const{
     return disparity_(std::round(row),std::round(col));

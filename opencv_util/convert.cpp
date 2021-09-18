@@ -57,7 +57,18 @@ cv::Mat3f image2rgb3f(const cv::Mat1w& img,
 cv::Mat1f image2grey1f(const cv::Mat1w& img,
                       float scale,
                        float offset){
-    cv::Mat1f rgb(img.rows,img.cols);
+    cv::Mat1f im(img.rows,img.cols);
+    for(int r=0;r<img.rows;++r)
+        for(int c=0;c<img.cols;++c){
+            float tmp=float(img(r,c))*scale + offset;
+            im(r,c)=tmp;
+        }
+    return im;
+}
+cv::Mat1w image2grey1w(const cv::Mat1b& img,
+                      float scale,
+                       float offset){
+    cv::Mat1w rgb(img.rows,img.cols);
     for(int r=0;r<img.rows;++r)
         for(int c=0;c<img.cols;++c){
             float tmp=img(r,c)*scale + offset;
