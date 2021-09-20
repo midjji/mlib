@@ -4,7 +4,7 @@ namespace cvl {
 
 
 Frameid2TimeMap::~Frameid2TimeMap(){}
-std::string str(const Frameid2TimeMap& f2t){return f2t.str();}
+
 
 
 

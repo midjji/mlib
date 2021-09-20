@@ -165,7 +165,8 @@ void testKitti(std::string basepath){
     while(true){
         for(std::shared_ptr<StereoSequence> seq:kd.seqs){
             for(int i=0;i<seq->samples();++i){
-                auto sample=seq->sample(i);
+                std::shared_ptr<StereoSample> sample=std::dynamic_pointer_cast<StereoSample>(seq->sample(i));
+
 
                     cv::imshow("Kitti Left",sample->rgb(0));
                     cv::imshow("Kitti Right",sample->rgb(1));

@@ -1,37 +1,29 @@
 #pragma once
 #include <opencv2/core/mat.hpp>
 #include <mlib/utils/cvl/matrix.h>
+#include <mlib/datasets/image_sample.h>
 
 namespace cvl{
+struct StereoSample:public ImageSample
+{
 
-struct StereoSample{
+    StereoSample(float128 time,const StereoSequence* ss,
+                 int frame_id, std::vector<cv::Mat1f> images,
+                 cv::Mat1f disparity_);
 
-    StereoSample()=default;
     virtual ~StereoSample();
 
-    virtual int rows() const=0;
-    virtual int cols() const=0;
-    virtual int frame_id() const=0;    
-    virtual int sequence_id() const=0;
-    virtual double time() const=0;
-
-    // only supports single channel images.
-    virtual cv::Mat1b grey1b(int i) const=0; // for display, copy yes!
-    virtual cv::Mat1w grey1w(int i) const =0; // copy?
-    virtual cv::Mat1f grey1f(int i) const =0; // copy?
-    virtual cv::Mat3f rgb3f(int i) const=0;// copy?
-    virtual cv::Mat3b rgb(int i) const=0; // for display, copy yes!
-
-
-    virtual cv::Mat1f disparity_image() const=0;
+    virtual cv::Mat1f disparity_image() const;
     virtual cv::Mat3b display_disparity() const;
 
 
     virtual float disparity(double row, double col) const;
     float disparity(Vector2d rowcol) const;
+    virtual int type() const override;
+
 
 protected:
-    virtual float disparity_impl(double row, double col) const=0;
+    cv::Mat1f disparity_;
 };
 
 

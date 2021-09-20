@@ -1,14 +1,18 @@
 cmake_minimum_required(VERSION 3.16)
 
 
+add_library(mlib-datasets "stereo_datasets.h" "stereo_datasets.cpp")
+
 file(GLOB srcs  "*.h" "*.cpp" )
 list(REMOVE_ITEM SRCS "stereo_datasets.*")
-
-add_library(mlib-datasets "stereo_datasets.cpp")
 add_library(mlib-datasets-interface ${srcs})
-target_link_libraries(mlib-datasets PUBLIC mlib-datasets-interface)
+message("DATASETS: ${srcs}")
 target_compile_features(mlib-datasets-interface PRIVATE cxx_std_17)
 target_link_libraries(mlib-datasets-interface PUBLIC mlib-opencv-utils)
+
+target_link_libraries(mlib-datasets PUBLIC mlib-datasets-interface)
+
+
 
 
 

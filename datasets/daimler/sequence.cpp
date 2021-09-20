@@ -38,9 +38,7 @@ std::shared_ptr<Frameid2TimeMap> DaimlerSequence::fid2time() const{
 std::vector<double> DaimlerSequence::times() const{
     return std::vector<double>();
 }
-int DaimlerSequence::sequence_id() const{
-    return 0;
-}
+
 std::vector<PoseD> DaimlerSequence::gt_poses() const{return gt_poses_;}
 
 std::shared_ptr<StereoSample> DaimlerSequence::sample(int index) const{
@@ -326,7 +324,7 @@ std::shared_ptr<DaimlerSample> DaimlerSequence::get_sample(uint index) const
     images.push_back(right);
     // imo_id, boundingbox
 
-    return std::make_shared<DaimlerSample>(images,disparity,cars,index, fps()*index);
+    return std::make_shared<DaimlerSample>(images,disparity,cars,index, fps()*index,this);
 }
 
 

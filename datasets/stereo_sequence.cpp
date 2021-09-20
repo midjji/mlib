@@ -8,6 +8,10 @@ std::vector<PoseD> StereoSequence::gt_vehicle_poses() const{
     for(auto& p:ps){        p=p*calibration().P_cam0_vehicle();    }
     return ps;
 }
+int StereoSequence::id() const{return 0;}
+std::vector<PoseD> StereoSequence::gt_poses() const{
+    return std::vector<PoseD>();
+}
 
 }
 

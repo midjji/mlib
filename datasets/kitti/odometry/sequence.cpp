@@ -35,13 +35,13 @@ StereoCalibration Sequence::calibration() const {
     double px=K(0,2);
     double py=K(1,2);
     */
-    double f=3.1415/180.0;
+
 
     return StereoCalibration(rows_,cols_,fy,fx,py,px,baseline(), P_camera_vehicle());
 }
 std::shared_ptr<StereoSample>
 Sequence::sample(int index) const{return get_sample(index);}
-int Sequence::sequence_id() const{return sequence_;}
+int Sequence::id() const{return sequence_;}
 std::vector<PoseD> Sequence::gt_poses() const {return gt_poses_;}
 
 
@@ -72,7 +72,7 @@ std::shared_ptr<KittiOdometrySample> Sequence::get_sample(int index) const{
 
     if(getImages(images,disparity,index)){
 
-        return std::make_shared<KittiOdometrySample>(images,disparity,sequence(),index, times().at(index));
+        return std::make_shared<KittiOdometrySample>(images,disparity,index, times().at(index), this);
     }
     mlog()<<"tried to read sample out of bounds"<<index<<" " <<samples_<<"\n";
     return nullptr;

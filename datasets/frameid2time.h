@@ -22,7 +22,8 @@ public:
     virtual int predict_frameid_of(double time) const=0;
     virtual std::string str() const=0;
 };
-std::string str(const Frameid2TimeMap& f2t);
+
+
 
 class FixedFps :public Frameid2TimeMap
 {

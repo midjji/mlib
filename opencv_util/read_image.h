@@ -19,7 +19,7 @@ std::future<cv::Mat1w> future_read_image1w(std::string path) noexcept;
 std::future<cv::Mat1f> future_read_image1f(std::string path) noexcept;
 
 // paralell read many
-std::map<int,cv::Mat1b> read_image1b(std::map<int,std::string> paths) noexcept;
+std::map<int,cv::Mat1f> read_image1f(std::map<int,std::string> paths) noexcept;
 
 
 }

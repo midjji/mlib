@@ -14,7 +14,7 @@ namespace mlib{
 
 // some implementations may be missing this,
 // but it works for clang 9+ and gcc 8+, c++11
-static_assert (sizeof(float128) >=16, "long float128 implementation is missing" );
+static_assert (sizeof(float128) ==16, "long float128 implementation is missing" );
 
 void sleep(float128 seconds){
     if(seconds<0) return;

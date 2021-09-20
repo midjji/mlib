@@ -15,7 +15,7 @@ cv::Mat3b image2rgb3b(const cv::Mat1b& img,
         }
     return rgb;
 }
-cv::Mat3b image2rgb3b(const cv::Mat1w& img,
+cv::Mat3b image2rgb3b(const cv::Mat1f& img,
                float scale,
                float offset)
 {
@@ -86,6 +86,15 @@ cv::Mat1b image2grey1b(const cv::Mat1w& img,
             rgb(r,c)=tmp;
         }
     return rgb;
+}
+
+
+std::vector<cv::Mat1f> images2grey1f(std::vector<cv::Mat1w> imgs,float scale, float offset)
+{
+    std::vector<cv::Mat1f> rets;rets.reserve(imgs.size());
+    for(auto im:imgs)
+        rets.push_back(image2grey1f(im,scale,offset));
+    return rets;
 }
 
 }

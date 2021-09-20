@@ -36,6 +36,7 @@ add_subdirectory(extern)
 add_subdirectory(utils)
 target_link_libraries(mlib INTERFACE mlib-utils)
 # crossdependency on header only stream, stream belongs in utils // TODO
+
 add_subdirectory(stream)
 target_link_libraries(mlib INTERFACE mlib-stream)
 
@@ -51,6 +52,10 @@ target_link_libraries(mlib INTERFACE mlib-sfm)
 add_subdirectory(datasets)
 target_link_libraries(mlib INTERFACE mlib-datasets)
 
+
+
+add_subdirectory(gui)
+target_link_libraries(mlib INTERFACE mlib-gui)
 
 
 # set in extern

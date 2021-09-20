@@ -11,8 +11,9 @@ namespace hilti {
 Dataset::Dataset(std::string dataset_path)
 {
 
-    for(auto [seq_path, training]:sequence_names_){
-        seqs.push_back(Sequence(mlib::ensure_dir(dataset_path)+seq_path+"/"));
+    for(const auto& [seq_path, training]:sequence_names_)
+    {
+        seqs.push_back(Sequence(mlib::ensure_dir(dataset_path)+seq_path+"/",seq_path));
     }
 }
 

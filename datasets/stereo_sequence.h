@@ -2,9 +2,11 @@
 #include <mlib/datasets/stereo_sample.h>
 #include <mlib/datasets/stereo_calibration.h>
 #include <mlib/datasets/frameid2time.h>
+#include <mlib/datasets/sequence.h>
 namespace cvl {
 
-struct StereoSequence{
+class StereoSequence{
+public:
     using sample_type=std::shared_ptr<StereoSample>;
     virtual ~StereoSequence();
     virtual int samples() const=0;
@@ -15,8 +17,8 @@ struct StereoSequence{
     virtual StereoCalibration calibration() const=0;
     virtual std::shared_ptr<Frameid2TimeMap> fid2time() const =0;
     virtual std::vector<double> times() const=0;
-    virtual int sequence_id() const=0;
-    virtual std::vector<PoseD> gt_poses() const=0;
+    virtual int id() const;
+    virtual std::vector<PoseD> gt_poses() const;
     std::vector<PoseD> gt_vehicle_poses() const;
 
     //int index=0;

@@ -37,7 +37,7 @@ return std::async(std::launch::async, [path]()->cv::Mat_<T>{ return read_image_<
 template<class T> std::map<int,cv::Mat_<T>> read_image_(const std::map<int,std::string>& paths) noexcept
 {
 
-    std::map<int,std::future<cv::Mat1b>> future_images;
+    std::map<int,std::future<cv::Mat_<T>>> future_images;
     for(const auto& [id,path]:paths)
     {
         // bind path by copy
@@ -67,6 +67,9 @@ std::map<int,cv::Mat1b> read_image1b(std::map<int,std::string> paths) noexcept
 {
     return read_image_<uint8_t>(paths);
 }
-
+std::map<int,cv::Mat1f> read_image1f(std::map<int,std::string> paths) noexcept
+{
+    return read_image_<float>(paths);
+}
 
 }
