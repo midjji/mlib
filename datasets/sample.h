@@ -19,7 +19,7 @@ struct Sample
     virtual float128 time() const;
     virtual int type() const=0;
 
-    const std::shared_ptr<StereoSequence>sequence() const;
+    const std::shared_ptr<StereoSequence> sequence() const;
 
 private:
     const float128 time_; // in seconds

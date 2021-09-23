@@ -17,6 +17,7 @@ namespace hilti {
 
 struct PreloadSample{
     float128 time; // for the images,
+    float128 original_time_ns;
     std::vector<imu::Data> datas; // from image time to next image time. except for the first and last image times.
     std::map<int, std::string> paths; // the rectified paths, using standardized numbers
     std::map<std::string, int> name2num{
@@ -86,7 +87,10 @@ static std::shared_ptr<Sequence> create(std::string path, std::string sequence_n
     std::string name() const override;
 
 
+
+
     StereoCalibration calibration() const override;
+    StereoCalibration calibration(int index) const;
     Calibration hilti_calibration() const;
 
 
