@@ -2,13 +2,17 @@
 #include <mlib/opencv_util/convert.h>
 #include <mlib/opencv_util/imshow.h>
 #include <mlib/utils/string_helpers.h>
+#include <mlib/datasets/hilti/sequence.h>
 
 namespace cvl {
 namespace hilti {
-HiltiImageSample::HiltiImageSample( float128 time,const std::shared_ptr<StereoSequence>ss,
-                                    int  frame_id_, std::map<int,cv::Mat1f> images, std::vector<imu::Data> imu_datas):
+HiltiImageSample::HiltiImageSample(
+        float128 time,const std::shared_ptr<StereoSequence>ss,
+        int  frame_id_, std::map<int,cv::Mat1f> images, std::vector<imu::Data> imu_datas,
+        float128 original_time):
     StereoSample( time, ss, frame_id_, std::vector<cv::Mat1f>(), images[5]),
-    images(images),imu_datas(imu_datas){
+    images(images),imu_datas(imu_datas),original_time_ns(original_time)
+{
     for(int i=0;i<5;++i){
         auto it=images.find(i);
         if(it==images.end()) continue;
@@ -43,6 +47,7 @@ std::string HiltiImageSample::num2name(int num) const{
     case 3: return "cam"+str(num);
     case 4: return "cam"+str(num);
     case 5: return "disparity";
+    default:wtf(); return "wtf!";
     }
 }
 std::shared_ptr<Sequence> HiltiImageSample::hilti_sequence() const

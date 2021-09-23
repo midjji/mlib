@@ -27,7 +27,7 @@ std::shared_ptr<HiltiImageSample> PreloadSample::load(int sampleindex, const std
             cout<<id<<"path: "<<path<<endl;
     }
 
-    return std::make_shared<HiltiImageSample>(time, ss,  sampleindex, mlib::read_image1f(paths,false), datas);
+    return std::make_shared<HiltiImageSample>(time, ss,  sampleindex, mlib::read_image1f(paths,false), datas, original_time_ns);
 }
 
 
@@ -274,7 +274,7 @@ Sequence::Sequence(std::string path,
 
     // remove the excessive timestamp offset...
     t0=preload_samples[0].time;
-    for(auto& p:preload_samples){ p.time-=t0; p.time/=1e9;}
+    for(auto& p:preload_samples){ p.original_time_ns=p.time;p.time-=t0; p.time/=1e9;}
     for(auto& p:preload_samples) for(auto& d:p.datas) {d.time-=t0;d.time/=1e9;}
 
     // generate the frameid to time mapper
