@@ -86,7 +86,10 @@ static std::shared_ptr<Sequence> create(std::string path, std::string sequence_n
     std::string name() const override;
 
 
+
+
     StereoCalibration calibration() const override;
+    StereoCalibration calibration(int index) const;
     Calibration hilti_calibration() const;
 
 

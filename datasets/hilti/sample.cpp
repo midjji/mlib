@@ -43,10 +43,11 @@ std::string HiltiImageSample::num2name(int num) const{
     case 3: return "cam"+str(num);
     case 4: return "cam"+str(num);
     case 5: return "disparity";
-
-
-
     }
+}
+std::shared_ptr<Sequence> HiltiImageSample::hilti_sequence() const
+{
+    return std::dynamic_pointer_cast<Sequence>(sequence());
 }
 int HiltiImageSample::rows() const {return 1080;}
 int HiltiImageSample::cols() const {return 1440;}

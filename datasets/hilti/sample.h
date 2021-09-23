@@ -9,7 +9,7 @@
 
 namespace cvl{
 namespace hilti {
-
+class Sequence;
 
 
 /**
@@ -20,7 +20,7 @@ struct HiltiImageSample:public StereoSample
     // we read the rectified images, nr 0 is left, nr 1 is right, 2-4 are cam2-4 and 5 is disparity
     HiltiImageSample(
             float128 time,
-            const std::shared_ptr<StereoSequence>ss,
+            const std::shared_ptr<StereoSequence> ss,
             int  frame_id,
             std::map<int,cv::Mat1f> images, // nr 5 is disparity between left and right
             std::vector<imu::Data> imu_datas);
@@ -34,6 +34,9 @@ struct HiltiImageSample:public StereoSample
 
     int rows() const override;
     int cols() const override;
+
+    std::shared_ptr<Sequence> hilti_sequence() const;
+
 private:
 
 

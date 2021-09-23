@@ -29,11 +29,6 @@ public:
     PoseD P_cam3_imu_;
     PoseD P_cam4_imu_;
 
-
-    StereoCalibration stereo_calibration() const{return StereoCalibration(rows_, cols_, fy_,fx_,py_,px_,baseline_, PoseD());}
-
-
-
     PoseD& P_x_imu(int i)
     {
         switch (i){
@@ -41,9 +36,14 @@ public:
         case 1: return P_right_imu_;
         case 2: return P_cam2_imu_;
         case 3: return P_cam3_imu_;
-        case 4: return P_cam4_imu_;    
+        case 4: return P_cam4_imu_;
         }
     }
+
+    StereoCalibration stereo_calibration(int index) const{
+        return StereoCalibration(rows_, cols_, fy_,fx_,py_,px_,baseline_, P_x_imu(index));
+    }
+
     const PoseD& P_x_imu(int i) const
     {
         switch (i){

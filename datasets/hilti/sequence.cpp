@@ -296,7 +296,10 @@ std::shared_ptr<Sequence> Sequence::create(std::string path, std::string sequenc
     return self;
 }
 StereoCalibration Sequence::calibration() const{
-    return calib.stereo_calibration();
+    return calib.stereo_calibration(0);
+}
+StereoCalibration Sequence::calibration(int index) const{
+    return calib.stereo_calibration(index);
 }
 Calibration Sequence::hilti_calibration() const{
     return calib;
