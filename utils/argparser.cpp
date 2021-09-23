@@ -4,8 +4,51 @@
 #include <cassert>
 #include <queue>
 #include <sstream>
+#include <set>
 using std::cout;
 using std::endl;
+
+std::vector<std::string> args(int argc, char** argv) {
+    std::vector<std::string> ar;ar.reserve(argc);
+    for(int i=0;i<argc;++i){
+        ar.push_back(argv[i]);
+    }
+
+    return ar;
+}
+std::map<std::string, std::string> args(int argc, char** argv,std::vector<std::tuple<std::string, std::string>> name2default)
+{
+
+    std::set<std::string> names;
+    for(const auto& [n,toss]:name2default){
+        auto it=names.find(n);
+        if(it!=names.end()) {
+            mlog()<<"repeated parameter name: \""<<n<<"\" last will be used. \n";
+        }
+    }
+
+    std::map<std::string, std::string> rets;
+    auto ar=args(argc,argv);
+    if(ar.size()==0)
+    {
+        mlog()<<"empty arguments, defaults will be used. \n";
+        rets["program_name"]="unknown";
+    }
+    else
+    {
+        rets["program_name"]=ar[0];
+    }
+
+    for(int i=0;i<int(name2default.size());++i)
+    {
+        auto [name, val]=name2default[i];
+        if(i+1<int(ar.size()))
+            rets[name]=ar[i+1];
+        else
+            rets[name]=val;
+    }
+    return rets;
+}
 namespace mlib{
 std::vector<std::string> split(const std::string& args)
 {

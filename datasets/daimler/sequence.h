@@ -12,9 +12,13 @@ struct GTDB;
 class DaimlerSequence:public StereoSequence
 {
 
+    std::weak_ptr<DaimlerSequence> wself;
+    DaimlerSequence(std::string dataset_path, std::string gt_path="");
 public:
      int samples() const override;
-     std::shared_ptr<StereoSample> sample(int index) const override;
+     std::shared_ptr<StereoSample> stereo_sample(int index) const override;
+     std::shared_ptr<DaimlerSample> sample(int index) const;
+
      int rows() const override;
      int cols() const override;
      std::string name() const override;
@@ -27,13 +31,12 @@ public:
 
 
 
-    using sample_type=std::shared_ptr<DaimlerSample>;
 
-    DaimlerSequence(std::string dataset_path, std::string gt_path="");
+    static std::shared_ptr<DaimlerSequence> create(std::string path, std::string sequence_name);
 
     std::string path;
     std::shared_ptr<mtable::GTDB> gt_storage;
-    std::shared_ptr<DaimlerSample> get_sample(uint index) const;
+
 
     double fps() const;
 

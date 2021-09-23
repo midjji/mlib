@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 
-add_library(mlib-datasets "stereo_datasets.h" "stereo_datasets.cpp")
+add_library(mlib-datasets "stereo_datasets.h" "stereo_datasets.cpp" "stereo_calibration.cpp")
 
 file(GLOB srcs  "*.h" "*.cpp" )
 list(REMOVE_ITEM SRCS "stereo_datasets.*")

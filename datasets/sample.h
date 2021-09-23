@@ -13,17 +13,17 @@ struct Sample
     enum {image, stereo, imu, multi_imu, lidar, hilti};
 
 
-    Sample(float128 time, const StereoSequence* ss);
+    Sample(float128 time, std::shared_ptr<StereoSequence> ss);
     virtual ~Sample();
 
     virtual float128 time() const;
     virtual int type() const=0;
 
-    const StereoSequence* sequence() const;
+    const std::shared_ptr<StereoSequence>sequence() const;
 
 private:
     const float128 time_; // in seconds
-    const StereoSequence* wseq; // upgrade to shared and enable shared from this later...
+    const std::shared_ptr<StereoSequence> wseq; // upgrade to shared and enable shared from this later...
 };
 
 

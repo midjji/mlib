@@ -18,14 +18,18 @@ namespace hilti {
 
 void show_hilti()
 {
+    /*
     cvl::hilti::Dataset ds;
     for(auto seq:ds.seqs){
-        cout<<seq.samples()<<endl;
-        for(int i=0;i<seq.samples();++i) {
-            seq.sample(i)->show();
+        cout<<seq->samples()<<endl;
+        for(int i=0;i<seq->samples();++i) {
+            auto sample=std::dynamic_pointer_cast<cvl::hilti::HiltiImageSample>(seq->sample(i));
+
+            sample->show();
             wait(0);
         }
     }
+    */
 }
 
 }

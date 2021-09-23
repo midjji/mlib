@@ -1,6 +1,7 @@
 #include <thread>
 
 #include <mlib/opencv_util/read_image.h>
+#include <mlib/utils/mlibtime.h>
 #include <mlib/utils/files.h>
 #include <opencv2/imgcodecs.hpp>
 #include <mlib/utils/mlog/log.h>
@@ -30,22 +31,37 @@ template<class T> cv::Mat_<T> read_image_(std::string path)  noexcept{
 }
 template<class T> std::future<cv::Mat_<T>> future_read_image_(std::string path /* should not be ref, as async launch may mean ref has been invalidated!*/) noexcept
 {
-return std::async(std::launch::async, [path]()->cv::Mat_<T>{ return read_image_<T>(path); });
+    return std::async(std::launch::async, [path]()->cv::Mat_<T>{ return read_image_<T>(path); });
 }
 
 // paralell read many
-template<class T> std::map<int,cv::Mat_<T>> read_image_(const std::map<int,std::string>& paths) noexcept
+namespace  {
+
+
+mlib::Timer timer("read images");
+}
+template<class T>
+std::map<int,cv::Mat_<T>>
+read_image_(const std::map<int,std::string>& paths, bool require_all=true) noexcept
 {
 
+
+    timer.tic();
     std::map<int,std::future<cv::Mat_<T>>> future_images;
     for(const auto& [id,path]:paths)
     {
-        // bind path by copy
-        future_images[id]=future_read_image_<T>(path);
+        if(require_all)
+            future_images[id]=future_read_image_<T>(path);// bind path by copy
+        else
+            if (fs::exists(path))
+                future_images[id]=future_read_image_<T>(path);// bind path by copy
+
     }
     std::map<int,cv::Mat_<T>> images;
     for(auto& [id,future_image]:future_images)
         images[id]=future_image.get();
+    timer.toc();
+    //mlog()<<"\n"<<timer;
     return images;
 }
 
@@ -67,9 +83,9 @@ std::map<int,cv::Mat1b> read_image1b(std::map<int,std::string> paths) noexcept
 {
     return read_image_<uint8_t>(paths);
 }
-std::map<int,cv::Mat1f> read_image1f(std::map<int,std::string> paths) noexcept
+std::map<int,cv::Mat1f> read_image1f(std::map<int,std::string> paths, bool require_all) noexcept
 {
-    return read_image_<float>(paths);
+    return read_image_<float>(paths,require_all);
 }
 
 }

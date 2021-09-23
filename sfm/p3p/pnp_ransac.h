@@ -68,45 +68,36 @@ PoseD pnp_ransac(const std::vector<Vector4d>& xs,
  */
 class PNP{
 public:
-    /**
-     * @brief PNP constructor given a PnpParam object
-     * @param params
-     * @param xs 3d points in w
-     * @param yns pinhole normalized 2d measurements
-     *
-     * copy is cheap, but if this is really the problem, fix later...
-     */
-    PNP(const std::vector<Vector3d>& xs,
-        const std::vector<Vector2d>& yns,
-        PnpParams params ):xs(xs), yns(yns),params(params){}
+    PNP()=default;
+    PNP(PnpParams params );
+    PoseD operator()(const std::vector<Vector3d>& xs,/// the known 3d positions in world coordinates
+    const std::vector<Vector2d>& yns/// the pinhole normalized measurements corresp to xs
+    );
 
-    uint total_iters=0;
+
     /// attempts to compute the solution
-    PoseD compute();
+    PoseD compute(const std::vector<Vector3d>& xs,/// the known 3d positions in world coordinates
+                  const std::vector<Vector2d>& yns/// the pinhole normalized measurements corresp to xs
+                  );
 
-
+    /// parmeter block
+    PnpParams params;
 protected:
 
 
 
 
     /// refine a given pose given the stored data, @param pose
-    void refine();
+    PoseD refine(const std::vector<Vector3d>& xs,/// the known 3d positions in world coordinates
+                 const std::vector<Vector2d>& yns,/// the pinhole normalized measurements corresp to xs
+                 PoseD best_pose);
 
 
-    // initialize
-    /// the known 3d positions in world coordinates
-    std::vector<Vector3d> xs;
-    /// the pinhole normalized measurements corresp to xs
-    std::vector<Vector2d> yns;
 
-    /// parmeter block
-    PnpParams params;
 
-    /// number of inliers of best solution
-    double best_inliers=0;
-    /// the best pose so far
-    PoseD best_pose;
+
+
+
 };
 
 

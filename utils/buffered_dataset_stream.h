@@ -10,11 +10,12 @@ public:
     using sample_type=typename Stream::sample_type;
 
     template<class... Args>
-    BufferedStream(uint offset,std::shared_ptr<Stream> ds):
+    BufferedStream(uint offset,
+                   std::shared_ptr<Stream> ds):
         offset(offset),ds(ds){
         running=true;
         thread=std::thread([&] { loop(); running=false;});
-    }    
+    }
     ~BufferedStream(){
 
         running=false;

@@ -31,5 +31,10 @@ struct DaimlerDataset :public StereoDataset{
     DaimlerDataset(std::string dataset_path, std::string gt_path="");
 };
 
+namespace daimler {
+// there really only ever needs to be one of these!
+const DaimlerDataset& dataset(std::string path="/storage/datasets/kitti/odometry/", std::string gt_path="");
+}
+
 
 } // end namespace daimler

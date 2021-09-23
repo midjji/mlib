@@ -4,6 +4,8 @@
 #include <mlib/utils/mlog/log.h>
 namespace cvl{
 bool imshow(cv::Mat im, std::string name){
+    cv::namedWindow(name,cv::WINDOW_GUI_EXPANDED);
+
     // check if the image is good
     if(im.rows==0 || im.cols==0 ||im.data==nullptr){
         mlog()<<"empty image: "<<name<<std::endl;
@@ -29,15 +31,14 @@ bool imshow(cv::Mat im, std::string name){
     if(!(im.type()==CV_8U || im.type()==CV_8UC3)){
         mlog()<<"unknown image format"<<std::endl;
         return false;
-    }
-    cv::namedWindow(name,cv::WINDOW_GUI_EXPANDED);
+    }    
     cv::imshow(name,im);
     return true;
 }
 bool imshow(std::string name, cv::Mat im){
     return imshow(im,name);
 }
-uchar wait(double time/*0 means inf...*/){
+char wait(double time/*0 means inf...*/){
     return cv::waitKey(time);
 }
 void input_window(){

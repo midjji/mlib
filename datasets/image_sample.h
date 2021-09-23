@@ -9,7 +9,7 @@ namespace cvl{
 struct ImageSample:public Sample{
 
 
-    ImageSample(float128 time,const StereoSequence* ss, int frame_id, std::vector<cv::Mat1f> im);
+    ImageSample(float128 time,const std::shared_ptr<StereoSequence>ss, int frame_id, std::vector<cv::Mat1f> im);
     virtual ~ImageSample();
 
     virtual int rows() const;

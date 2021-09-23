@@ -41,12 +41,13 @@ std::vector<double> DaimlerSequence::times() const{
 
 std::vector<PoseD> DaimlerSequence::gt_poses() const{return gt_poses_;}
 
-std::shared_ptr<StereoSample> DaimlerSequence::sample(int index) const{
-    return get_sample(index);
-};
+std::shared_ptr<StereoSample> DaimlerSequence::stereo_sample(int index) const{
+    return std::dynamic_pointer_cast<StereoSample>(sample(index));
+}
+
 int DaimlerSequence::rows() const{
     return 1024;
-};
+}
 int DaimlerSequence::cols() const{return 2048;};
 std::string DaimlerSequence::name() const{return "Daimler";};
 
@@ -85,7 +86,7 @@ DaimlerSequence::DaimlerSequence(std::string path2, std::string gt_path):path(pa
 
 
     // verify the dataset is there!
-    if(!get_sample(0)){assert("not found" && false); throw new std::runtime_error("dataset missing");}
+    if(!sample(0)){assert("not found" && false); throw new std::runtime_error("dataset missing");}
     cout<<"created daimler dataset done"<<endl;
 }
 
@@ -309,7 +310,7 @@ bool DaimlerSequence::read_images(uint sample_index,
 }
 
 
-std::shared_ptr<DaimlerSample> DaimlerSequence::get_sample(uint index) const
+std::shared_ptr<DaimlerSample> DaimlerSequence::sample(int index) const
 {
 
     cv::Mat1w left, right;
@@ -324,8 +325,12 @@ std::shared_ptr<DaimlerSample> DaimlerSequence::get_sample(uint index) const
     images.push_back(right);
     // imo_id, boundingbox
 
-    return std::make_shared<DaimlerSample>(images,disparity,cars,index, fps()*index,this);
+    return std::make_shared<DaimlerSample>(images,disparity,cars,index, fps()*index,wself.lock());
 }
-
+std::shared_ptr<DaimlerSequence> DaimlerSequence::create(std::string path, std::string sequence_name){
+    auto self=std::shared_ptr<DaimlerSequence>(new DaimlerSequence(path,sequence_name));
+    self->wself=self;
+    return self;
+}
 
 } // end namespace cvl

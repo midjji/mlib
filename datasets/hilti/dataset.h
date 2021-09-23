@@ -21,6 +21,7 @@
  ******************************************************************************/
 
 #include <mlib/datasets/hilti/sequence.h>
+#include <mlib/utils/cvl/bimap.h>
 namespace cvl {
 
 
@@ -31,28 +32,31 @@ namespace hilti {
 struct Dataset {
 
 
+    std::map<int, std::string > num2sequence{
+            {0, "Construction_Site_1"}
+    //{8, "uzh_tracking_area_run2"},
+    //{1, "Basement_1"},
+    //{2, "Basement_4"},
+    //{3, "Campus_2"},
+    //{4, "Construction_Site_2"},
+    //{5, "Office_Mitte_1"},
+    //{6, "Basement_3"},
+    //{7, "Campus_1"},
 
-    std::map<std::string, bool> sequence_names_=
-    {
-        {"rpg_drone_testing_arena",true},
-       // {"ic_office",false},
-       // {"office_mitte",false},
-       // {"parking_deck",false},
-       // {"basement",true},
-       // {"basement_3",false},
-       // {"basement_4",true},
-       // {"lab",true},
-       // {"construction_site_outdoor_1",false},
-       // {"construction_site_outdoor_2",true},
-       // {"campus_1",false},
-       // {"campus_2",true}
+    //{9, "IC_Office_1"},
+    //{10, "LAB_Survey_2"},
+    //{11, "Parking_1"}
     };
 
+    std::map<int, std::shared_ptr<Sequence>> seqs;
+    std::shared_ptr<Sequence> sequence(int index) const;
 
-    std::vector<Sequence> seqs;
-
-    Dataset(std::string dataset_path="/storage/datasets/hilti/");
+    Dataset(std::string dataset_path="/storage/datasets/hilti/preprocessed/");
 };
+
+
+const Dataset& dataset(std::string path="/storage/datasets/hilti/preprocessed/");
+
 
 
 }

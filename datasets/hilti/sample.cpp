@@ -5,10 +5,16 @@
 
 namespace cvl {
 namespace hilti {
-HiltiImageSample::HiltiImageSample( float128 time,const StereoSequence* ss,
-            int  frame_id_, std::map<int,cv::Mat1f> images, std::vector<imu::Data> imu_datas):
+HiltiImageSample::HiltiImageSample( float128 time,const std::shared_ptr<StereoSequence>ss,
+                                    int  frame_id_, std::map<int,cv::Mat1f> images, std::vector<imu::Data> imu_datas):
     StereoSample( time, ss, frame_id_, std::vector<cv::Mat1f>(), images[5]),
-    images(images),imu_datas(imu_datas){}
+    images(images),imu_datas(imu_datas){
+    for(int i=0;i<5;++i){
+        auto it=images.find(i);
+        if(it==images.end()) continue;
+        it->second=it->second*16.0f;
+    }
+}
 
 
 bool HiltiImageSample::complete() const{for(int i=0;i<6;++i) if(!has(i)) return false;return true;}
@@ -23,18 +29,27 @@ cv::Mat1f HiltiImageSample::grey1f(int i) const
         exit(1);
     }
 
-   return it->second.clone();
+    return it->second.clone();
 }
 
 int HiltiImageSample::type() const{    return Sample::hilti;}
 
-void HiltiImageSample::show() const{
 
-    for(const auto& [id,image]:images) {    
-        imshow(image,"hilti cam "+str(id));
+std::string HiltiImageSample::num2name(int num) const{
+    switch (num) {
+    case 0: return "left";
+    case 1: return "right";
+    case 2: return "cam"+str(num);
+    case 3: return "cam"+str(num);
+    case 4: return "cam"+str(num);
+    case 5: return "disparity";
+
+
 
     }
 }
+int HiltiImageSample::rows() const {return 1080;}
+int HiltiImageSample::cols() const {return 1440;}
 
 }
 }

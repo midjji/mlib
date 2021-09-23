@@ -14,13 +14,27 @@ namespace kitti{
  */
 class Sequence: public StereoSequence
 {
+    Sequence(std::string path_, int sequence_,int rows_, int cols_, int samples_);
+    std::weak_ptr<Sequence> wself;
 public:
+
+
+    static std::shared_ptr<Sequence> create(std::string path_, int sequence_,int rows_, int cols_, int samples_){
+        auto self=std::shared_ptr<Sequence>(new Sequence(path_,sequence_, rows_,cols_,samples_));
+        self->wself=self;
+        return self;
+    }
+
+
+
     int samples() const override;
     int rows()    const override;
     int cols()    const override;
     StereoCalibration calibration() const override;
     std::string name() const override;
-    std::shared_ptr<StereoSample> sample(int index) const override;
+    std::shared_ptr<StereoSample> stereo_sample(int index) const override;
+
+
     std::shared_ptr<Frameid2TimeMap> fid2time() const override;
     std::vector<double> times() const override;
     int id() const override;
@@ -37,14 +51,13 @@ public:
     std::string description() const;
     double baseline() const;
 
-    std::shared_ptr<KittiOdometrySample> get_sample(int index) const;
+    std::shared_ptr<KittiOdometrySample> sample(int index) const;
     double fps() const;
 
 
 
 
-    Sequence()=default;
-    Sequence(std::string path_, int sequence_,int rows_, int cols_, int samples_);
+
 
 
     bool getImages(std::vector<cv::Mat1b>& images, int number) const;

@@ -42,7 +42,7 @@ public:
     bool getImage(std::vector<cv::Mat1b>& images, int number, int sequence, bool cycle=false);
 
     std::shared_ptr<Sequence> getSequence(int index);
-    std::shared_ptr<KittiOdometrySample> get_sample(int sequence, int frameid);
+
 
 
 
@@ -50,7 +50,7 @@ public:
     int sequence=0;
     // not always true, but always returned by this thing
     int training_sequences=11;
-    std::shared_ptr<KittiOdometrySample> next();
+
 
 
 
@@ -91,8 +91,6 @@ public:
 // there really only ever needs to be one of these!
 const KittiDataset& dataset(std::string path="/storage/datasets/kitti/odometry/");
 
-
-void testKitti(std::string basepath="/store/datasets/kitti/dataset/", bool withstereo=false);
 
 
 std::vector<std::vector<PoseD>> trajectories(std::string basepath="/store/datasets/kitti/dataset/");

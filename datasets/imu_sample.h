@@ -8,7 +8,7 @@ namespace cvl{
 struct ImuSample: public Sample
 {
     imu::Data data;
-    ImuSample(imu::Data data,StereoSequence* ss);
+    ImuSample(imu::Data data,const std::shared_ptr<StereoSequence>ss);
     virtual ~ImuSample();
     virtual int type() const override;
 };

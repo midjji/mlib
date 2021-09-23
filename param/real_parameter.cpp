@@ -27,7 +27,6 @@ double RealParameter::value() const{return value_;}
 
 // the user selects when to update
 bool RealParameter::update_value() {
-    std::unique_lock<std::mutex> ul(mtx);
     bool c=changed();
     value_=double(new_value);
     current=true;
@@ -41,7 +40,6 @@ Parameter::type_t RealParameter::type() const{
 double RealParameter::gui_value()const{return new_value;}
 void RealParameter::set_value(double value)
 {
-    std::unique_lock<std::mutex> ul(mtx);
     double nv=validate(value);
     if(nv==new_value) return;
     new_value=nv;

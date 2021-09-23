@@ -4,7 +4,7 @@
 
 namespace cvl{
 
-StereoSample::StereoSample(float128 time,const StereoSequence* ss,
+StereoSample::StereoSample(float128 time,const std::shared_ptr<StereoSequence>ss,
              int frame_id,
                            std::vector<cv::Mat1f> images,
              cv::Mat1f disparity_):
@@ -28,13 +28,14 @@ float StereoSample::disparity(double row, double col) const{
     if(cols()<=col) return -4.0F;
     if(std::isinf(row+col)) return -5.0F;
     if(std::isnan(row+col)) return -6.0F;
-    float d=disparity(std::round(row),std::round(col));
+    float d=disparity_(std::round(row),std::round(col));
     if(!std::isnormal(d)) return -7.0F;
     return d;
 }
 int StereoSample::type() const{
     return Sample::stereo;
 }
+bool StereoSample::complete() const{return true;}
 float StereoSample::disparity(Vector2d rowcol)const{return disparity(rowcol[0],rowcol[1]);}
 
 void show(const std::shared_ptr<StereoSample>& s){

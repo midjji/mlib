@@ -37,7 +37,7 @@ private:
     double value_;
     std::atomic<double> new_value;
     std::atomic<bool> current{true};
-    std::mutex mtx;
+
     double validate(double a) const;
 };
 

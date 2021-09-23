@@ -13,13 +13,13 @@ class DaimlerSample: public StereoSample{
 public:
 
     // dataset contains 1w images, 1f disparity, and 1b label images
-    DaimlerSample(float128 time_,const StereoSequence* ss,
+    DaimlerSample(float128 time_,const std::shared_ptr<StereoSequence>ss,
                   int frame_id, std::vector<cv::Mat1f> images, cv::Mat1f disparity,
                   cv::Mat1b labels);
     DaimlerSample(std::vector<cv::Mat1w> images,
                   cv::Mat1f disparity_,
                   cv::Mat1b labels,
-                  int frameid, double time,const StereoSequence* ss);
+                  int frameid, double time,const std::shared_ptr<StereoSequence>ss);
 
     bool is_car(double row, double col) const;
     bool is_car(Vector2d rowcol) const;

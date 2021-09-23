@@ -26,21 +26,28 @@ struct PreloadSample{
         {"cam3",3},
         {"cam4",4},
         {"disparity",5}};
-    std::shared_ptr<HiltiImageSample> load(int sampleindex, const StereoSequence* ss) const;
+    std::shared_ptr<HiltiImageSample> load(int sampleindex, const std::shared_ptr<StereoSequence> ss) const;
 };
 
 
 
 class Sequence: public StereoSequence
 {
-    // unless something weird happens we have a common calibration for all cameras after rectification.
+    //hilti/preprocessed/sequence_name/
+    //                                 times.txt // all the times around
+    //                                 post_rectification_calibration.txt
+    //                                 left/{time}.exr   // left stereo rectified, not just nonlinear rectified!
+    //                                 right/{time}.exr   // left stereo rectified, not just nonlinear rectified!
+    //                                 cam0 symlink to left, ie we swap them
+    //                                 cam1 symlink to right
+    //                                 cam2/{time}.exr
+    //                                 cam3/{time}.exr
+    //                                 cam4/{time}.exr
+    //                                 disparity/ // this is a symlink to a selected disparity method folder
+    //                                 disparity_method0/{time}.exr
 
-    double fy,fx,py,px;
-    int rows_=1080;
-    int cols_=1440;
-    double baseline=0.11;
 
-    double imu_bias=0;/// osv...
+
 
 
     // We change the camera numbers to fit mlib,
@@ -53,15 +60,26 @@ class Sequence: public StereoSequence
         {"cam4",4},
         {"disparity",5}};
     std::map<int, std::string> num2name;
-    std::map<int, std::string> num2path; // rectified paths
+    std::map<int, std::string> num2path{
+        {0,"left"}, // 0, 1 should be swapped...
+        {1,"right"},
+        {2,"cam2"},
+        {3,"cam3"},
+        {4,"cam4"},
+        {5,"disparity"}, // should be disparity
+    }; // rectified paths
+    std::string image_format=".exr"; // should be ".exr" for the rectified and disparity
 
-
-
-public:
 
     Sequence(std::string path, std::string sequence_name);
+    std::weak_ptr<Sequence> wself;
+public:
+static std::shared_ptr<Sequence> create(std::string path, std::string sequence_name);
 
-    std::shared_ptr<StereoSample> sample(int index) const override;
+
+
+    std::shared_ptr<StereoSample> stereo_sample(int index) const;
+    std::shared_ptr<HiltiImageSample> sample(int index) const;
     int samples() const override;
     int rows() const override;
     int cols() const override;
@@ -82,6 +100,8 @@ public:
 
 
 private:
+    void read_metadata(std::string path);
+    Calibration calib;
     std::shared_ptr<Frameid2TimeMapLive> f2t;
     float128 t0;
     const std::string sequence_name;

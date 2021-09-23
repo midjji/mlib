@@ -110,7 +110,7 @@ bool KittiDataset::checkFiles(){
 }
 KittiDataset::KittiDataset(const std::string& basepath):basepath(basepath) {
     for(int seq:sequence_indexes){
-        auto s=std::make_shared<Sequence>(basepath,seq,rowss[seq],colss[seq],seqimgs[seq]);
+        auto s=Sequence::create(basepath,seq,rowss[seq],colss[seq],seqimgs[seq]);
         seqs.push_back(s);
     }
 }
@@ -140,10 +140,7 @@ bool KittiDataset::getImage(std::vector<cv::Mat1b>& images, int number, int sequ
 int KittiDataset::images(int sequence){return seqimgs.at(sequence);}
 
 
-std::shared_ptr<KittiOdometrySample> KittiDataset::get_sample(int sequence, int frameid) {
-    auto seq= getSequence(sequence);
-    return seq->get_sample(frameid);
-}
+
 std::shared_ptr<Sequence> KittiDataset::getSequence(int index)
 {
     if(index<0){
@@ -152,32 +149,10 @@ std::shared_ptr<Sequence> KittiDataset::getSequence(int index)
     }
     return seqs.at(index);
 }
-std::shared_ptr<KittiOdometrySample> KittiDataset::next(){
-    return get_sample(sequence,index++);
-}
 
 
 
-void testKitti(std::string basepath){
-    KittiDataset kd(basepath);
 
-
-    while(true){
-        for(std::shared_ptr<StereoSequence> seq:kd.seqs){
-            for(int i=0;i<seq->samples();++i){
-                std::shared_ptr<StereoSample> sample=std::dynamic_pointer_cast<StereoSample>(seq->sample(i));
-
-
-                    cv::imshow("Kitti Left",sample->rgb(0));
-                    cv::imshow("Kitti Right",sample->rgb(1));
-                    cv::imshow("Disparity",sample->display_disparity());
-                    cv::waitKey(10);
-
-
-            }
-        }
-    }
-}
 
 const KittiDataset& dataset(std::string path)
 {

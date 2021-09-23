@@ -10,7 +10,8 @@ public:
     using sample_type=std::shared_ptr<StereoSample>;
     virtual ~StereoSequence();
     virtual int samples() const=0;
-    virtual std::shared_ptr<StereoSample> sample(int index) const=0;
+    virtual std::shared_ptr<StereoSample> stereo_sample(int index) const=0;
+
     virtual int rows() const=0;
     virtual int cols() const=0;
     virtual std::string name() const=0;
@@ -23,8 +24,5 @@ public:
 
     //int index=0;
     //std::shared_ptr<StereoSample> next();
-
-
-
 };
 }

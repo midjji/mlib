@@ -17,7 +17,7 @@ namespace cvl {
 
 
 
-DaimlerSample::DaimlerSample(float128 time_,const StereoSequence* ss,
+DaimlerSample::DaimlerSample(float128 time_,const std::shared_ptr<StereoSequence>ss,
                              int frame_id, std::vector<cv::Mat1f> images, cv::Mat1f disparity_,
                              cv::Mat1b labels):
     StereoSample(time_,ss, frame_id, images,disparity_),
@@ -26,7 +26,7 @@ DaimlerSample::DaimlerSample(float128 time_,const StereoSequence* ss,
 DaimlerSample::DaimlerSample(std::vector<cv::Mat1w> images,
               cv::Mat1f disparity_,
               cv::Mat1b labels,
-              int frameid, double time_,const StereoSequence* ss):
+              int frameid, double time_,const std::shared_ptr<StereoSequence>ss):
     StereoSample(time_,ss, frameid,images2grey1f(images),disparity_),labels(labels){}
 
 

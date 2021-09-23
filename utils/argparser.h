@@ -28,7 +28,22 @@
 #include <string>
 #include <vector>
 #include <map>
+
+std::vector<std::string> args(int argc, char** argv);
+/**
+ * @brief args
+ * @param argc
+ * @param argv
+ * @param name2default
+ * @return name2param
+ *
+ * This is the light version of the ArgParser, which supports more features,
+ */
+std::map<std::string, std::string> args(int argc, char** argv,std::vector<std::tuple<std::string, std::string>> name2default /*latter repeated names overwrite earlier ones*/);
 namespace mlib{
+
+
+
 class Command{
 public:
     enum type{String, Double, Bool};
@@ -93,4 +108,6 @@ public:
     bool args_parsed=false;
     void help();
 };
+
+
 }

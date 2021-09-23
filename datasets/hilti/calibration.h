@@ -1,24 +1,8 @@
 #pragma once
 
-/* ********************************* FILE ************************************/
-/** \file    calibration.h
- *
- * \brief    The calibration
- *
- * \remark
- * - c++11
- *
- * \todo
- *
- *
- *
- * \author   Mikael Persson
- * \date     2019-01-01
- * \note GPL licence
- *
- ******************************************************************************/
 #include <mlib/utils/cvl/pose.h>
 #include <mlib/utils/cvl/triangulate.h>
+#include <mlib/datasets/stereo_calibration.h>
 
 namespace cvl{
 namespace hilti {
@@ -27,34 +11,50 @@ namespace hilti {
 
 class Calibration
 {
-
+public:
     int rows_=1080;
     int cols_=1440;
 
-    double fy_=700;
-    double fx_=700;
-    double py_=500;
-    double px_=700;
+
+
+
+    double fy_=527.8697573702394;
+    double fx_=527.8697573702394;
+    double py_=546.6633124512576;
+    double px_=725.2570598632401;
     double baseline_=0.11;
-    PoseD P_left_imu;
-    PoseD P_right_imu;
-    PoseD P_cam2_imu;
-    PoseD P_cam3_imu;
-    PoseD P_cam4_imu;
+    PoseD P_left_imu_;
+    PoseD P_right_imu_;
+    PoseD P_cam2_imu_;
+    PoseD P_cam3_imu_;
+    PoseD P_cam4_imu_;
 
-public:
 
-    PoseD P_x_imu(int i)
+    StereoCalibration stereo_calibration() const{return StereoCalibration(rows_, cols_, fy_,fx_,py_,px_,baseline_, PoseD());}
+
+
+
+    PoseD& P_x_imu(int i)
     {
         switch (i){
-        case 0: return P_left_imu;
-        case 1: return P_right_imu;
-        case 2: return P_cam2_imu;
-        case 3: return P_cam3_imu;
-        case 4: return P_cam4_imu;
-        default: return PoseD::Identity();
+        case 0: return P_left_imu_;
+        case 1: return P_right_imu_;
+        case 2: return P_cam2_imu_;
+        case 3: return P_cam3_imu_;
+        case 4: return P_cam4_imu_;    
         }
     }
+    const PoseD& P_x_imu(int i) const
+    {
+        switch (i){
+        case 0: return P_left_imu_;
+        case 1: return P_right_imu_;
+        case 2: return P_cam2_imu_;
+        case 3: return P_cam3_imu_;
+        case 4: return P_cam4_imu_;
+        }
+    }
+
 
     Calibration()=default;
     Calibration(int rows_,int cols_,
@@ -134,25 +134,25 @@ public:
     }
 
     template<class T>  inline Vector2<T> project(Vector3<T> x) const {
-        return project_cam(Pose<T>(P_left_imu)*x);
+        return project_cam(Pose<T>(P_left_imu_)*x);
     }
     template<class T>  inline Vector2<T> project(Vector4<T> x)    const     {
         // its a ray!
-        return project_cam((Pose<T>(P_left_imu))*x);
+        return project_cam((Pose<T>(P_left_imu_))*x);
     }
 
 
     template<class T>  inline Vector2<T> project_right(Vector3<T> x) const  {
-        return project_cam(Pose<T>(P_left_imu)*x);
+        return project_cam(Pose<T>(P_left_imu_)*x);
     }
     template<class T>  inline Vector2<T> project_right(Vector4<T> x) const  {
-        return project_cam(Pose<T>(P_left_imu)*x);
+        return project_cam(Pose<T>(P_left_imu_)*x);
     }
     template<class T> inline Vector3<T> x_cam_vehicle(Vector3<T> x) const{
-        return P_left_imu*x;
+        return P_left_imu_*x;
     }
     template<class T> inline Vector4<T> x_cam_vehicle(Vector4<T> x) const{
-        return P_left_imu*x;
+        return P_left_imu_*x;
     }
     template<class T>  inline T disparity(Vector3<T> x) const  {
         return disparity_cam(x_cam_vehicle(x));
@@ -163,13 +163,13 @@ public:
 
 
     template<class T>  inline Vector3<T> stereo_project(Vector3<T> x) const {
-        x=Pose<T>(P_left_imu)*x;
+        x=Pose<T>(P_left_imu_)*x;
         Vector2<T> l=project_cam(x);
         Vector2<T> r=project_right_cam(x);
         return Vector3<T>(l[0],l[1],l[1]-r[1]); // disparity in col
     }
     template<class T>  inline Vector3<T> stereo_project(Vector4<T> x) const {
-        x=Pose<T>(P_left_imu)*x;
+        x=Pose<T>(P_left_imu_)*x;
         Vector2<T> l=project_cam(x);
         Vector2<T> r=project_right_cam(x);
         return Vector3<T>(l[0],l[1],l[1]-r[1]); // disparity in col
@@ -177,12 +177,12 @@ public:
 
     template<class T>
     inline bool behind_either( Vector3<T> x) const{
-        x=P_left_imu*x;
+        x=P_left_imu_*x;
         return x[2]<baseline();
     }
     template<class T>
     inline bool behind_either(Vector4<T> x) const{
-        x=P_left_imu*x;
+        x=P_left_imu_*x;
         return x[2]<baseline()*x[3];
     }
 
@@ -206,7 +206,24 @@ public:
                 yn[1],
                 (1.0),
                 disparity/(fx_*baseline_));
-        return P_left_imu.inverse()*x_cam;
+        return P_left_imu_.inverse()*x_cam;
+    }
+    std::string str() {
+        std::stringstream ss;ss.precision(19);
+        ss<<"Hilti Calibration: \n";
+        ss<<"rows: =    "<<rows_<<"\n";
+        ss<<"cols: =    "<<cols_<<"\n";
+        ss<<"f_row =    "<<fy_<<"\n";
+        ss<<"f_col =    "<<fx_<<"\n";
+        ss<<"p_row =    "<<py_<<"\n";
+        ss<<"p_col =    "<<px_<<"\n";
+        ss<<"baseline=  "<<baseline_<<"\n";
+        ss<<"P_left_imu_="<<P_left_imu_<<"\n";
+        ss<<"P_righ_imu="<<P_right_imu_<<"\n";
+        ss<<"P_cam2_imu="<<P_cam2_imu_<<"\n";
+        ss<<"P_cam3_imu="<<P_cam3_imu_<<"\n";
+        ss<<"P_cam4_imu="<<P_cam4_imu_<<"\n";
+        return ss.str();
     }
 };
 

@@ -15,7 +15,7 @@ void inspect_stereo_sequence(std::shared_ptr<StereoSequence> seq){
     for(int i=0;i<seq->samples();i+=1)
     {
 
-        auto sample  = seq->sample(i);
+        auto sample  = seq->stereo_sample(i);
         imshow(sample->rgb(0),name + " Left");
         imshow(sample->rgb(0),name + " Right");
         imshow(sample->display_disparity(),name+" Disparity");
@@ -34,12 +34,24 @@ void inspect_stereo_dataset(StereoDataset* dataset){
 }
 
 
+
 int main()
 {
-    inspect_stereo_dataset(new DaimlerDataset("/storage/datasets/daimler/2020-04-26/08/"));
-    inspect_stereo_dataset(new KittiDataset("/home/mikael/datasets/kitti/odometry/"));
-    buffered_kitti_sequence();
+    //inspect_stereo_dataset(new DaimlerDataset("/storage/datasets/daimler/2020-04-26/08/"));
+    //inspect_stereo_dataset(new KittiDataset("/home/mikael/datasets/kitti/odometry/"));
+    auto it=buffered_kitti_sequence();
+    auto sample=it->next();
+    std::string name;
+    while((sample=it->next())){
+        imshow(sample->rgb(0),name + " Left");
+        imshow(sample->rgb(0),name + " Right");
+        imshow(sample->display_disparity(),name+" Disparity");
+        cv::waitKey(0);
+    }
+
     buffered_daimler_sequence();
+
+
 
 
 

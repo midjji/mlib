@@ -7,7 +7,7 @@ namespace cvl{
 struct StereoSample:public ImageSample
 {
 
-    StereoSample(float128 time,const StereoSequence* ss,
+    StereoSample(float128 time,const std::shared_ptr<StereoSequence>ss,
                  int frame_id, std::vector<cv::Mat1f> images,
                  cv::Mat1f disparity_);
 
@@ -20,6 +20,7 @@ struct StereoSample:public ImageSample
     virtual float disparity(double row, double col) const;
     float disparity(Vector2d rowcol) const;
     virtual int type() const override;
+    virtual bool complete() const;
 
 
 protected:

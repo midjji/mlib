@@ -27,7 +27,7 @@ int IntParameter::value() const{return value_;}
 
 // the user selects when to update
 bool IntParameter::update_value() {
-    std::unique_lock<std::mutex> ul(mtx);
+
     bool c=changed();
     value_=int(new_value);
     current=true;
@@ -39,7 +39,7 @@ Parameter::type_t IntParameter::type() const {return type_t::integer;}
 int IntParameter::gui_value()const{return new_value;}
 void IntParameter::set_value(int value)
 {
-    std::unique_lock<std::mutex> ul(mtx);
+
     int nv=validate(value);
     if(nv==new_value) return;
     new_value=nv;

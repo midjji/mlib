@@ -2,13 +2,17 @@
 #include <mlib/opencv_util/convert.h>
 
 namespace cvl{
-ImageSample::ImageSample(float128 time,const StereoSequence* ss, int frame_id_,std::vector<cv::Mat1f> images):
+ImageSample::ImageSample(float128 time,const std::shared_ptr<StereoSequence>ss, int frame_id_,std::vector<cv::Mat1f> images):
     Sample(time,ss),
     frame_id_(frame_id_),
     images(images){}
 ImageSample::~ImageSample(){}
 
-cv::Mat3b ImageSample::rgb(int id) const {    return image2rgb3b(grey1f(id),1.0/16.0);}
+cv::Mat3b ImageSample::rgb(int id) const {
+    if(id!=5)
+        return image2rgb3b(grey1f(id),1.0/16.0);
+    return image2rgb3b(grey1f(id),2);
+}
 cv::Mat1b ImageSample::grey1b(int id) const{    return image2grey1b(grey1f(id),1.0/16.0);}
 cv::Mat1f ImageSample::grey1f(int id) const{    return images.at(id).clone();}
 

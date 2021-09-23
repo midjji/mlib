@@ -17,6 +17,8 @@
  * \note GPL licence
  *
  ******************************************************************************/
+#include <iostream>
+#include <sstream>
 #include <mlib/utils/cvl/pose.h>
 #include <mlib/utils/cvl/triangulate.h>
 
@@ -27,7 +29,7 @@ namespace cvl{
  */
 class StereoCalibration
 {
-
+public:
     /*
     // the row, col one
     Matrix3d K{0, 2261.54, 1108.15,
@@ -45,7 +47,7 @@ class StereoCalibration
     double baseline_=0.209114;
     PoseD P_cam0_vehicle_;
 
-public:
+
     StereoCalibration()=default;
     StereoCalibration(int rows_,int cols_,
                       double fy_,
@@ -152,6 +154,18 @@ public:
         return disparity_cam(x_cam_vehicle(x));
     }
 
+    template<class T>  inline Vector3<T> stereo_project_cam(Vector3<T> x) const {
+
+        Vector2<T> l=project_cam(x);
+        Vector2<T> r=project_right_cam(x);
+        return Vector3<T>(l[0],l[1],l[1]-r[1]); // disparity in col
+    }
+    template<class T>  inline Vector3<T> stereo_project_cam(Vector4<T> x) const {
+
+        Vector2<T> l=project_cam(x);
+        Vector2<T> r=project_right_cam(x);
+        return Vector3<T>(l[0],l[1],l[1]-r[1]); // disparity in col
+    }
 
     template<class T>  inline Vector3<T> stereo_project(Vector3<T> x) const {
         x=Pose<T>(P_cam0_vehicle_)*x;
@@ -202,7 +216,21 @@ public:
         return P_cam0_vehicle_;
 
     }
+    std::string str() {
+        std::stringstream ss;
+        ss<<"Stereo Calibration: \n";
+        ss<<"rows: =    "<<rows_<<"\n";
+        ss<<"cols: =    "<<cols_<<"\n";
+        ss<<"f_row =    "<<fy_<<"\n";
+        ss<<"f_col =    "<<fx_<<"\n";
+        ss<<"p_row =    "<<py_<<"\n";
+        ss<<"p_col =    "<<px_<<"\n";
+        ss<<"baseline=  "<<baseline_<<"\n";
+        ss<<"P_cam0_imu="<<P_cam0_vehicle_;
+        return ss.str();
+    }
 };
 
 
 } // end namespace cvl
+

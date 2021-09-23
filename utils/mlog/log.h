@@ -50,6 +50,7 @@ static_assert(__cplusplus>=201103L, " must be c++11 or greater");
 #define mlog() ::cvl::Logger(std::string(__PRETTY_FUNCTION__),std::string(__FILE__),0+__LINE__)
 #define mlogl() ::cvl::Logger("",std::string(__FILE__),0+__LINE__)
 #define require(condition, message) {if(!(condition)){::cvl::Logger(std::string(__PRETTY_FUNCTION__),std::string(__FILE__),0+__LINE__)<<message;exit(1);}}
+#define wtf() require(false, "WTF?\n")
 
 namespace cvl{
 

@@ -18,8 +18,8 @@ PoseD pnp_ransac(const std::vector<cvl::Vector3d>& xs,
                  const std::vector<cvl::Vector2d>& yns,
                  PnpParams params){
     if(xs.size()<4) return PoseD::Identity();
-    PNP pnp(xs,yns,params);
-    return pnp.compute();
+    PNP pnp(params);
+    return pnp.compute(xs,yns);
 }
 
 PoseD pnp_ransac(const std::vector<cvl::Vector4d>& xs,
@@ -211,16 +211,43 @@ Vector4<uint> get4RandomInRange0(uint max){
 }
 
 
+PNP::PNP(PnpParams params ):params(params){}
+PoseD PNP::operator()(const std::vector<Vector3d>& xs,/// the known 3d positions in world coordinates
+const std::vector<Vector2d>& yns/// the pinhole normalized measurements corresp to xs
+){return compute(xs,yns);}
 
+PoseD PNP::compute(const std::vector<Vector3d>& xs,/// the known 3d positions in world coordinates
+                   const std::vector<Vector2d>& yns/// the pinhole normalized measurements corresp to xs
+                   ){
+    /// number of inliers of best solution
+    double best_inliers=0;
+    /// the best pose so far
+    PoseD best_pose=PoseD::Identity();
+    if(xs.size()<4) return best_pose;
+    if(yns.size()!=xs.size()){
+        mlog()<<"number of x,yn pairs must match\n";
+        exit(1);
+    }
 
-PoseD PNP::compute(){
-    params.update_all(); // read any new parameters
+    int total_iters=0;
+    params.update_all(); // read any new parameters, in case the user has changed something via e.g. gui...
+
     double threshold=params.threshold->value();
-    double inlier_estimate=best_inliers/((double)xs.size());
-    uint iters=params.get_iterations(inlier_estimate);
 
-    uint i;
-    for(i=0;i<iters;++i){
+    int max_iters=params.get_iterations(0.1);
+
+    if(max_iters>1000)
+    {
+        max_iters=1000;
+    }
+
+    int i;
+
+    //mlib::Timer timer("iteration time: ");
+
+    for(i=0;i<max_iters;++i)
+    {
+        //timer.tic();
         // pick 4 at random,
 
         // will always succeed, returns identity on degeneracy...
@@ -242,19 +269,24 @@ PoseD PNP::compute(){
             //std::cout<<"inliers: "<<inliers<<std::endl;
             best_inliers=inliers;
             best_pose=pose;
+# if 0
 
             // recompute only when neccessary its expensive...
-            double inlier_estimate=best_inliers/((double)xs.size());
-            iters=params.get_iterations(inlier_estimate);
+            //double inlier_estimate=best_inliers/((double)xs.size());
+            //iters=params.get_iterations(inlier_estimate);
 
             // perform early exit if exit criteria met
             if( false &&    params.early_exit &&
                     i>params.early_exit_min_iterations &&
                     best_inliers>params.early_exit_inlier_ratio*xs.size()
                     ) break;
-            if(i>10 && best_inliers/double(xs.size())>0.8 && best_inliers>10) break;
+#endif
+            if(i>100 && best_inliers/double(xs.size())>0.8 && best_inliers>50) break;
         }
+        //timer.toc();
+
     }
+
 
     total_iters=i;
     if(best_inliers/double(xs.size())<0.5)
@@ -263,7 +295,7 @@ PoseD PNP::compute(){
         mlog()<< "pnp failure: "<<best_inliers<<"\n";
         return PoseD::Identity();
     }
-    refine();
+    best_pose=refine(xs, yns, best_pose);
 
     return best_pose; // will be identity if a complete failure...
 }
@@ -319,12 +351,18 @@ void refine_from(const std::vector<Vector3d>& xs,
  * @brief PNP::refine
  * since we expect a high noise, low outlier ratio solution(<50%), we should refine using a cutoff loss twice...
  */
-void PNP::refine(){
+PoseD PNP::refine(const std::vector<Vector3d>& xs,/// the known 3d positions in world coordinates
+                  const std::vector<Vector2d>& yns,/// the pinhole normalized measurements corresp to xs
+                  PoseD best_pose)
+{
 
     double thr=params.threshold->value();
     thr*=thr;
+    refine_from(xs,yns,best_pose,thr);  
     refine_from(xs,yns,best_pose,thr);
-    refine_from(xs,yns,best_pose,thr);
+
+
+    return best_pose;
 }
 
 } // end namespace cvl

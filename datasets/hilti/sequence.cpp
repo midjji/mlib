@@ -8,8 +8,8 @@
 #include <mlib/datasets/hilti/sequence.h>
 #include <mlib/utils/mlog/log.h>
 #include <mlib/opencv_util/read_image.h>
-
-
+#include <mlib/utils/files.h>
+#include <mlib/utils/vector.h>
 
 
 
@@ -20,15 +20,43 @@ using std::endl;
 namespace cvl{
 namespace hilti{
 
-std::shared_ptr<HiltiImageSample> PreloadSample::load(int sampleindex, const StereoSequence* ss) const{
-return std::make_shared<HiltiImageSample>(time,ss,  sampleindex, mlib::read_image1f(paths), datas);
+std::shared_ptr<HiltiImageSample> PreloadSample::load(int sampleindex, const std::shared_ptr<StereoSequence>ss) const
+{
+    for(const auto& [id, path]:paths){
+        if(!fs::exists(path))
+            cout<<id<<"path: "<<path<<endl;
+    }
+
+    return std::make_shared<HiltiImageSample>(time, ss,  sampleindex, mlib::read_image1f(paths,false), datas);
+}
+
+
+std::tuple<float128,float128> mint(std::vector<imu::Data> datas)
+{
+    if(datas.empty()) return std::make_tuple<float128,float128>(0,0);
+    float128 mint=datas[0].time;
+    float128 maxt=datas[0].time;
+    for(auto data:datas){
+        if(data.time<mint) mint=data.time;
+        if(data.time>maxt) maxt=data.time;
+    }
+    return {mint,maxt};
+}
+
+bool is_in(const std::vector<imu::Data>& datas, float128 t0, float128 t1){
+    for(const auto& data:datas){
+        if(data.time<t0) return false;
+        if(data.time>t1) return false;
+    }
+    return true;
 }
 
 
 
-
 std::map<float128, std::vector<imu::Data>>
-collect_imu_by_frametimes(std::vector<float128> frametimes, std::vector<imu::Data> datas)
+collect_imu_by_frametimes(
+        std::vector<float128> frametimes,
+        std::vector<imu::Data> datas)
 {
     // we will use all imu up to the next frametime to predict,
 
@@ -38,33 +66,46 @@ collect_imu_by_frametimes(std::vector<float128> frametimes, std::vector<imu::Dat
         auto& bucket=buckets[frametime];
         bucket.reserve(1e3);
     }
-
-
     std::sort(datas.begin(), datas.end(), [](const imu::Data& a, const imu::Data& b){return a.time<b.time;});
 
-    for(const auto& d:datas)
-    {
+    cout.precision(20);
 
-        // iterator to the first key that is bigger or equal to the imu time.
-        auto it=buckets.lower_bound(d.time);
-        // imu observations preceeding the first frame are added to the first frame imu observations
-        // no point in predicting the first frame, its identity anyways.
-        if(it==buckets.begin()){
-            it->second.push_back(d);
-            continue;
-        }
-        // imu observations after the last frame are all added to the second to last frame
-        //  a bit of extra prediction horizont wont hurt here,
-        if(it==buckets.end())
+    cout<<"frametimes: "<<frametimes.size()<<endl;
+
+
+    // all that are less or equal to the second...
+    auto it=buckets.begin();
+    // any before t0 are added to the first one
+    float128 t0=it->first;
+    for(const auto& d:datas)    {if(d.time<t0)    it->second.push_back(d);    }
+    // any after t1 are added to the last one
+    float128 t1=buckets.rbegin()->first;
+    for(const auto& d:datas)    {if(d.time>t1)    buckets.rbegin()->second.push_back(d);    }
+
+    while(it!=buckets.end())
+    {
+        float128 curr_time=it->first;
+        auto nit =it; nit++;
+        float128 next_time=nit->first;
+
+        for(const auto& d:datas)
         {
-            auto rbegin=buckets.rbegin();
-            rbegin--;
-            rbegin->second.push_back(d);
-            continue;
+            if(d.time<curr_time) continue;
+            if(d.time>next_time) break;
+            it->second.push_back(d);
         }
-        // otherwise go the the first frametime before the first frametime that is bigger or equal to the imu time, and add
-        it--;
-        it->second.push_back(d);
+        it++;
+    }
+
+
+
+
+
+    mlog()<<"warning validate this... \n";
+    for(const auto& [time, imus]:buckets)
+    {
+        auto tmp = mint(imus);auto minv=std::get<0>(tmp);auto maxv=std::get<1>(tmp);
+        //cout<<"time: "<<time-t0<<" "<<minv-t0<<" "<<maxv-t0<<endl;
     }
     return buckets;
 }
@@ -72,134 +113,25 @@ collect_imu_by_frametimes(std::vector<float128> frametimes, std::vector<imu::Dat
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-std::map<float128, int> parse_timestamp(std::string imgpath)
-{
-    std::string path=imgpath+"timestamps.txt";
-    if(!fs::exists(fs::path(path)))
-    {
-        mlog()<<"looking for: "<<path<<"\n";
-        exit(1);
-    }
-
-    std::map<float128, int> mp;
-
-    std::ifstream ifs(path);
-    while(ifs)
-    {
-        // format is int  int  uint64_t uint64_t
-        //           toss toss seconds  nanoseconds
-
-        int64_t id=-1;
-        ifs>> id;
-        int64_t toss;
-        ifs >> toss;
-        std::uint64_t s,ns;
-        ifs>>s;
-        ifs>>ns;
-        float128 time = s;
-        time*=1000*1000*1000;
-        time+= ns;
-        time/=1000*1000*1000;
-        // followed by host time, which we discard.
-
-        ifs>>toss;
-        ifs>>toss;
-        if(!ifs) break;
-        auto it=mp.find(id);
-        if(it!=mp.end()) {
-            mlog()<<"repeated ids"<<id<<"in path: "<<path<<"\n";
-        }
-        //if(!fs::exists(fs::path(fpath))) {            cout<<"missing image with index: "<<id<<"on path: "<<fpath<<"\n"; continue;       }
-        mp[time]=id;
-    }
-    return mp;
-}
-
-auto parse_alphasense_timestamps(std::string path)
-{
-    std::map<std::string, std::map<float128, int>> timestamps;
-
-    timestamps["left"]  =parse_timestamp(path+"cam"+str(1)+"/image_raw/");
-    timestamps["right"] =parse_timestamp(path+"cam"+str(0)+"/image_raw/");
-    timestamps["cam2"]  =parse_timestamp(path+"cam"+str(2)+"/image_raw/");
-    timestamps["cam3"]  =parse_timestamp(path+"cam"+str(3)+"/image_raw/");
-    timestamps["cam4"]  =parse_timestamp(path+"cam"+str(4)+"/image_raw/");
-    return timestamps;
-}
-
-
-std::vector<float128> tovec(std::map<int,float128> ts){
-    std::vector<float128> t;t.reserve(ts.size());
-    for(auto [id, time]:ts)
-        t.push_back(time);
-    return t;
-}
-
-std::string Sequence::rectified_path(std::string basepath, int camera, int index) const{
-    auto it=num2path.find(camera);
-    if(it==num2path.end()) {
-        mlog()<<"i: "<<camera<<" "<<index<<"\n";
-        exit(1);
-    }
-    std::string path=basepath+"/"+it->second + "/"+mlib::toZstring(index,10)+".exr";
-    if(!fs::exists(path)){mlog()<<"trouble: "<<path<<"\n";exit(1);}
-    return path;
-}
-
-std::map<float128, std::map<int, std::string>> Sequence::load_image_paths(std::string path) {
-    // missing frames,
-    std::map<std::string, std::map<float128, int>> framess=parse_alphasense_timestamps(path);
-    // now we seek
-    std::map<float128, std::map<int, std::string>> time2num2path;
-    for(auto [name, imgs]:framess){
-        for(auto [time, num]:imgs){
-            int camera_num=name2num[name]; // the rectified number,
-            time2num2path[time][camera_num]=path+"/"+rectified_path(path, camera_num, num);
-        }
-    }
-    return time2num2path;
-}
-
 std::vector<imu::Data> read_imu(std::string path){
     if(!fs::exists(path)){mlog()<<"trouble: "<<path<<"\n";exit(1);}
     std::vector<imu::Data> data;
     std::ifstream ifs(path);
+    std::string line;
+    std::getline(ifs,line);
     while(ifs)
     {
 
+        //msg_counter     msg_seq msg_header_ts   msg_recive_ts   linX    linY    linZ    angX    angY    angZ
 
         int imu_msg_count;
         ifs >>imu_msg_count;
         int msg_count;
         ifs >>msg_count;
-
-        int seconds;
-        ifs >>seconds;
-        int nanoseconds;
-        ifs >>nanoseconds;
-        int seconds2;
-        ifs >>seconds2;
-        int nanoseconds2;
-        ifs >>nanoseconds2;
-        float128 time = seconds;
-        time*=1000*1000*1000;
-        time+= nanoseconds;
-        time/=1000*1000*1000;
+        float128 time;
+        ifs>>time;
+        float128 toss;
+        ifs>>toss;
 
         Vector3d acc;
         for(int i=0;i<3;++i)            ifs>>acc[i];
@@ -210,22 +142,113 @@ std::vector<imu::Data> read_imu(std::string path){
     return data;
 }
 
+std::vector<float128> read_times(std::string path){
+    std::ifstream ifs(path);
+    std::vector<float128> times;times.reserve(1e6);
+    float128 time;
+    while (ifs>>time) {
+        times.push_back(time);
+    }
+    return times;
+}
+std::string intstr(float128 t){
+    std::stringstream ss; ss.precision(20);
+    ss<<t;
+    return ss.str();
+}
 
-
-Sequence::Sequence(std::string path, std::string sequence_name): sequence_name(sequence_name)
+std::vector<std::string> active_lines(std::string calib_path)
 {
-    for(auto [a,b]:name2num)num2name[b]=a;
+    std::ifstream ifs(calib_path);
+    std::vector<std::string> lines;lines.reserve(10);
+    std::string line;
+    while(std::getline(ifs,line)){
+        if(line.size()==0) continue;
+        if(line[0]=='#') continue;
+        lines.push_back(line);
+    }
+    return lines;
+}
+
+void Sequence::read_metadata(std::string path)
+{
+    std::string calib_path=path+"post_rectification_calibration.txt";
+    cout<<"reading metadata: "<<calib_path<<endl;
+    if(!fs::exists(calib_path)){
+        mlog()<<"Trying to read: "<<calib_path<<"\n";
+        exit(1);
+    }
+
+    std::vector<std::string> lines=active_lines(calib_path);
+    std::stringstream ifs;
+    for(const auto& line:lines) ifs<<" "<<line<<" ";
+    cout<<ifs.str()<<endl;
+
+    ifs>>calib.rows_;
+    ifs>>calib.cols_;
+    ifs>>calib.fx_;
+    ifs>>calib.fy_;
+    ifs>>calib.px_;
+    ifs>>calib.py_;
+    //mlog()<<calib.py_<<endl;
+    Matrix4d m;for(int i=0;i<16;++i) ifs >>m[i];
+    calib.P_left_imu_=PoseD(m);
+
+
+    for(int i=0;i<16;++i)     ifs >>m[i];
+    calib.P_right_imu_=PoseD(m);
+
+    for(int i=0;i<3;++i){
+        for(int j=0;j<7;++j)
+            ifs>>calib.P_x_imu(i+2)[j];
+    }
+
+    mlog()<<calib.str()<<"\n";
+
+    //mlog()<<m;
+}
+
+Sequence::Sequence(std::string path,
+                   std::string sequence_name):
+    sequence_name(sequence_name)
+{
+    for(const auto& [a,b]:name2num)num2name[b]=a;
+
+    path=mlib::ensure_dir(path);
+    path+="alphasense/";
+
+
+    mlib::Timer timer("read hilti sequence timer for "+ sequence_name);
+    timer.tic();
+
     cout<<"created hilti sequence: "<<path<<endl;
     // read metadata, create config
-    cout<<"Warning, you havent read the metadata yet... "<<endl;
+    read_metadata(path);
+
+
     // generate image paths
-    std::map<float128, std::map<int, std::string>> time2num2path = load_image_paths(path);
+
+    auto times=read_times(path+"times.txt");
+    std::map<float128, std::map<int, std::string>> time2num2path;
+    for(auto time:times)
+    {
+        std::map<int, std::string> num2path;
+        num2path[0] = path+"cam0/"+intstr(time)+".exr";
+        num2path[1] = path+"cam1/"+intstr(time)+".exr";
+        num2path[2] = path+"cam2/"+intstr(time)+".exr";
+        num2path[3] = path+"cam3/"+intstr(time)+".exr";
+        num2path[4] = path+"cam4/"+intstr(time)+".exr";
+        num2path[5] = path+"disp/"+intstr(time)+".exr";
+        time2num2path[time]=num2path;
+    }
+
+
 
     // read imu data.
-    auto imuds=read_imu(path+"/alphasense/imu/data.txt");
-    std::vector<float128> frametimes;frametimes.reserve(time2num2path.size());
-    for(const auto& [time,toss]:time2num2path) frametimes.push_back(time);
-    std::map<float128, std::vector<imu::Data>> frametime2imu_datas=collect_imu_by_frametimes(frametimes, imuds);
+    std::map<float128, std::vector<imu::Data>> frametime2imu_datas=collect_imu_by_frametimes(times, read_imu(path+"imu/data.txt"));
+
+
+
     // image time 2
     std::map<float128, PreloadSample> preload_samples_map;
     for(const auto& [time, num2path]: time2num2path)
@@ -233,6 +256,7 @@ Sequence::Sequence(std::string path, std::string sequence_name): sequence_name(s
         PreloadSample& preload_sample=preload_samples_map[time];
         preload_sample.time=time;
         preload_sample.paths=num2path;
+        //for(auto [num, path]:num2path) cout<<"num,path: "<<num<<", "<<path<<endl;
         auto it=frametime2imu_datas.find(time);
         if(it==frametime2imu_datas.end()){
             mlog()<<"humm?"<<time<<"\n";
@@ -240,36 +264,47 @@ Sequence::Sequence(std::string path, std::string sequence_name): sequence_name(s
         }
 
         auto& ds=it->second;
-        if(ds.empty()) mlog()<<"humm?\n";
+        if(ds.empty()) mlog()<<"empty image paths?\n";
         preload_sample.datas=ds;
     }
     // this automatically sorts the preload_samples too
+    preload_samples.reserve(preload_samples_map.size());
     for(const auto& [time, pls]:preload_samples_map)
         preload_samples.push_back(pls);
 
     // remove the excessive timestamp offset...
     t0=preload_samples[0].time;
-    for(auto& p:preload_samples) p.time-=t0;
+    for(auto& p:preload_samples){ p.time-=t0; p.time/=1e9;}
+    for(auto& p:preload_samples) for(auto& d:p.datas) {d.time-=t0;d.time/=1e9;}
 
     // generate the frameid to time mapper
     f2t=std::make_shared<Frameid2TimeMapLive>();
     for(uint i=0;i<preload_samples.size();++i)
         f2t->add(i,preload_samples[i].time);
 
-
+    timer.toc();
+    cout<<timer<<endl;
     //alphasense done ...
 
     // fuck me...
     // livox  os_cloud_node  tf  tf_static  vicon
 }
 
+std::shared_ptr<Sequence> Sequence::create(std::string path, std::string sequence_name){
+    auto self=std::shared_ptr<Sequence>(new Sequence(path,sequence_name));
+    self->wself=self;
+    return self;
+}
 StereoCalibration Sequence::calibration() const{
-    return StereoCalibration(rows(),cols(), fy, fx, py, px, baseline, PoseD::Identity());
+    return calib.stereo_calibration();
+}
+Calibration Sequence::hilti_calibration() const{
+    return calib;
 }
 
 int Sequence::samples() const{return preload_samples.size();}
-int Sequence::rows() const{return 1080;}
-int Sequence::cols() const{return 1440;}
+int Sequence::rows() const{return calib.rows();}
+int Sequence::cols() const{return calib.cols();}
 std::string Sequence::name() const{return sequence_name;}
 
 std::shared_ptr<Frameid2TimeMap> Sequence::fid2time() const
@@ -279,10 +314,16 @@ std::shared_ptr<Frameid2TimeMap> Sequence::fid2time() const
 }
 
 
-std::shared_ptr<StereoSample> Sequence::sample(int index) const{
+std::shared_ptr<HiltiImageSample>
+Sequence::sample(int index) const
+{
 
-    return preload_samples.at(index).load(index, this);
+    return preload_samples.at(index).load(index, wself.lock());
 }
+std::shared_ptr<StereoSample> Sequence::stereo_sample(int index) const{
+    return sample(index);
+}
+
 
 } // end namespace hilti
 } // end namespace cvl
