@@ -40,6 +40,10 @@ target_link_libraries(mlib INTERFACE mlib-utils)
 add_subdirectory(stream)
 target_link_libraries(mlib INTERFACE mlib-stream)
 
+#depends on ceres publicly
+add_subdirectory(ceres_util)
+target_link_libraries(mlib INTERFACE mlib-ceres-util)
+
 #depends on opencv
 add_subdirectory(opencv_util)
 target_link_libraries(mlib INTERFACE mlib-opencv-utils)

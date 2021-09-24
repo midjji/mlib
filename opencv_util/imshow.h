@@ -15,6 +15,6 @@ namespace cvl{
 bool imshow(cv::Mat im, std::string name="imshow");
 bool imshow(std::string name, cv::Mat im);
 void input_window();
-char wait(double time/*0 means inf...*/);
+uchar wait(double time/*0 means inf...*/);
 
 }

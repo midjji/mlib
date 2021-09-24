@@ -25,7 +25,7 @@ struct LimitedHistory{
         }
     }
     bool in(T t){
-        for(T v:buff)
+        for(const T& v:buff)
             if(t==v) return true;
         return false;
     }

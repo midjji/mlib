@@ -22,7 +22,7 @@ public:
     double fx_=527.8697573702394;
     double py_=546.6633124512576;
     double px_=725.2570598632401;
-    double baseline_=0.11;
+    double baseline_= 1.06837645e-01;
     PoseD P_left_imu_;
     PoseD P_right_imu_;
     PoseD P_cam2_imu_;

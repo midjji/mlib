@@ -3,7 +3,8 @@
 #include <mlib/opencv_util/cv.h>
 #include <mlib/utils/mlog/log.h>
 namespace cvl{
-bool imshow(cv::Mat im, std::string name){
+bool imshow(cv::Mat im, std::string name)
+{
     cv::namedWindow(name,cv::WINDOW_GUI_EXPANDED);
 
     // check if the image is good
@@ -38,8 +39,10 @@ bool imshow(cv::Mat im, std::string name){
 bool imshow(std::string name, cv::Mat im){
     return imshow(im,name);
 }
-char wait(double time/*0 means inf...*/){
-    return uchar(cv::waitKey(time));
+uchar wait(double time/*0 means inf...*/){
+
+    return cv::waitKey(time);
+
 }
 void input_window(){
     cv::Mat1b im(100,100,uchar(0));
