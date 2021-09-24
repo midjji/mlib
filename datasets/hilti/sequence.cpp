@@ -20,11 +20,12 @@ using std::endl;
 namespace cvl{
 namespace hilti{
 
-std::shared_ptr<HiltiImageSample> PreloadSample::load(int sampleindex, const std::shared_ptr<StereoSequence>ss) const
+std::shared_ptr<HiltiImageSample> PreloadSample::load(int sampleindex, const std::shared_ptr<StereoSequence> ss) const
 {
-    for(const auto& [id, path]:paths){
+    for(const auto& [id, path]:paths)
+    {
         if(!fs::exists(path))
-            mlog()<<"path for "<<id<<" not found: "<<path<<endl;
+            cout<<"sample index: "<<sampleindex<<" lacks image "<<id<<" looking in: "<<path<<endl;
     }
 
     return std::make_shared<HiltiImageSample>(time, ss,  sampleindex, mlib::read_image1f(paths,false), datas, original_time_ns);
@@ -191,7 +192,7 @@ void Sequence::read_metadata(std::string path)
     }
 
     std::stringstream ss(numbers(active_lines(calib_path)));
-    cout<<ss.str()<<endl;
+    //cout<<ss.str()<<endl;
 
     ss>>calib.rows_;
     ss>>calib.cols_;
@@ -224,7 +225,7 @@ void Sequence::read_metadata(std::string path)
         }
     }
 
-    mlog()<<"\nRead Hilti Calibration: \n"<<calib.str()<<"\n";
+    //mlog()<<"\nRead Hilti Calibration: \n"<<calib.str()<<"\n";
 
     //mlog()<<m;
 }

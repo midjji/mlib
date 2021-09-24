@@ -11,7 +11,7 @@ namespace cvl{
 namespace hilti {
 class Sequence;
 
-
+  
 /**
  * @brief The ImageSample class
  */
@@ -37,6 +37,7 @@ struct HiltiImageSample:public StereoSample
     int cols() const override;
 
     std::shared_ptr<Sequence> hilti_sequence() const;
+    float128 original_time() const override{return original_time_ns;}
 
 private:
 
