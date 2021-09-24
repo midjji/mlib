@@ -24,7 +24,7 @@ std::shared_ptr<HiltiImageSample> PreloadSample::load(int sampleindex, const std
 {
     for(const auto& [id, path]:paths){
         if(!fs::exists(path))
-            cout<<id<<"path: "<<path<<endl;
+            mlog()<<"path for "<<id<<" not found: "<<path<<endl;
     }
 
     return std::make_shared<HiltiImageSample>(time, ss,  sampleindex, mlib::read_image1f(paths,false), datas, original_time_ns);
@@ -211,6 +211,11 @@ void Sequence::read_metadata(std::string path)
         for(int j=0;j<7;++j)
             ss>>calib.P_x_imu(i+2)[j];
     }
+    // they are child2parent
+
+    for(int i=0;i<3;++i)
+        calib.P_x_imu(i+2).invert();
+
     for(int i=0;i<5;++i){
         double len=calib.P_x_imu(i).q().length();
         if(std::abs(len-1)>1e-5) {
