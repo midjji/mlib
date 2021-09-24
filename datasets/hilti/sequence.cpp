@@ -207,6 +207,9 @@ void Sequence::read_metadata(std::string path)
 
     for(int i=0;i<16;++i)     ss >>m[i];
     calib.P_right_imu_=PoseD(m);
+    PoseD P_right_left=calib.P_right_imu_*calib.P_left_imu_.inverse();
+    calib.baseline_=-P_right_left.t()[0];
+
 
     for(int i=0;i<3;++i){
         for(int j=0;j<7;++j)
