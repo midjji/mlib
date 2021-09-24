@@ -485,6 +485,10 @@ static_assert(std::is_trivially_copy_constructible<Pose<double>>(),"speed");
 static_assert(std::is_trivially_assignable<Pose<double>,Pose<double>>(),"speed");
 //static_assert(std::is_trivial<Pose<double>>(),"speed");
 
+
+
+
+
 }// en<T> namespace cvl
 
 

@@ -39,7 +39,7 @@ bool imshow(std::string name, cv::Mat im){
     return imshow(im,name);
 }
 char wait(double time/*0 means inf...*/){
-    return cv::waitKey(time);
+    return uchar(cv::waitKey(time));
 }
 void input_window(){
     cv::Mat1b im(100,100,uchar(0));

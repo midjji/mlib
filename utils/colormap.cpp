@@ -104,7 +104,9 @@ std::vector<Color> colors = {
     Color::cyan(),
     Color::white(),
     //Color::gray(),
-    Color::pink(),
+    Color::pink(),    
+    Color::green(),
+    Color::red(),
     //Color::random(),
 };
 
