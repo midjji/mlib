@@ -8,7 +8,14 @@ double abs(cv::Point2f p){
     return std::sqrt(p.x*p.x + p.y*p.y);
 }
 
-
+void draw_arrow(cv::Mat3b& im,
+               cvl::Vector2d from, // row,col
+               cvl::Vector2d to, // row,col
+               Color col,
+               int thick,
+                int length){
+    drawArrow(im,from,to, col, thick, length);
+}
 
 
 /**
@@ -21,7 +28,7 @@ double abs(cv::Point2f p){
  * @param length
  * draws a arrow...
  */
-void drawArrow(cv::Mat3b im, Vector2d from, Vector2d to, Color color, int thick, int length){
+void drawArrow(cv::Mat3b& im, Vector2d from, Vector2d to, Color color, int thick, int length){
 
 
     if(!(from.isnormal()&& to.isnormal())) {

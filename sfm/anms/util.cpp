@@ -12,7 +12,7 @@ cv::Mat3b drawData(std::vector<anms::Data>& datas){
 
 
     for(auto d:datas)
-        drawCircle(im,d.y,mlib::Color::codeDepthRedToDarkGreen(d.str,minstr,maxstr),3,3);
+        draw_circle(im,d.y,mlib::Color::codeDepthRedToDarkGreen(d.str,minstr,maxstr),3,3);
     return im;
 }
 void show(std::vector<Data>& datas,std::string name){

@@ -88,13 +88,14 @@ std::vector<std::vector<Vector2d> > conv(const std::vector<std::vector<cv::KeyPo
 }
 
 
-void drawCircle(cv::Mat3b im,
+void draw_circle(cv::Mat3b& im,
                 cvl::Vector2d center,
                 Color color,
                 float radius,
                 float thickness){
     int row=int(std::round(center[0]));
     int col=int(std::round(center[1]));
+
     // cv drawings generally appear safe for out of bounds drawing
     cv::circle(im,cv::Point2i(col,row),int(radius), color.toScalar<cv::Scalar>(),int(thickness));
 }
