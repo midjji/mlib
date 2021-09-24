@@ -44,7 +44,7 @@ public:
         return StereoCalibration(rows_, cols_, fy_,fx_,py_,px_,baseline_, P_x_imu(index));
     }
 
-    const PoseD& P_x_imu(int i) const
+    inline const PoseD& P_x_imu(int i) const
     {
         switch (i){
         case 0: return P_left_imu_;
@@ -52,6 +52,7 @@ public:
         case 2: return P_cam2_imu_;
         case 3: return P_cam3_imu_;
         case 4: return P_cam4_imu_;
+        default: wtf();return P_left_imu_;
         }
     }
 

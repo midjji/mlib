@@ -24,7 +24,7 @@ std::shared_ptr<HiltiImageSample> PreloadSample::load(int sampleindex, const std
 {
     for(const auto& [id, path]:paths){
         if(!fs::exists(path))
-            cout<<id<<"path: "<<path<<endl;
+            mlog()<<"path for "<<id<<" not found: "<<path<<endl;
     }
 
     return std::make_shared<HiltiImageSample>(time, ss,  sampleindex, mlib::read_image1f(paths,false), datas, original_time_ns);
@@ -163,12 +163,23 @@ std::vector<std::string> active_lines(std::string calib_path)
     std::vector<std::string> lines;lines.reserve(10);
     std::string line;
     while(std::getline(ifs,line)){
-        if(line.size()==0) continue;
+        if(line.empty()) continue;
         if(line[0]=='#') continue;
         lines.push_back(line);
     }
     return lines;
 }
+std::string numbers(std::vector<std::string> lines){
+    std::stringstream ss;
+    for(const auto& line:lines)
+        ss<<" "<<line<<" ";
+    std::string str;
+
+    for(char c:ss.str()) if(c!=',')str.push_back(c);
+    return str;
+}
+
+
 
 void Sequence::read_metadata(std::string path)
 {
@@ -179,31 +190,41 @@ void Sequence::read_metadata(std::string path)
         exit(1);
     }
 
-    std::vector<std::string> lines=active_lines(calib_path);
-    std::stringstream ifs;
-    for(const auto& line:lines) ifs<<" "<<line<<" ";
-    cout<<ifs.str()<<endl;
+    std::stringstream ss(numbers(active_lines(calib_path)));
+    cout<<ss.str()<<endl;
 
-    ifs>>calib.rows_;
-    ifs>>calib.cols_;
-    ifs>>calib.fx_;
-    ifs>>calib.fy_;
-    ifs>>calib.px_;
-    ifs>>calib.py_;
+    ss>>calib.rows_;
+    ss>>calib.cols_;
+    ss>>calib.fx_;
+    ss>>calib.fy_;
+    ss>>calib.px_;
+    ss>>calib.py_;
     //mlog()<<calib.py_<<endl;
-    Matrix4d m;for(int i=0;i<16;++i) ifs >>m[i];
+    Matrix4d m;for(int i=0;i<16;++i) ss >>m[i];
     calib.P_left_imu_=PoseD(m);
 
 
-    for(int i=0;i<16;++i)     ifs >>m[i];
+    for(int i=0;i<16;++i)     ss >>m[i];
     calib.P_right_imu_=PoseD(m);
 
     for(int i=0;i<3;++i){
         for(int j=0;j<7;++j)
-            ifs>>calib.P_x_imu(i+2)[j];
+            ss>>calib.P_x_imu(i+2)[j];
+    }
+    // they are child2parent
+
+    for(int i=0;i<3;++i)
+        calib.P_x_imu(i+2).invert();
+
+    for(int i=0;i<5;++i){
+        double len=calib.P_x_imu(i).q().length();
+        if(std::abs(len-1)>1e-5) {
+            cout<<"q length: "<<calib.P_x_imu(i).q().length()<<endl;
+            exit(1);
+        }
     }
 
-    mlog()<<calib.str()<<"\n";
+    mlog()<<"\nRead Hilti Calibration: \n"<<calib.str()<<"\n";
 
     //mlog()<<m;
 }
@@ -233,8 +254,8 @@ Sequence::Sequence(std::string path,
     for(auto time:times)
     {
         std::map<int, std::string> num2path;
-        num2path[0] = path+"cam0/"+intstr(time)+".exr";
-        num2path[1] = path+"cam1/"+intstr(time)+".exr";
+        num2path[0] = path+"left/"+intstr(time)+".exr";
+        num2path[1] = path+"right/"+intstr(time)+".exr";
         num2path[2] = path+"cam2/"+intstr(time)+".exr";
         num2path[3] = path+"cam3/"+intstr(time)+".exr";
         num2path[4] = path+"cam4/"+intstr(time)+".exr";
@@ -295,12 +316,16 @@ std::shared_ptr<Sequence> Sequence::create(std::string path, std::string sequenc
     self->wself=self;
     return self;
 }
-StereoCalibration Sequence::calibration() const{
+
+StereoCalibration Sequence::calibration() const
+{
     return calib.stereo_calibration(0);
 }
+
 StereoCalibration Sequence::calibration(int index) const{
     return calib.stereo_calibration(index);
 }
+
 Calibration Sequence::hilti_calibration() const{
     return calib;
 }

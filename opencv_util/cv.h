@@ -49,7 +49,7 @@ void imshowmany(std::vector<cv::Mat> imgs,std::string name="map");
 
 
 
-void drawCircle(cv::Mat3b im,
+void draw_circle(cv::Mat3b& im,
                 cvl::Vector2d center /*row,col*/,
                 Color color=Color::cyan(),
                 float radius=5,

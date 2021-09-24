@@ -190,24 +190,29 @@ bool LineLineIntersect( Vector3<T>& p1, Vector3<T>& p2,
 template<class T>
 /**
  * @brief triangulate
- * @param Pp
- * @param Pq
- * @param p
- * @param q
+ * @param Ppw
+ * @param Pqw
+ * @param p pinholenormalized yn
+ * @param q pinholenormalized yn
+ *
+ * return Xw such that x_p= Ppw*Xw, x_q=Pqw*Xw
+ *
+ * The method may fail.
+ *
  *
  */
 Vector3<T> triangulate(
-        const Pose<T>& Pp,
-        const Pose<T>& Pq,
+        const Pose<T>& Ppw,
+        const Pose<T>& Pqw,
         const Vector2<T>& p,
         const Vector2<T>& q){
 
-    Matrix3<T> C0=Pp.getR();
-    Matrix3<T> C1=Pq.getR();
-    Vector3<T> tc0=Pp.getT();
-    Vector3<T> tc1=Pq.getT();
-    Vector3<T> c0 = Pp.getTinW();
-    Vector3<T> c1 = Pq.getTinW();
+    Matrix3<T> C0=Ppw.getR();
+    Matrix3<T> C1=Pqw.getR();
+    Vector3<T> tc0=Ppw.getT();
+    Vector3<T> tc1=Pqw.getT();
+    Vector3<T> c0 = Ppw.getTinW();
+    Vector3<T> c1 = Pqw.getTinW();
 
     Vector2d x1=p;
     Vector2d x2=q;
@@ -228,28 +233,9 @@ Vector3<T> triangulate(
     x2c2[1] = C1(0,1) * (x2[0]-tc1[0]) + C1(1,1) * (x2[1]-tc1[1]) + C1(2,1) * (1.0-tc1[2]);
     x2c2[2] = C1(0,2) * (x2[0]-tc1[0]) + C1(1,2) * (x2[1]-tc1[1]) + C1(2,2) * (1.0-tc1[2]);
 
-    bool ll=LineLineIntersect(c0, x1c1, c1, x2c2, pa, pb, mua, mub);
-
-    if(!ll){
-        Vector3<T> X=Pp.getTinW()+Vector3<T>(0,0,10);
-
-        //iterative_refinement(Pp,Pq,pq_n.first,pq_n.second,X);
-
-        //std::cout<<"trig failire in line line intersect"<<std::endl;
-        //Vector3 v(NAN,NAN,NAN);
-        return X;
-    }
+    LineLineIntersect(c0, x1c1, c1, x2c2, pa, pb, mua, mub);
     Vector3<T> X=pa + 0.5*(pb-pa);
 
-    // if the point wound up behind both cameras, place it infront of one and return it
-    Vector3<T> xp=Pp*X;
-    Vector3<T> xq=Pq*X;
-
-    if((xp[2]<0) && (xq[2]<0)){
-        xp[2]=-xp[2];
-        X=Pp.inverse()*xp;
-        //cout<<"behind"<<endl;
-    }
     return X;
 }
 
