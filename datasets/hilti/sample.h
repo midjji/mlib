@@ -39,6 +39,8 @@ struct HiltiImageSample:public StereoSample
     std::shared_ptr<Sequence> hilti_sequence() const;
     float128 original_time() const override{return original_time_ns;}
 
+    bool have_good_imu_timestamps();
+
 private:
 
 

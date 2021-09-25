@@ -1,8 +1,12 @@
+#include <iostream>
+
 #include <mlib/datasets/hilti/sample.h>
 #include <mlib/opencv_util/convert.h>
 #include <mlib/opencv_util/imshow.h>
 #include <mlib/utils/string_helpers.h>
 #include <mlib/datasets/hilti/sequence.h>
+
+using std::cout;using std::endl;
 
 namespace cvl {
 namespace hilti {
@@ -66,6 +70,25 @@ std::shared_ptr<Sequence> HiltiImageSample::hilti_sequence() const
 }
 int HiltiImageSample::rows() const {return 1080;}
 int HiltiImageSample::cols() const {return 1440;}
+
+bool HiltiImageSample::have_good_imu_timestamps()
+{
+    float128 start_time = original_time();
+
+    if (imu_datas.size() == 0) {
+        return true;
+    }
+    //cout << "Image ts:\n  " << original_time() << endl;
+  
+    cout << imu_datas.size() << " IMU ts:" << endl;
+    for (auto& d : imu_datas) {
+        if (d.time < start_time) {
+            return false;
+        }
+        //cout << "  " << d.time - start_time << endl;
+    }
+    return true;
+}
 
 }
 }
