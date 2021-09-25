@@ -65,7 +65,7 @@ std::string parse(std::string path2, std::string gt_path){
     return gt_path;
 }
 
-
+double DaimlerSequence::framerate() const{return 20;}
 DaimlerSequence::DaimlerSequence(std::string path2, std::string gt_path):path(path2)
 {
 

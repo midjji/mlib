@@ -159,11 +159,11 @@ template<class Intrinsics, int StateSize=4> ceres::CostFunction* reprojection_co
                 new cost(intrinsics, y,xw)));
 }
 
-template<class Intrinsics, int StateSize=4> auto reprojection_cost(Intrinsics intrinsics, Vector2d y, Vector3d xw){
+template<class Intrinsics> auto reprojection_cost(Intrinsics intrinsics, Vector2d y, Vector3d xw){
     return reprojection_cost(intrinsics, y, xw.homogeneous().normalized());
 }
 
-template<class Intrinsics, int StateSize=4> ceres::CostFunction* reprojection_cost(Intrinsics intrinsics, Vector3d y,Vector3d xw)
+template<class Intrinsics> ceres::CostFunction* reprojection_cost(Intrinsics intrinsics, Vector3d y,Vector3d xw)
 {
     return reprojection_cost(intrinsics, y, xw.homogeneous().normalized());
 }
@@ -173,12 +173,12 @@ class TriangulationCost
 {
 public:
     PoseD Pvw;
-    Vector3d y; // (row,col,disparity)
+    Vector2d y; // (row,col,disparity)
     Intrinsics intrinsics;
     static constexpr int resids=2;
 
 
-    TriangulationCost(Intrinsics intrinsics, PoseD Pvw, Vector3d y):Pvw(Pvw),y(y),intrinsics(intrinsics){}
+    TriangulationCost(Intrinsics intrinsics, PoseD Pvw, Vector2d y):Pvw(Pvw),y(y),intrinsics(intrinsics){}
     template <typename T>
     bool operator()(const T* const Xw,
                     T* residuals) const
@@ -224,7 +224,8 @@ template<class Intrinsics, int StateSize=4> ceres::CostFunction* reprojection_co
 }
 
 template<class Intrinsics, int StateSize=4> ceres::CostFunction* reprojection_cost(Intrinsics intrinsics, PoseD Pvw, Vector3d y){
-    if(y[2]<0) return reprojection_cost(intrinsics, y.drop_last());
+
+    if(y[2]<0) return reprojection_cost(intrinsics, Pvw, y.drop_last());
     using cost=StereoTriangulationCost<Intrinsics,StateSize>;
     return (new ceres::AutoDiffCostFunction<cost, cost::resids, StateSize >(
                 new cost(intrinsics, Pvw, y)));

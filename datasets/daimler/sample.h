@@ -25,6 +25,7 @@ public:
     bool is_car(Vector2d rowcol) const;
     cv::Mat3b show_labels() const;// for visualization, new clone
 
+
 private:   
     cv::Mat1b labels;
     int frameid_;

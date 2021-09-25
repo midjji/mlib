@@ -12,6 +12,9 @@ int StereoSequence::id() const{return 0;}
 std::vector<PoseD> StereoSequence::gt_poses() const{
     return std::vector<PoseD>();
 }
+double StereoSequence::framerate() const{
+    return 10;
+}
 
 }
 

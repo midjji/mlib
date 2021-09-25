@@ -22,6 +22,8 @@ public:
     virtual std::vector<PoseD> gt_poses() const;
     std::vector<PoseD> gt_vehicle_poses() const;
 
+    virtual double framerate() const;
+
     //int index=0;
     //std::shared_ptr<StereoSample> next();
 };

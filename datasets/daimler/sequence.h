@@ -14,6 +14,7 @@ class DaimlerSequence:public StereoSequence
 
     std::weak_ptr<DaimlerSequence> wself;
     DaimlerSequence(std::string dataset_path, std::string gt_path="");
+        double framerate() const override;
 public:
      int samples() const override;
      std::shared_ptr<StereoSample> stereo_sample(int index) const override;

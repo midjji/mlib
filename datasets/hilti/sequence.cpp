@@ -236,7 +236,9 @@ std::string numbers(std::vector<std::string> lines){
     return str;
 }
 
-
+float128 PreloadSample::time() const{return time_;}
+float128 PreloadSample::original_time_ns() const{return original_time_ns_;}
+double Sequence::framerate() const {return 20;}
 
 void Sequence::read_metadata(std::string path)
 {

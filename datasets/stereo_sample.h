@@ -24,6 +24,7 @@ struct StereoSample:public ImageSample
     virtual bool has_stereo() const;
     virtual float128 original_time() const{return 0;}
 
+
 protected:
     cv::Mat1f disparity_;
 };

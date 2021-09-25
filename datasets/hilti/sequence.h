@@ -26,11 +26,12 @@ struct PreloadSample
     bool has(int index) const;
     bool has_all() const;
     std::string str() const;
-    float128 time() const{return time_;}
-    float128 original_time_ns() const{return original_time_ns_;}
+    float128 time() const;
+    float128 original_time_ns() const;
+
 private:
     int sampleindex;
-    float128 time_{0}; // for the images,
+    float128 time_{0}; // for the images, in seconds
     float128 original_time_ns_{0};
     std::vector<imu::Data> datas=std::vector<imu::Data>(); // from image time to next image time. except for the first and last image times.
     std::map<int, std::string> cam2paths{}; // the rectified paths, using standardized numbers
@@ -89,12 +90,14 @@ class Sequence: public StereoSequence
 
     Sequence(std::string path, std::string sequence_name);
     std::weak_ptr<Sequence> wself;
+
 public:
+        double framerate() const override;
 static std::shared_ptr<Sequence> create(std::string path, std::string sequence_name);
 
 
 
-    std::shared_ptr<StereoSample> stereo_sample(int index) const;
+    std::shared_ptr<StereoSample> stereo_sample(int index) const override;
     std::shared_ptr<HiltiImageSample> sample(int index) const;
     int samples() const override;
     int rows() const override;
