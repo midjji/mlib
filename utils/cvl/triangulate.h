@@ -129,15 +129,23 @@ Vector3<T> triangulate(Vector2<T> yn, T f, T baseline, T disparity){
  */
 template<class T>
 mlib_host_device_
-constexpr inline Vector4<T> triangulate_ray(Vector2<T> yn,
-                                          T f, T baseline,
+inline Vector4<T> triangulate_ray(Vector2<T> yn,
+                                          T fx, T baseline,
                                           T disparity){
     return {    yn[0],
                 yn[1],
                 T(1.0),
-                disparity/(f*baseline)};
+                disparity/(fx*baseline)};
 }
-
+template<class T>
+mlib_host_device_
+inline Vector4<T> triangulate_ray(Vector3<T> yn,
+                                          T fx, T baseline){
+    return {    yn[0],
+                yn[1],
+                T(1.0),
+                yn[2]/(fx*baseline)};
+}
 
 
 template<class T>

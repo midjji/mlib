@@ -37,6 +37,7 @@ Dataset::Dataset(std::string dataset_path)
 
     for(const auto& [num,seq]:num2sequence)
         seqs[num]=Sequence::create(dataset_path+seq+"/",seq);
+
 }
 
 const Dataset& dataset(std::string path)

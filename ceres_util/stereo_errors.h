@@ -7,6 +7,8 @@ namespace cvl {
 
 
 
+
+
 template<class Intrinsics, int StateSize>
 class ReprojectionCost
 {
@@ -17,36 +19,61 @@ public:
     ReprojectionCost()=default;
     ReprojectionCost(Intrinsics intrinsics, Vector2d y):intrinsics(intrinsics),y(y){}
     template <typename T>
-    bool operator()(const T* const pose,
-                    const T* const x,
+    bool operator()(const T* const Pvw_, // just pose works thanks to ceres improvment! // but is quite possibly slower...
+                    const T* const Xw_,
                     T* residuals) const
     {
-        Pose<T> Pvw(pose,true);
-        Vector<T,StateSize> Xv=Pvw*Vector<T,StateSize>::copy_from(x);
-        Vector2<T> yp=intrinsics.project(Xv);
-        for(int i=0;i<2;++i)
+        Pose<T> Pvw(Pvw_,true);
+        Vector<T,StateSize> Xc=intrinsics.x_cam_vehicle(Pvw*Vector<T,StateSize>::copy_from(Xw_));
+
+        // the critically important things are
+        // 1 behind should be slightly penalized
+        // 2 the poses should be less penalized to avoid outliers causing bad poses
+        // 3 are the gradients in the right directions for the negative case? I have no idea
+        if(intrinsics.behind_cam(Xc))
+        {
+            residuals[0]=T(0);
+            residuals[1]=T(0.1)*(intrinsics.disparity_cam(Xc) - T(1));
+            return true;
+        }
+
+        Vector2<T> yp=intrinsics.project_cam(Xc);
+        for(int i=0;i<resids;++i)
             residuals[i]=T(y[i])  - yp[i];
         return true;
     }
 };
-template<class Intrinsics, int StateSize>
+template<class Intrinsics,
+         int StateSize>
 class StereoCost
 {
 public:
     Intrinsics intrinsics;
-    Vector3d y; // (row,col,(col-disparity))
+    Vector3d y; // (row,col,(col-disparity)), note disparity is assumed positive, and this is guaranteed if the reprojection_cost creator is used!
     static constexpr int resids=3;
     StereoCost()=default;
     StereoCost(Intrinsics intrinsics, Vector3d y):intrinsics(intrinsics),y(y){}
     template <typename T>
-    bool operator()(const T* const pose, // just pose works thanks to ceres improvment! // but is quite possibly slower...
-                    const T* const x,
+    bool operator()(const T* const Pvw_, // just pose works thanks to ceres improvment! // but is quite possibly slower...
+                    const T* const Xw_,
                     T* residuals) const
     {
-        Pose<T> Pvw(pose,true);
-        Vector<T,StateSize> Xv=Pvw*Vector<T,StateSize>::copy_from(x);
+        Pose<T> Pvw(Pvw_,true);
+        Vector<T,StateSize> Xc=intrinsics.x_cam_vehicle(Pvw*Vector<T,StateSize>::copy_from(Xw_));
 
-        Vector3<T> yp=intrinsics.stereo_project(Xv);
+        // the critically important things are
+        // 1 behind should be slightly penalized
+        // 2 the poses should be less penalized to avoid outliers causing bad poses
+        // 3 are the gradients in the right directions for the negative case? I have no idea
+        if(intrinsics.behind_cam(Xc))
+        {
+            residuals[0]=T(0);
+            residuals[1]=T(0);
+            residuals[2]=T(0.1)*(intrinsics.disparity_cam(Xc) - T(y[2]));
+            return true;
+        }
+
+        Vector3<T> yp=intrinsics.stereo_project_cam(Xc);
         for(int i=0;i<3;++i)
             residuals[i]=T(y[i])  - yp[i];
         return true;
@@ -110,7 +137,7 @@ public:
         Pose<T> Pvw(pose,true);
         Vector4<T> Xw(xw);
         Vector3<T> yp=intrinsics.stereo_project(Pvw*Xw);
-        for(int i=0;i<3;++i)
+        for(int i=0;i<resids;++i)
             residuals[i]=T(y[i])  - yp[i];
         return true;
     }
@@ -153,12 +180,12 @@ public:
 
     TriangulationCost(Intrinsics intrinsics, PoseD Pvw, Vector3d y):Pvw(Pvw),y(y),intrinsics(intrinsics){}
     template <typename T>
-    bool operator()(const T* const x,
+    bool operator()(const T* const Xw,
                     T* residuals) const
     {
-        Pose<T> pose(Pvw);
-        Vector2<T> yp=intrinsics.project(pose*(Vector<T,4>::copy_from(x)));
-        for(int i=0;i<2;++i)
+        Pose<T> Pvw_(Pvw);
+        Vector2<T> yp=intrinsics.project(Pvw_*(Vector<T,4>::copy_from(Xw)));
+        for(int i=0;i<resids;++i)
             residuals[i]=T(y[i]) - yp[i];
         return true;
     }
@@ -178,12 +205,12 @@ public:
 
     StereoTriangulationCost(Intrinsics intrinsics, PoseD Pvw, Vector3d y):Pvw(Pvw),y(y),intrinsics(intrinsics){}
     template <typename T>
-    bool operator()(const T* const x,
+    bool operator()(const T* const Xw,
                     T* residuals) const
     {
-        Pose<T> pose(Pvw);
-        Vector3<T> yp=intrinsics.stereo_project(pose*(Vector<T,4>::copy_from(x)));
-        for(int i=0;i<3;++i)
+        Pose<T> Pvw_(Pvw);
+        Vector3<T> yp=intrinsics.stereo_project(Pvw_*(Vector<T,4>::copy_from(Xw)));
+        for(int i=0;i<resids;++i)
             residuals[i]=T(y[i]) - yp[i];
         return true;
     }

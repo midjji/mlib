@@ -25,17 +25,23 @@
 namespace cvl{
 /**
  * @brief The StereoCalibration class
- * Assumes pinholenormalized images...
+ * Vector3 X: is 3d point with x,y,z right handed with x to the right, y down, and z forwards.
+ * Vector4 X: is homogeneous 3d point i.e. Vector3 X_3= Vector4 X/Vector4 X[3]
+ *
+ * Vector2 y=project is image row, col
+ * Vector3 y=project is image row, col, disparity
+ *
+ * disparity is Left(x) =Right(x-disparity)
+ *
+ * //TODO Add right disparity
+ *
+ *
  */
 class StereoCalibration
 {
 public:
-    /*
-    // the row, col one
-    Matrix3d K{0, 2261.54, 1108.15,
-               2267.22, 0, 519.169,
-               0, 0, 1}; // for both cameras
-    */
+
+
 
     int rows_=1024;
     int cols_=2048;
@@ -45,20 +51,26 @@ public:
     double py_=1108.15;
     double px_=519.169;
     double baseline_=0.209114;
-    PoseD P_cam0_vehicle_;
+    PoseD P_left_vehicle_; // P_left_vehicle_
+    inline PoseD P_left_vehicle()  const {        return P_left_vehicle_;    }
+    inline PoseD P_right_vehicle() const {
+        return P_left_vehicle_.q().append(P_left_vehicle_.t() + Vector3d(-baseline_,0,0));
+    }
+    inline PoseD P_right_left()    const {        return PoseD(Vector3d(-baseline_,0,0));    }
+
+
+
 
 
     StereoCalibration()=default;
-    StereoCalibration(int rows_,int cols_,
-                      double fy_,
-                      double fx_,
-                      double py_,
-                      double px_,
+    StereoCalibration(int rows_, int cols_,
+                      double fy_, double fx_, double py_, double px_,
                       double baseline_,
-                      PoseD P_cam0_vehicle_):
-        rows_(rows_),cols_(cols_),fy_(fy_),fx_(fx_),py_(py_),
-        px_(px_),baseline_(baseline_),
-        P_cam0_vehicle_(P_cam0_vehicle_){}
+                      PoseD P_left_vehicle_):
+        rows_(rows_), cols_(cols_),
+        fy_(fy_), fx_(fx_),py_(py_), px_(px_),
+        baseline_(baseline_),
+        P_left_vehicle_(P_left_vehicle_){}
 
     int rows()const {return rows_;}
     int cols()const {return cols_;}
@@ -70,22 +82,22 @@ public:
     inline double px() const {return px_;}
     // in meters!
     inline double baseline()const {return baseline_;}
-    double disparity(double depth) const{ return depth/(fx()*baseline());}
+    template<class T> inline T disparity(T depth) const{        return (fx_*baseline_)/depth;    }
 
 
     // from normalized coordinates to row,col
-    template<class T>  inline Vector2<T> distort(Vector2<T> yn) const{
+    template<class T> inline Vector2<T> distort(Vector2<T> yn)  const{
+
         T row=T(fy())*yn[1] + T(py());
         T col=T(fx())*yn[0] + T(px());
         return {row,col};
     }
-
-    template<class T>  inline Vector2<T> undistort(Vector2<T> y) const {
+    // from row, col to normalized coordinates
+    template<class T> inline Vector2<T> undistort(Vector2<T> y) const {
         // row, col,
         T c1=(y[0] - T(py()))/T(fy());
         T c0=(y[1] - T(px()))/T(fx());
         return {c0,c1};  // yn
-        //Vector2<T> xx=(Matrix3<T>(Kinv)*y.homogeneous()).dehom();
     }
     template<class T> inline Vector2<T> undistort(T row, T col) const {
         // row, col,
@@ -94,139 +106,134 @@ public:
         return {c0,c1};  // yn
     }
 
-    // from 3d point to row,col
-    template<class T>  inline Vector2<T> project_cam(Vector3<T> x) const {
-        // not multiplying by zeros matters for optimization
-        T z=x[2];
-        //if(z<T(0)) z=-z;
-        T row=T(fy())*x[1]/z + T(py());
-        T col=T(fx())*x[0]/z + T(px());
+
+    // from Xcam 3d point to row,col, I use separate ones, because the inlining limit can make trouble otherwise.
+    template<class T>  inline Vector2<T> project_cam(Vector3<T> x_cam) const {
+        T z=x_cam[2];
+        T row=T(fy_)*x_cam[1]/z + T(py_);
+        T col=T(fx_)*x_cam[0]/z + T(px_);
         return {row,col};
-        //Vector2<T> b=(Matrix3<T>(K)*x).dehom();
     }
-    template<class T>  inline Vector2<T> project_cam(Vector4<T> x) const {
+    template<class T>  inline Vector2<T> project_cam(Vector4<T> x_cam) const {
         // same as project, the last term isnt used.
-        T z=x[2];
-        T row=T(fy())*x[1]/z + T(py());
-        T col=T(fx())*x[0]/z + T(px());
+        //This is because dividing with it is just always the wrong thing to do both geometrically and computationally
+        T z=x_cam[2];
+        T row=T(fy_)*x_cam[1]/z + T(py_);
+        T col=T(fx_)*x_cam[0]/z + T(px_);
         return {row,col};
     }
-    template<class T>  inline Vector2<T> project_right_cam(Vector3<T> x) const  {
-        x[0]-=T(baseline());
-        return project_cam(x);
+    template<class T>  inline T disparity_cam(Vector3<T> x_cam) const  {        return disparity(x_cam[2]);    }
+    template<class T>  inline T disparity_cam(Vector4<T> x_cam) const  {        return disparity(x_cam[2]/x_cam[3]);    }
+    template<class T>  inline Vector2<T> project_right_cam(Vector3<T> x_cam) const  {
+        x_cam[0]-=T(baseline_);
+        return project_cam(x_cam);
     }
-    template<class T>  inline Vector2<T> project_right_cam(Vector4<T> x) const  {
-        x[0]-=(T(baseline())*x[3]);
-        return project_cam(x);
+    template<class T>  inline Vector2<T> project_right_cam(Vector4<T> x_cam) const  {
+        x_cam[0]-=(T(baseline_)*x_cam[3]);
+        return project_cam(x_cam);
     }
-    template<class T>  inline T disparity_cam(Vector3<T> x) const  {
-        return T(fx()*baseline())/x[2];
+    template<class T>  inline Vector3<T> stereo_project_cam(Vector3<T> x_cam) const {
+        Vector2<T> l=project_cam(x_cam);
+        return Vector3<T>(l[0],l[1],disparity_cam(x_cam)); // disparity in col
     }
-    template<class T>  inline T disparity_cam(Vector4<T> x) const  {
-        return T(fx()*baseline())/x[2];
-    }
-
-    template<class T>  inline Vector2<T> project(Vector3<T> x) const {
-        return project_cam(Pose<T>(P_cam0_vehicle_)*x);
-    }
-    template<class T>  inline Vector2<T> project(Vector4<T> x)    const     {
-        // its a ray!
-        return project_cam((Pose<T>(P_cam0_vehicle_))*x);
+    template<class T>  inline Vector3<T> stereo_project_cam(Vector4<T> x_cam) const {
+        Vector2<T> l=project_cam(x_cam);
+        return Vector3<T>(l[0],l[1],disparity_cam(x_cam)); // disparity in col
     }
 
-
-    template<class T>  inline Vector2<T> project_right(Vector3<T> x) const  {
-        return project_cam(Pose<T>(P_cam0_vehicle_)*x);
+    //////////// from vehicle to camera,
+    template<class T> inline Vector3<T> x_cam_vehicle(Vector3<T> Xv) const{
+        return Pose<T>(P_left_vehicle_)*Xv;
     }
-    template<class T>  inline Vector2<T> project_right(Vector4<T> x) const  {
-        return project_cam(Pose<T>(P_cam0_vehicle_)*x);
+    template<class T> inline Vector4<T> x_cam_vehicle(Vector4<T> Xv) const{
+        return Pose<T>(P_left_vehicle_)*Xv;
     }
-    template<class T> inline Vector3<T> x_cam_vehicle(Vector3<T> x) const{
-        return P_cam0_vehicle_*x;
-    }
-    template<class T> inline Vector4<T> x_cam_vehicle(Vector4<T> x) const{
-        return P_cam0_vehicle_*x;
-    }
-    template<class T>  inline T disparity(Vector3<T> x) const  {
-        return disparity_cam(x_cam_vehicle(x));
-    }
-    template<class T>  inline T disparity(Vector4<T> x) const  {
-        return disparity_cam(x_cam_vehicle(x));
+    template<class T> inline Vector3<T> x_right_vehicle(Vector3<T> Xv) const{
+        auto x=x_cam_vehicle(Xv);
+        x[0]-=baseline;
+        return x;
     }
 
-    template<class T>  inline Vector3<T> stereo_project_cam(Vector3<T> x) const {
-
-        Vector2<T> l=project_cam(x);
-        Vector2<T> r=project_right_cam(x);
-        return Vector3<T>(l[0],l[1],l[1]-r[1]); // disparity in col
-    }
-    template<class T>  inline Vector3<T> stereo_project_cam(Vector4<T> x) const {
-
-        Vector2<T> l=project_cam(x);
-        Vector2<T> r=project_right_cam(x);
-        return Vector3<T>(l[0],l[1],l[1]-r[1]); // disparity in col
+    template<class T> inline Vector4<T> x_right__vehicle(Vector4<T> Xv) const{
+        auto x=x_cam_vehicle(Xv);
+        x[0]-=baseline*x[3];
+        return x;
     }
 
-    template<class T>  inline Vector3<T> stereo_project(Vector3<T> x) const {
-        x=Pose<T>(P_cam0_vehicle_)*x;
-        Vector2<T> l=project_cam(x);
-        Vector2<T> r=project_right_cam(x);
-        return Vector3<T>(l[0],l[1],l[1]-r[1]); // disparity in col
+    template<class T>  inline Vector2<T> project(Vector3<T> Xv) const {
+        return project_cam(x_cam_vehicle(Xv));
     }
-    template<class T>  inline Vector3<T> stereo_project(Vector4<T> x) const {
-        x=Pose<T>(P_cam0_vehicle_)*x;
-        Vector2<T> l=project_cam(x);
-        Vector2<T> r=project_right_cam(x);
-        return Vector3<T>(l[0],l[1],l[1]-r[1]); // disparity in col
+    template<class T>  inline Vector2<T> project(Vector4<T> Xv)    const     {
+        return project_cam(x_cam_vehicle(Xv));
     }
-
-    template<class T>
-    inline bool behind_either( Vector3<T> x) const{
-        x=P_cam0_vehicle_*x;
-        return x[2]<baseline();
+    template<class T>  inline Vector2<T> project_right(Vector3<T> Xv) const  {
+        return project_cam(x_right_vehicle(Xv));
     }
-    template<class T>
-    inline bool behind_either(Vector4<T> x) const{
-        x=P_cam0_vehicle_*x;
-        return x[2]<baseline()*x[3];
+    template<class T>  inline Vector2<T> project_right(Vector4<T> Xv) const  {
+        return project_cam(x_right_vehicle(Xv));
     }
-
-
-    bool behind_either(Vector3d x) const{
-        return (x[2]<baseline());
+    template<class T>  inline T disparity(Vector3<T> Xv) const  {
+        return disparity_cam(x_cam_vehicle(Xv));
+    }
+    template<class T>  inline T disparity(Vector4<T> Xv) const  {
+        return disparity_cam(x_cam_vehicle(Xv));
+    }
+    template<class T>  inline Vector3<T> stereo_project(Vector3<T> Xv) const {
+        return stereo_project_cam(x_cam_vehicle(Xv));
+    }
+    template<class T>  inline Vector3<T> stereo_project(Vector4<T> Xv) const {
+        return stereo_project_cam(x_cam_vehicle(Xv));
     }
 
+    ////////////////behind camera
+    template<class T> inline bool behind_cam (Vector3<T> Xc) const{        return Xc[2]<T(0);    }
+    template<class T> inline bool behind_cam (Vector4<T> Xc) const{        return Xc[2]<Xc[3];   }
 
-    Vector4d  triangulate_ray(Vector2d rowcol, double disparity)const {
-        return ::cvl::triangulate_ray(undistort(rowcol),fx(),baseline(),disparity);
+    template<class T> inline bool behind (Vector3<T> Xv) const{      return   behind_cam(x_cam_vehicle(Xv));    }
+    template<class T> inline bool behind (Vector4<T> Xv) const{      return   behind_cam(x_cam_vehicle(Xv));    }
+
+    // the old behind either, was incorrect!
+
+
+    //////////////////// Triangulation, these names were bad
+
+    inline Vector4d  triangulate_x_camera(double row, double col, double disparity) const {
+        return ::cvl::triangulate_ray(undistort(row, col),fx(),baseline(),disparity).normalized();
     }
-    Vector4d  triangulate_ray(Vector3d rowcoldisp)const {
-        return triangulate_ray(Vector2d(rowcoldisp[0],rowcoldisp[1]),rowcoldisp[2]);
+    inline Vector4d  triangulate_x_camera(Vector2d y /*row, col*/, double disparity) const {
+        return ::cvl::triangulate_ray(undistort(y[0],y[1]),fx(),baseline(),disparity).normalized();
     }
-    inline Vector4d  triangulate_ray_from_yn(Vector2d yn, double disparity) const {
-                //::cvl::triangulate_ray(yn,fx(),baseline(),disparity);
-        const Vector4d x_cam(    yn[0],
-                    yn[1],
-                    (1.0),
-                    disparity/(fx_*baseline_));
-        return P_cam0_vehicle_.inverse()*x_cam;
+    inline Vector4d  triangulate_x_camera(Vector3d y/*row, col, disp*/) const {
+        return ::cvl::triangulate_ray(undistort(y[0],y[1]),fx(),baseline(),y[2]).normalized();
     }
 
-    PoseD P_cam0_vehicle()const {
-        return P_cam0_vehicle_;
-
+    inline Vector4d  triangulate_x_vehicle(double row, double col, double disparity) const {
+        return P_left_vehicle_.inverse()*triangulate_x_camera(row,col,disparity);
     }
+    inline Vector4d  triangulate_x_vehicle(Vector2d y /*row, col*/, double disparity) const {
+        return P_left_vehicle_.inverse()*triangulate_x_camera(y,disparity);
+    }
+    inline Vector4d  triangulate_x_vehicle(Vector3d y/*row, col, disp*/) const {
+        return P_left_vehicle_.inverse()*triangulate_x_camera(y);
+    }
+
+
+    //////////////// for ceres, reprojection costs, accounts for behind too...
+
+
+
+
     std::string str() {
         std::stringstream ss;
         ss<<"Stereo Calibration: \n";
         ss<<"rows: =    "<<rows_<<"\n";
         ss<<"cols: =    "<<cols_<<"\n";
         ss<<"f_row =    "<<fy_<<"\n";
-        ss<<"f_col =    "<<fx_<<"\n";
+        ss<<"fx =    "<<fx_<<"\n";
         ss<<"p_row =    "<<py_<<"\n";
-        ss<<"p_col =    "<<px_<<"\n";
+        ss<<"px =    "<<px_<<"\n";
         ss<<"baseline=  "<<baseline_<<"\n";
-        ss<<"P_cam0_imu="<<P_cam0_vehicle_;
+        ss<<"P_cam0_imu="<<P_left_vehicle_;
         return ss.str();
     }
 };

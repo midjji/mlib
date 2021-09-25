@@ -34,19 +34,14 @@ template<class T> std::future<cv::Mat_<T>> future_read_image_(std::string path /
     return std::async(std::launch::async, [path]()->cv::Mat_<T>{ return read_image_<T>(path); });
 }
 
-// paralell read many
-namespace  {
 
-
-mlib::Timer timer("read images");
-}
 template<class T>
 std::map<int,cv::Mat_<T>>
 read_image_(const std::map<int,std::string>& paths, bool require_all=true) noexcept
 {
 
 
-    timer.tic();
+
     std::map<int,std::future<cv::Mat_<T>>> future_images;
     for(const auto& [id,path]:paths)
     {
@@ -59,8 +54,11 @@ read_image_(const std::map<int,std::string>& paths, bool require_all=true) noexc
     }
     std::map<int,cv::Mat_<T>> images;
     for(auto& [id,future_image]:future_images)
-        images[id]=future_image.get();
-    timer.toc();
+    {
+        cv::Mat_<T> img=future_image.get();
+        if(img.rows>0 && img.cols>0  && img.data!=nullptr)
+            images[id]=img;
+    }
     //mlog()<<"\n"<<timer;
     return images;
 }

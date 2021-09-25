@@ -47,10 +47,12 @@ struct Dataset {
     {11, "uzh_tracking_area_run2"},
     };
 
-    std::map<int, std::shared_ptr<Sequence>> seqs;
+
     std::shared_ptr<Sequence> sequence(int index) const;
 
     Dataset(std::string dataset_path="/storage/datasets/hilti/preprocessed/");
+private:
+        std::map<int, std::shared_ptr<Sequence>> seqs;
 };
 
 

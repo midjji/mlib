@@ -22,13 +22,13 @@ struct HiltiImageSample:public StereoSample
             float128 time,
             const std::shared_ptr<StereoSequence> ss,
             int  frame_id,
-            std::map<int,cv::Mat1f> images, // nr 5 is disparity between left and right
+            const std::map<int,cv::Mat1f> images, // nr 5 is disparity between left and right
             std::vector<imu::Data> imu_datas,
             float128 original_time_ns);
 
     virtual cv::Mat1f grey1f(int i) const override;
     bool complete() const override;
-    bool stereo() const;
+    bool has_stereo() const override;
     bool has(int i) const;
     virtual int type() const override;
     std::string num2name(int num) const;
@@ -44,7 +44,7 @@ private:
 
     // the raw images
     // not all are guaranteed to exist?
-    std::map<int,cv::Mat1f> images;
+    const std::map<int,cv::Mat1f> images;
     std::vector<imu::Data> imu_datas;
     float128 original_time_ns;
 };

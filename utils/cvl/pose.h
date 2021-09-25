@@ -72,6 +72,7 @@ class Pose {
     /// the unit quaternion representing the rotation, s,i,j,k
     /// the translation: x' = (R(q)x) +t
     Vector<T,7> data; // q,t
+    // padding or not?
 
 public:
 
@@ -81,28 +82,21 @@ public:
     /**
          * @brief Pose initializes as a identity transform, trouble, this prevents std::trivial!
          */
-
     Pose():data{T(1.0),T(0.0),T(0.0),T(0.0),T(0.0),T(0.0),T(0.0)}{}
     mlib_host_device_
     static Pose Identity(){return Pose();}
 
-    /**
-                             * @brief Pose
-                             * @param Pose<U> converting constructor
-                             */
+
     template<class U>
-    mlib_host_device_
+
     Pose(const Pose<U>& p):data(p.qt()){}
+
+    mlib_host_device_
     Pose(Vector<T,7> v):data(v){}
 
-
     mlib_host_device_
-    /**
-                             * @brief Pose
-                             * @param q_ unit quaternion
-                             * @param t_
-                             */
     Pose(Vector4<T> q, Vector3<T> t):data(q[0],q[1],q[2],q[3],t[0],t[1],t[2]){}
+
 
     mlib_host_device_
     /**
@@ -241,8 +235,9 @@ public:
         return Pose(qi,ti);
     }
     inline Vector3<T> apply_inverse(Vector3<T> x){
-        x-=t();
-        quaternionRotate(conjugateQuaternion(q()));
+        require(false,"implementation");
+        //x-=t();
+        //quaternionRotate(conjugateQuaternion(q()));
     }
 
     mlib_host_device_
@@ -441,6 +436,26 @@ public:
     }
     inline Vector4<T> q() const {return Vector4<T>(data[0],data[1],data[2],data[3]);}
     inline Vector3<T> t() const {return Vector3<T>(data[4],data[5],data[6]);}
+    inline T& tx()            { return data[4];}
+    inline T& ty()            { return data[5];}
+    inline T& tz()            { return data[6];}
+    inline const T& tx() const{ return data[4];}
+    inline const T& ty() const{ return data[5];}
+    inline const T& tz() const{ return data[6];}
+
+    inline T& real(){ return data[0];} // sometimes called w
+    inline T& qw()  { return data[0];}
+    inline T& qx()  { return data[1];}
+    inline T& qy()  { return data[2];}
+    inline T& qz()  { return data[3];}
+
+    inline const T& real() const{ return data[0];} // sometimes called w
+    inline const T& qw()   const{ return data[0];} // sometimes called w
+    inline const T& qx()   const{ return data[1];}
+    inline const T& qy()   const{ return data[2];}
+    inline const T& qz()   const{ return data[3];}
+
+
     inline Vector<T,7> qt() const{return data;}
 
 };

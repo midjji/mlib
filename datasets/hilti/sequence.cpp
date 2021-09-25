@@ -10,6 +10,7 @@
 #include <mlib/opencv_util/read_image.h>
 #include <mlib/utils/files.h>
 #include <mlib/utils/vector.h>
+#include <vector>
 
 
 
@@ -20,15 +21,69 @@ using std::endl;
 namespace cvl{
 namespace hilti{
 
-std::shared_ptr<HiltiImageSample> PreloadSample::load(int sampleindex, const std::shared_ptr<StereoSequence> ss) const
+PreloadSample::PreloadSample(int sampleindex, float128 time,
+                             float128 original_time_ns,
+               std::vector<imu::Data> datas,
+                             std::map<int,std::string> cam2paths ):
+    sampleindex(sampleindex),time_(time),original_time_ns_(original_time_ns),datas(datas),cam2paths(cam2paths)
 {
-    for(const auto& [id, path]:paths)
+
+}
+
+
+bool PreloadSample::has(int index) const{
+    auto it=cam2paths.find(index);
+    require(it!=cam2paths.end(),"wtf are you doing... ");
+    return fs::exists(it->second);
+}
+bool PreloadSample::has_all() const{
+    for(int i=0;i<6;++i){
+        if(!has(i)) return false;
+    }
+    return true;
+}
+std::string PreloadSample::str() const
+{
+    int sampleindex=0;//?
+    std::stringstream ss;
+    ss<<"sample: "<<sampleindex<<" of time: "<<time()<<" and "<<original_time_ns();
+    if(has_all())
+        ss<<" has all images.\n";
+    else{
+        ss<<"\n";
+        for(const auto& [id, path]:cam2paths)
+        {
+            if(!fs::exists(path))
+                ss<<"is missing: "<<id<< " with path: "<<path<<"\n";
+        }
+    }
+    // should be sorted, but lets not assume...
+    auto data_copy=datas;
+
+    if(datas.empty())
+        ss<< "sample: "<<sampleindex<<" is missing imu data\n";
+    else{
+        std::sort(data_copy.begin(), data_copy.end(),[](imu::Data a, imu::Data b){return a.time<b.time;});
+        ss<<" and has imu data: "<<datas.size()<<" spanning: "<< data_copy[0].time<<" to "<<data_copy.rbegin()[0].time<<"\n";
+        ss<<"verify its been sorted!\n";
+    }
+    return ss.str();
+}
+std::shared_ptr<HiltiImageSample> PreloadSample::load(const std::shared_ptr<StereoSequence> ss) const {
+    if(!has_all()) cout<<str()<<endl;
+
+
+
+    auto images=mlib::read_image1f(cam2paths,false);
+    // multiply the regular images by 16
+    for(int i=0;i<5;++i)
     {
-        if(!fs::exists(path))
-            cout<<"sample index: "<<sampleindex<<" lacks image "<<id<<" looking in: "<<path<<endl;
+        auto it=images.find(i);
+        if(it==images.end()) continue;
+        it->second=it->second*16.0f;
     }
 
-    return std::make_shared<HiltiImageSample>(time, ss,  sampleindex, mlib::read_image1f(paths,false), datas, original_time_ns);
+    return std::make_shared<HiltiImageSample>(time(), ss,  sampleindex, images, datas, original_time_ns());
 }
 
 
@@ -97,6 +152,7 @@ collect_imu_by_frametimes(
         }
         it++;
     }
+
 
 
 
@@ -254,6 +310,9 @@ Sequence::Sequence(std::string path,
     // generate image paths
 
     auto times=read_times(path+"times.txt");
+    // sort them? I should not need to!
+    float128 t0=times[0];
+
     std::map<float128, std::map<int, std::string>> time2num2path;
     for(auto time:times)
     {
@@ -269,6 +328,7 @@ Sequence::Sequence(std::string path,
 
 
 
+
     // read imu data.
     std::map<float128, std::vector<imu::Data>> frametime2imu_datas=collect_imu_by_frametimes(times, read_imu(path+"imu/data.txt"));
 
@@ -276,36 +336,29 @@ Sequence::Sequence(std::string path,
 
     // image time 2
     std::map<float128, PreloadSample> preload_samples_map;
+    int sampleindex=0;
     for(const auto& [time, num2path]: time2num2path)
     {
-        PreloadSample& preload_sample=preload_samples_map[time];
-        preload_sample.time=time;
-        preload_sample.paths=num2path;
-        //for(auto [num, path]:num2path) cout<<"num,path: "<<num<<", "<<path<<endl;
         auto it=frametime2imu_datas.find(time);
         if(it==frametime2imu_datas.end()){
             mlog()<<"humm?"<<time<<"\n";
             exit(1);
         }
-
         auto& ds=it->second;
-        if(ds.empty()) mlog()<<"empty image paths?\n";
-        preload_sample.datas=ds;
+        if(ds.empty()) mlog()<<"image without imu data"<<time<<"\n";
+
+        preload_samples_map[time] = PreloadSample(sampleindex++,(time-t0)/1e9,time,ds,num2path);
     }
     // this automatically sorts the preload_samples too
     preload_samples.reserve(preload_samples_map.size());
     for(const auto& [time, pls]:preload_samples_map)
         preload_samples.push_back(pls);
 
-    // remove the excessive timestamp offset...
-    t0=preload_samples[0].time;
-    for(auto& p:preload_samples){ p.original_time_ns=p.time;p.time-=t0; p.time/=1e9;}
-    for(auto& p:preload_samples) for(auto& d:p.datas) {d.time-=t0;d.time/=1e9;}
 
     // generate the frameid to time mapper
     f2t=std::make_shared<Frameid2TimeMapLive>();
     for(uint i=0;i<preload_samples.size();++i)
-        f2t->add(i,preload_samples[i].time);
+        f2t->add(i,preload_samples[i].time());
 
     timer.toc();
     cout<<timer<<endl;
@@ -349,8 +402,7 @@ std::shared_ptr<Frameid2TimeMap> Sequence::fid2time() const
 std::shared_ptr<HiltiImageSample>
 Sequence::sample(int index) const
 {
-
-    return preload_samples.at(index).load(index, wself.lock());
+    return preload_samples.at(index).load(wself.lock());
 }
 std::shared_ptr<StereoSample> Sequence::stereo_sample(int index) const{
     return sample(index);

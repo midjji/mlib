@@ -15,11 +15,25 @@ namespace hilti {
 
 
 
-struct PreloadSample{
-    float128 time; // for the images,
-    float128 original_time_ns;
-    std::vector<imu::Data> datas; // from image time to next image time. except for the first and last image times.
-    std::map<int, std::string> paths; // the rectified paths, using standardized numbers
+struct PreloadSample
+{
+    PreloadSample()=default;
+    PreloadSample(int sampleindex, float128 time,float128 original_time_ns,
+                  std::vector<imu::Data> datas,
+                  std::map<int,std::string> cam2paths );
+
+    std::shared_ptr<HiltiImageSample> load(const std::shared_ptr<StereoSequence> ss) const;
+    bool has(int index) const;
+    bool has_all() const;
+    std::string str() const;
+    float128 time() const{return time_;}
+    float128 original_time_ns() const{return original_time_ns_;}
+private:
+    int sampleindex;
+    float128 time_{0}; // for the images,
+    float128 original_time_ns_{0};
+    std::vector<imu::Data> datas=std::vector<imu::Data>(); // from image time to next image time. except for the first and last image times.
+    std::map<int, std::string> cam2paths{}; // the rectified paths, using standardized numbers
     std::map<std::string, int> name2num{
         {"left", 0},
         {"right", 1},
@@ -27,7 +41,8 @@ struct PreloadSample{
         {"cam3",3},
         {"cam4",4},
         {"disparity",5}};
-    std::shared_ptr<HiltiImageSample> load(int sampleindex, const std::shared_ptr<StereoSequence> ss) const;
+
+
 };
 
 

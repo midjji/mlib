@@ -281,7 +281,7 @@ std::string DisplayTable(std::vector<std::string> headers,
     }
     // now check that no row exceeds 150
     for(auto w:widths)
-        if(w>50) return std::string("broken table")+str(w);
+        if(w>80) return std::string("broken table")+str(w);
 
 
 

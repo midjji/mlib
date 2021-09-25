@@ -1278,6 +1278,18 @@ public:
             ab[j++] = b._data[i];
         return ab;
     }
+    template<unsigned int RowsB>
+    Matrix<T,Rows+RowsB,1> append(Matrix<T,RowsB,1> b){
+        static_assert(Cols==1 ,"Vectors only");
+
+        Matrix<T,Rows+RowsB,1> ab;
+        uint j=0;
+        for(uint i=0;i<Rows;++i)
+            ab[j++] = _data[i];
+        for(uint i=0;i<RowsB;++i)
+            ab[j++] = b._data[i];
+        return ab;
+    }
 };
 
 

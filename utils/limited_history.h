@@ -9,13 +9,22 @@ template<class T>
  * I keep needing this.
  */
 struct LimitedHistory{
-    unsigned int size;
-    LimitedHistory(unsigned int size=5):size(size){}
+private:
+     int max_size_;
+
+public:
     std::vector<T> buff;
+    std::vector<T> buffert() const{return buff;}
+    const T& operator[](int index) const{return buff[index];}
+    int max_size() const{return max_size;};
+    int size() const {return buff.size();}
+
+    LimitedHistory(int max_size_=5):max_size_(max_size_){}
+
 
 
     void push(T t){
-        if(buff.size()<size)
+        if(int(buff.size())<max_size_)
             buff.push_back(t);
         else{
             // slow as hell but very easy to get right!

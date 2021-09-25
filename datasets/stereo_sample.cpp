@@ -36,6 +36,7 @@ int StereoSample::type() const{
     return Sample::stereo;
 }
 bool StereoSample::complete() const{return true;}
+bool StereoSample::has_stereo() const{return true;}
 float StereoSample::disparity(Vector2d rowcol)const{return disparity(rowcol[0],rowcol[1]);}
 
 void show(const std::shared_ptr<StereoSample>& s){

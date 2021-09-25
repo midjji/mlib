@@ -21,6 +21,7 @@ struct StereoSample:public ImageSample
     float disparity(Vector2d rowcol) const;
     virtual int type() const override;
     virtual bool complete() const;
+    virtual bool has_stereo() const;
     virtual float128 original_time() const{return 0;}
 
 protected:
