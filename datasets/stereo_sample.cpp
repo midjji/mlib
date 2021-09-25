@@ -19,7 +19,7 @@ cv::Mat1f StereoSample::disparity_image() const{return disparity_.clone();}
 StereoSample::~StereoSample(){}
 cv::Mat3b StereoSample::display_disparity() const
 {
-    return image2rgb3b(disparity_,2);
+    return image2rgb3b(disparity_image(),2);
 }
 float StereoSample::disparity(double row, double col) const{
     if(row<0) return -1.0F;

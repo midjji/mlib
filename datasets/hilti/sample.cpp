@@ -22,12 +22,6 @@ HiltiImageSample::HiltiImageSample(
     images(images),imu_datas(imu_datas),original_time_ns(original_time)
 {
 
-
-
-
-
-
-
     for(const auto& [ind, image]:images)
     {
         require(image.rows>0," zero rows for image? ?");
