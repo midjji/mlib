@@ -75,7 +75,7 @@ T* cudaNew(int elements)
     error = cudaMalloc((void **) &data, elements*sizeof(T));
     if (error != cudaSuccess)
     {
-        std::cout<<"Failed to allocate memory on the device: size is: "<<sizeof(T)*elements/(1024.0*1024)<<"MB"<< "cuda error code is "<<(int)error<<" which means "<<getCudaErrorMsg(error)<<std::endl;
+        std::cout<<"Failed to allocate memory on the device: size is: "<<sizeof(T)*elements/(1024.0*1024)<<"MB"<< "cuda error code is "<<(int)error<<" which means "<<cudaGetErrorString(error)<<std::endl;
         return nullptr;
     }
     return data;

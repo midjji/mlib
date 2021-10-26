@@ -49,7 +49,7 @@ namespace cvl{
  *
  * __restrict__ does not work on clang
  */
-template<class T> mlib_host_device_
+template<class T> __host__ __device__
 void triangulate(const  T* yln, const  T* yrn, T baseline,  T* x){
 
     x[2]=yln[0] - yrn[0];
@@ -72,7 +72,7 @@ void triangulate(const  T* yln, const  T* yrn, T baseline,  T* x){
  * If disparity <0, set disparity to nearly 0.
  *
  */
-template<class T> mlib_host_device_
+template<class T> __host__ __device__
 Vector3<T> triangulate(const Vector2<T>& yln,const  Vector2<T>& yrn, T baseline){
 
     Vector3<T> x;
@@ -98,7 +98,7 @@ double disp=yln[0] - yrn[0];
  * @return the triangulated depth
  */
 template<class T>
-mlib_host_device_
+__host__ __device__
 T triangulate(T f, T baseline, T disparity){
     return     f*baseline/disparity;
 }
@@ -111,7 +111,7 @@ T triangulate(T f, T baseline, T disparity){
  * @return the triangulated pose
  */
 template<class T>
-mlib_host_device_
+__host__ __device__
 Vector3<T> triangulate(Vector2<T> yn, T f, T baseline, T disparity){
     Vector3<T> x;
     x[2]=triangulate(f,baseline,disparity);
@@ -128,7 +128,7 @@ Vector3<T> triangulate(Vector2<T> yn, T f, T baseline, T disparity){
  * @return the triangulated pose
  */
 template<class T>
-mlib_host_device_
+__host__ __device__
 inline Vector4<T> triangulate_ray(Vector2<T> yn,
                                           T fx, T baseline,
                                           T disparity){
@@ -138,7 +138,7 @@ inline Vector4<T> triangulate_ray(Vector2<T> yn,
                 disparity/(fx*baseline)};
 }
 template<class T>
-mlib_host_device_
+__host__ __device__
 inline Vector4<T> triangulate_ray(Vector3<T> yn,
                                           T fx, T baseline){
     return {    yn[0],

@@ -154,7 +154,7 @@ Vector3<T> getEulerAngles(const Matrix3<T>& R){
     return Vector3<T>(yaw,pitch,roll);
 }
 template<class T>
-mlib_host_device_
+__host__ __device__
 /**
  * @brief isRotationMatrix checks if a matrix is a valid rotation matrix
  * @param R
@@ -173,7 +173,7 @@ bool isRotationMatrix(const Matrix3<T>& R){
     return true;
 }
 template<class T>
-mlib_host_device_
+__host__ __device__
 /**
  * @brief isRotationQuaternion checks that the vector can be considered a rotation => not nan, not inf, lenth=1
  * @param q
@@ -186,7 +186,7 @@ bool isRotationQuaternion(const Vector4<T>& q){
 }
 
 template<class T>
-mlib_host_device_
+__host__ __device__
 /**
  * @brief isAlmostRotationMatrix checks that a matrix atleast approximatively is a rotation matrix
  * @param R
@@ -204,7 +204,7 @@ bool isAlmostRotationMatrix(const Matrix3<T>& R){
 
 // templated versions:
 template<class T>
-mlib_host_device_
+__host__ __device__
 /**
  * @brief getRotationMatrix x' = R(q)x
  * @param q unit quaternion
@@ -246,7 +246,7 @@ Matrix3<T> getRotationMatrix(const Vector4<T>& q){
 
 
 template<class T>
-mlib_host_device_
+__host__ __device__
 /**
  * @brief getRotationQuaternion
  * @param R rotation matrix

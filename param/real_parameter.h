@@ -29,7 +29,7 @@ struct RealParameter:public Parameter {
     double gui_value() const;
     void set_value(double value);
     bool changed() const;
-
+    bool is_double() const override{return true;}
 
 
 private:

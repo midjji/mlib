@@ -4,14 +4,21 @@
 #include <real_parameter.h>
 
 namespace cvl {
+
 struct Parametrized {
     Parametrized(std::string name="unnamed",
                  std::string desc="no desc");
     virtual ~Parametrized();
 
+    void add(std::shared_ptr<PSet> p);
     std::shared_ptr<PSet> params();
     void update_all();
 
+    // could these be int pointers, and so on? yeah, it would simply be the latest value
+    // consider refactor to that for a cool boost to modularity!
+    // this class owns,
+    // these are implicitly shared, but for performance reasons on the query side,
+    // a normal pointer is returned.
     IntParameter* pint(
             int default_value,
             std::string name="unnamed",
@@ -26,6 +33,7 @@ struct Parametrized {
                          std::string desc="no tool tip",
                          double minv=std::numeric_limits<double>::lowest(),
                          double maxv=std::numeric_limits<double>::max());
+
 private:
     std::shared_ptr<PSet> param;
 };

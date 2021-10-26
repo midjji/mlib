@@ -181,6 +181,7 @@ Timer::Timer(const std::string& name,
 void Timer::reserve(unsigned int size){
     ts.reserve(size);
 }
+bool Timer::empty() const{return ts.empty();}
 bool Timer::tickable() const{
     return dotic;
 }

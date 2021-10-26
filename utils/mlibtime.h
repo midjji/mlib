@@ -183,7 +183,9 @@ class Timer{
 
 
 
+
 public:
+    bool empty() const;
     bool tickable() const;
     bool tockable() const;
 

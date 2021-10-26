@@ -150,13 +150,13 @@ public:
     }
     template<class T> inline Vector3<T> x_right_vehicle(Vector3<T> Xv) const{
         auto x=x_cam_vehicle(Xv);
-        x[0]-=baseline;
+        x[0]-=T(baseline_);
         return x;
     }
 
     template<class T> inline Vector4<T> x_right__vehicle(Vector4<T> Xv) const{
         auto x=x_cam_vehicle(Xv);
-        x[0]-=baseline*x[3];
+        x[0]-=T(baseline_)*x[3];
         return x;
     }
 

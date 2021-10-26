@@ -31,6 +31,8 @@ struct IntParameter:public Parameter {
     void set_value(int value);
     bool changed() const;
 
+    bool is_int() const override{return true;}
+
 
 private:
     // The active value, used by the user, update_value changes local

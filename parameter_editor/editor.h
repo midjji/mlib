@@ -27,5 +27,7 @@ private:
 public:
     ParameterEditor(QWidget *parent = 0);
     void set(std::shared_ptr<PSet> p);
+    void save(std::string path);
+    void load(std::string path);
 };
 }

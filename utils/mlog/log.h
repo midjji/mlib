@@ -44,12 +44,18 @@
 #include <atomic>
 
 static_assert(__cplusplus>=201103L, " must be c++11 or greater");
+std::string code_position_impl(std::string function, std::string file, int line);
 
-
+#define code_position() code_position_impl(std::string(__FILE__),0+__LINE__)
 
 #define mlog() ::cvl::Logger(std::string(__PRETTY_FUNCTION__),std::string(__FILE__),0+__LINE__)
 #define mlogl() ::cvl::Logger("",std::string(__FILE__),0+__LINE__)
-#define require(condition, message) {if(!(condition)){::cvl::Logger(std::string(__PRETTY_FUNCTION__),std::string(__FILE__),0+__LINE__)<<message;exit(1);}}
+
+#define require(condition, message) {\
+    if(!(condition)){\
+    mlog()<<"\n\nRequired condition: ("<<#condition<<") failed!\n"<<message<<"\n\n";\
+    exit(1);}}
+
 #define wtf() require(false, "WTF?\n")
 
 namespace cvl{

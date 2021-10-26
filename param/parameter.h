@@ -19,5 +19,8 @@ public:
     virtual bool update_value()=0;
     enum type_t{integer, real, options};
     virtual type_t type() const=0;
+    virtual bool is_int() const;
+    virtual bool is_double() const;
+
 };
 }

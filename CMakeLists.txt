@@ -5,7 +5,9 @@ project(mlib VERSION 2.0
     LANGUAGES CXX)
 message("\n\nmlib configuration begin\n\n")
 # everything at once
-add_library(mlib INTERFACE)
+add_library(mlib INTERFACE )
+
+
 
 
 
@@ -25,10 +27,10 @@ INIT_BUILD()
 
 # a c++11 only parameter gui
 add_subdirectory(param)
-
+target_link_libraries(mlib INTERFACE param)
 # a qt based parameter editor
 add_subdirectory(parameter_editor)
-
+target_link_libraries(mlib INTERFACE editor)
 # a bunch of different external stuff
 add_subdirectory(extern)
 

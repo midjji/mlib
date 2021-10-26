@@ -26,7 +26,7 @@ public:
         T i00,i01,i10,i11;
         i00=T(img(row,col));
         i01=i10=i11=i00;
-        if(col+1<img.cols)
+        if(col+1<uint(img.cols))
             i01=T(img(row,col+1));
         if(row+1<uint(img.rows))
             i10=T(img(row+1,col));

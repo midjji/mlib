@@ -13,12 +13,12 @@ namespace cvl
 PSetDisplayWidget::PSetDisplayWidget(
         PSetPtr ps,
         QWidget* parent):
-    QWidget(parent)
+    QWidget(parent),ps(ps)
 {
     new QVBoxLayout(this);
     layout()->setMargin( 0 );
     layout()->setSpacing( 0 );
-    setMinimumSize(200,640);
+    setMinimumSize(640,640);
     QScrollArea *area = new QScrollArea(this);
 
     layout()->addWidget(area);
@@ -35,16 +35,16 @@ PSetDisplayWidget::PSetDisplayWidget(
         // note that this also sets layout
         QVBoxLayout* layout=new QVBoxLayout(w);
         layout->setSizeConstraint(QLayout::SetMinimumSize);
-
-        if(!ps) return; // no leak, this owns due to setting parent above
+        if(!ps) return; // so we can create the window first, and set the ps later..
         layout->addWidget(new Label(ps->name, w),0);
         layout->addWidget(new Label(ps->desc, w),0);
 
 
         std::map<std::string,
-                std::vector<Parameter*>> groups=ps->param_groups();
+                std::vector<std::shared_ptr<Parameter>>> groups=ps->param_groups();
         for(auto& group:groups)
         {
+
             layout->addWidget(display_group(group.second, group.first,w),0);
         }
         layout->addStretch(1);

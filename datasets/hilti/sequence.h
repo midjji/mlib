@@ -113,7 +113,7 @@ static std::shared_ptr<Sequence> create(std::string path, std::string sequence_n
 
 
     std::shared_ptr<Frameid2TimeMap> fid2time() const override;
-    virtual std::vector<double> times() const{return std::vector<double>();};
+    virtual std::vector<double> times() const override {return std::vector<double>();};
 
 
 

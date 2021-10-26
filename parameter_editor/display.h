@@ -15,6 +15,8 @@ public:
     PSetDisplayWidget(std::shared_ptr<PSet> ps,
                        QWidget* parent = nullptr);
 
+private:
+    std::shared_ptr<PSet> ps;
 
 };
 

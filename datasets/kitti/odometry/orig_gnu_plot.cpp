@@ -149,7 +149,7 @@ std::vector<cvl::PoseD> invert(std::vector<cvl::PoseD> ps){
 void plot_sequence(std::vector<cvl::PoseD> gt,std::vector<cvl::PoseD> res,std::string label,
                    std::string output_path,
                    std::string name){
-    plot_sequence(gt,{res},{label},output_path,name);
+
 }
 
 

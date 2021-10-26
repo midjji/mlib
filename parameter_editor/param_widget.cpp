@@ -26,8 +26,8 @@ QString qstr(double d){    std::stringstream ss;    ss<<d;    return ss.str().c_
 class IntParameterWidget:public QWidget{
 public:
     QLineEdit* edit;
-    Parameter* p;
-    IntParameterWidget(IntParameter* p,
+    std::shared_ptr<IntParameter> p;
+    IntParameterWidget(std::shared_ptr<IntParameter> p,
                        QWidget* parent):
         QWidget(parent), p(p)
     {
@@ -59,8 +59,8 @@ public:
 class RealParameterWidget:public QWidget{
 public:
     QLineEdit* edit;
-    Parameter* p;
-    RealParameterWidget(RealParameter* p,
+    std::shared_ptr<RealParameter> p;
+    RealParameterWidget(std::shared_ptr<RealParameter> p,
                         QWidget* parent):
         QWidget(parent), p(p)
     {
@@ -79,29 +79,22 @@ public:
         connect(edit,
                 &QLineEdit::editingFinished,
                 this,
-                [&]{ p->set_value(edit->text().toDouble()); });  
+                [&]{ p->set_value(edit->text().toDouble()); });
     }
 };
 
-QWidget* display(Parameter* p, QWidget* parent)
+
+QWidget* display(std::shared_ptr<Parameter> p, QWidget* parent)
 {
 
-    using intp=IntParameter*;
-    using realp=RealParameter*;
+if(p->is_int()) return new IntParameterWidget(std::dynamic_pointer_cast<IntParameter>(p),parent);
+if(p->is_double()) return new RealParameterWidget(std::dynamic_pointer_cast<RealParameter>(p),parent);
 
-    switch (p->type())
-    {
-    case Parameter::type_t::integer: return new IntParameterWidget(intp(p),parent);
-    case Parameter::type_t::real: return new RealParameterWidget(realp(p),parent);
-    default:
-        std::cout<<"Parameter type not supported, returning nullptr"<<std::endl;
-        return nullptr;
-    }
 }
 class GroupWidget:public QFrame{
 public:
 
-    GroupWidget(std::vector<Parameter*> group,
+    GroupWidget(std::vector<std::shared_ptr<Parameter>> group,
                 std::string groupname,
                 QWidget* parent):QFrame(parent)
     {       
@@ -114,13 +107,13 @@ public:
         layout->setSizeConstraint(QLayout::SetMinimumSize);
         layout->addWidget(new Label(groupname, this),0,Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop);
 
-        for(auto* p:group){
+        for(auto p:group){
             layout->addWidget(display(p,this),0,Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop);
         }
     } // false positive for leak
 };
 
-QWidget* display_group(std::vector<Parameter*> group, std::string groupname, QWidget* parent)
+QWidget* display_group(std::vector<std::shared_ptr<Parameter>> group, std::string groupname, QWidget* parent)
 {
     return new GroupWidget(group,groupname,parent);
 }

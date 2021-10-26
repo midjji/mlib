@@ -21,29 +21,20 @@
  * \note BSD licence
  *
  ******************************************************************************/
-// verify that the flag combinations are sane
-#ifndef WITH_CUDA
-#define WITH_CUDA 0 // this what would happen anyways, but now its explicit and intended
+
+
+
+//#ifndef __CUDACC_VER_MAJOR__
+
+#ifndef __host__
+#define __host__
+#define __device__
 #endif
 
-#if WITH_CUDA
-#ifndef __CUDACC_VER_MAJOR__
-//static_assert(false, "attempting to compile with cuda without cuda");
-#endif
-#endif
-
-#ifndef mlib_host_device_
-#if WITH_CUDA
-#include <cuda_runtime.h>
-#define mlib_host_device_ __host__ __device__
-#else
-#define mlib_host_device_
-#endif
-#endif
 
 #include <cassert>
 #include <cmath>
-//#include <mlib/utils/cvl/matrix_adapter.h>
+
 
 
 #include <array>
@@ -59,8 +50,8 @@ namespace cvl {
 
 ///meta template clarifiers
 
-template<int a>  mlib_host_device_ constexpr bool isodd() {return a % 2 ==1;}
-template<unsigned int a,unsigned int b>  mlib_host_device_ constexpr unsigned int maxv() {
+template<int a>  __host__ __device__ constexpr bool isodd() {return a % 2 ==1;}
+template<unsigned int a,unsigned int b>  __host__ __device__ constexpr unsigned int maxv() {
     return a < b ? b : a;
 }
 
@@ -95,7 +86,7 @@ public:
 
 
     ///@return Access element (i) with a static limit check. Useful for vectors and row-major iteration over matrices. () syntax is not pretty operator() < T >()
-    template<unsigned int i> mlib_host_device_
+    template<unsigned int i> __host__ __device__
     T& at()
     {
         static_assert(i<Rows*Cols,"index out of bounds");
@@ -103,7 +94,7 @@ public:
     }
 
     ///@return Const access to element (i) with a static limit check. Useful for vectors and row-major iteration over matrices.
-    template<unsigned int i> mlib_host_device_
+    template<unsigned int i> __host__ __device__
     const T& at() const
     {
         static_assert(i<Rows*Cols,"index out of bounds");
@@ -112,7 +103,7 @@ public:
 
     //// Element access ////////////
     ///@return element (row, col)
-    mlib_host_device_
+    __host__ __device__
     T& operator()(unsigned int row /** @param row */, unsigned int col /** @param col */)
     {
 
@@ -126,7 +117,7 @@ public:
     }
 
     ///@return Const access to element (row, col)
-    mlib_host_device_
+    __host__ __device__
     const T& operator()(unsigned int row /** @param row */, unsigned int col /** @param col */) const
     {
         assert(row < Rows);
@@ -135,7 +126,7 @@ public:
     }
 
     ///@return Access element (i). Useful for vectors and row-major iteration over matrices.
-    mlib_host_device_
+    __host__ __device__
     T& operator()(unsigned int index /** @param index */)
     {
         assert(index<Rows*Cols);
@@ -143,7 +134,7 @@ public:
     }
 
     ///@return Const access to element (i). Useful for vectors and row-major iteration over matrices.
-    mlib_host_device_
+    __host__ __device__
     const T& operator()(unsigned int index /** @param index */) const
     {
         assert(index<Rows*Cols);
@@ -152,7 +143,7 @@ public:
 
 
     ///@return Access element (i). Useful for vectors and row-major iteration over matrices.
-    mlib_host_device_
+    __host__ __device__
     T& operator[](unsigned int index /** @param index */)
     {
         assert(index<Rows*Cols);
@@ -161,7 +152,7 @@ public:
     }
 
     ///@return Const access to element (i). Useful for vectors and row-major iteration over matrices.
-    mlib_host_device_
+    __host__ __device__
     const T& operator[](unsigned int index /** @param index */) const
     {
         assert(index<Rows*Cols);
@@ -170,7 +161,7 @@ public:
 
 
 
-    mlib_host_device_
+    __host__ __device__
     T& centerAccess(int crow /** @param crow */, int ccol /** @param ccol */)
     {
         static_assert(isodd<Rows>(),"Rows must me odd for center access");
@@ -184,7 +175,7 @@ public:
         return _data[crow * Cols + ccol];
     }
 
-    mlib_host_device_
+    __host__ __device__
     const T& centerAccess(int crow /** @param crow */, int ccol /** @param ccol */) const
     {
         static_assert(isodd<Rows>(),"Rows must me odd for center access");
@@ -206,7 +197,7 @@ public:
     T* data()    {        return _data;    }
 
     ///@return Get a const pointer to the matrix or vector elements. The elements are stored in row-major order.
-    mlib_host_device_
+    __host__ __device__
     const T* data() const   {
         return _data;
     }
@@ -215,7 +206,7 @@ public:
      * @param row
      * @return a pointer to the rowth row of the matrix
      */
-    mlib_host_device_
+    __host__ __device__
     T* getRowPointer(unsigned int row) {
         assert(row<Rows);
         return &((*this)(row,0));
@@ -225,7 +216,7 @@ public:
      * @param row
      * @return a pointer to the rowth row of the matrix
      */
-    mlib_host_device_
+    __host__ __device__
     const T* getRowPointer(unsigned int row) const{
         assert(row<Rows);
         return &((*this)(row,0));
@@ -235,7 +226,7 @@ public:
      * @param row
      * @return a copy of the rowth row of the matrix
      */
-    mlib_host_device_
+    __host__ __device__
     Matrix<T,1,Cols> Row(unsigned int row) const {
         assert(row<Rows);
         return Matrix<T,1,Cols>( getRowPointer(row),true);
@@ -247,12 +238,12 @@ public:
      * @param row
      * @return a copy of the rowth row of the matrix as a column vector.
      */
-    mlib_host_device_
+    __host__ __device__
     Matrix<T,Cols,1> RowAsColumnVector(unsigned int row) {
         assert(row<Rows);
         return Matrix<T,Cols,1>( getRowPointer(row),true);
     }
-    mlib_host_device_
+    __host__ __device__
     /**
      * @brief Col
      * @param column
@@ -270,12 +261,12 @@ public:
      * @param data
      * @param row
      */
-    mlib_host_device_
+    __host__ __device__
     void setRow(const T* data,unsigned int row){
         T* rowptr=getRowPointer(row);
         for(unsigned int i=0;i<Cols;++i)rowptr[i]=data[i];
     }
-    mlib_host_device_
+    __host__ __device__
     /**
      * @brief setRow set row to row
      * @param rowvec
@@ -286,7 +277,7 @@ public:
     }
 
     ///@return a pointer to the first element
-    mlib_host_device_
+    __host__ __device__
     const T* begin() const{return &_data[0];}
     ///@return a pointer to the last element
 
@@ -296,13 +287,13 @@ public:
     T* begin() {
         return &_data[0];
     }
-    mlib_host_device_
+    __host__ __device__
     const T* end() const{
         // Matrix can be bigger than Rows*Cols, but its not strided
         return begin()+(Cols*Rows);
     }
     ///@return a pointer to the last element +1
-    mlib_host_device_
+    __host__ __device__
     T* end() {
          // Matrix can be bigger than Rows*Cols, but its not strided
         return begin()+(Cols*Rows);
@@ -310,17 +301,17 @@ public:
 
 
     ///@return  the number of elements
-    mlib_host_device_
+    __host__ __device__
     constexpr unsigned int size() const{return Cols*Rows;}
     ///@return the number of columns
-    mlib_host_device_
+    __host__ __device__
     constexpr unsigned int cols() const {return Cols;}
     ///@return the number of rows
-    mlib_host_device_
+    __host__ __device__
     constexpr unsigned int rows() const{return Rows;}
 
     /// Default constructor
-    mlib_host_device_
+    __host__ __device__
     Matrix()=default;
 
     /**
@@ -336,7 +327,7 @@ public:
          * m= {1,2,3,1,2,3,1,2,3}
          */
     template<class... S>
-    mlib_host_device_
+    __host__ __device__
     Matrix(T first_val, S... remaining_vals):
         _data{first_val,T(remaining_vals)...}   {
 
@@ -348,7 +339,7 @@ public:
      * @param M
      */
     template<class U>
-    mlib_host_device_
+    __host__ __device__
     Matrix(Matrix<U,Rows,Cols> M)
     {
         static_assert(Cols*Rows>0,"empty matrix?");
@@ -379,7 +370,7 @@ public:
     //// Elementwise arithmetic operations ////////////
 
     ///@return Add the elements of another matrix (elementwise addition)
-    mlib_host_device_
+    __host__ __device__
     Matrix& operator+=(const Matrix& b  /** @param b */)
     {
         Matrix& a = *this;
@@ -390,7 +381,7 @@ public:
     }
 
     ///@return Subtract the elements of another matrix (elementwise subtraction)
-    mlib_host_device_
+    __host__ __device__
     Matrix& operator-=(const Matrix& b  /** @param b */)
     {
         Matrix& a = *this;
@@ -401,8 +392,8 @@ public:
     }
 
     ///@return (*this) elementwise multiplied by a scalar
-    mlib_host_device_
-    Matrix& operator*=(const T& s /** @param s */)
+    __host__ __device__
+    inline Matrix& operator*=(const T& s /** @param s */)
     {
         Matrix& a = *this;
         for (unsigned int i = 0; i < Rows * Cols; i++) {
@@ -412,7 +403,7 @@ public:
     }
 
     ///@return (*this) elementwise divided by a scalar
-    mlib_host_device_
+    __host__ __device__
     Matrix& operator/=(const T& s  /** @param s */)
     {
         Matrix& a = *this;
@@ -423,7 +414,7 @@ public:
         return a;
     }
     template<class S>
-    mlib_host_device_
+    __host__ __device__
     ///@return (*this) point multiplied with another matrix
     Matrix& pointMultiply(const Matrix<S,Rows,Cols>& b  /** @param b */)
     {
@@ -434,7 +425,7 @@ public:
         return a;
     }
     template<class S>
-    mlib_host_device_
+    __host__ __device__
     ///@return (*this) point multiplied with another matrix
     Matrix& point_multiply(const Matrix<S,Rows,Cols>& b  /** @param b */)
     {
@@ -447,7 +438,7 @@ public:
 
 
     ///@return Elementwise matrix addition (*this) +b
-    mlib_host_device_
+    __host__ __device__
     Matrix operator+(const Matrix& b /** @param b */) const
     {
         Matrix c;
@@ -459,7 +450,7 @@ public:
     }
 
     ///@return Elementwise matrix subtraction (*this) -b
-    mlib_host_device_
+    __host__ __device__
     Matrix operator-(const Matrix& b  /** @param b */) const
     {
         Matrix c;
@@ -471,7 +462,7 @@ public:
     }
 
     ///@return Element negation
-    mlib_host_device_
+    __host__ __device__
     Matrix operator-() const
     {
         Matrix b;
@@ -483,7 +474,7 @@ public:
     }
 
     ///@return (*this) point multiplied by a scalar
-    mlib_host_device_
+    __host__ __device__
     Matrix operator*(const T& scalar /** @param scalar*/) const
     {
         const Matrix& a = *this;
@@ -493,7 +484,7 @@ public:
     }
 
     ///@return (*this) point divided by a scalar
-    mlib_host_device_
+    __host__ __device__
     Matrix operator/(const T& scalar /** @param scalar */) const
     {
         Matrix b;
@@ -511,7 +502,7 @@ public:
     //// Constant initializers /////////////
 
 
-    mlib_host_device_
+    __host__ __device__
     /**
      * @brief setAll sets all to val
      * @param val
@@ -522,7 +513,7 @@ public:
         }
     }
     /// Set all elements to zero.
-    mlib_host_device_
+    __host__ __device__
     void setZero()
     {
         setAll(0);
@@ -585,7 +576,7 @@ public:
     //// Various matrix operations ///////////////////////
 
     ///@return the matrix transpose
-    mlib_host_device_
+    __host__ __device__
     Matrix<T, Cols, Rows> transpose() const
     {
         Matrix<T, Cols, Rows> b;
@@ -599,7 +590,7 @@ public:
         return b;
     }
     ///@return the trace of the matrix
-    mlib_host_device_
+    __host__ __device__
     T trace() const{
         T tr=T(0);
         for (unsigned int i = 0; (i < Cols && i < Rows); ++i)
@@ -608,7 +599,7 @@ public:
     }
 
     ///@return Matrix determinant
-    mlib_host_device_
+    __host__ __device__
     T determinant() const
     {
         static_assert(Rows == Cols,"Must be square matrix");
@@ -633,7 +624,7 @@ public:
     }
 
     ///@return Matrix inverse
-    mlib_host_device_
+    __host__ __device__
     Matrix inverse() const
     {
         static_assert(Rows == Cols,"Must be square matrix");
@@ -811,7 +802,7 @@ public:
 
     ///@return Matrix multiplication
     template<unsigned int N>
-    mlib_host_device_
+    __host__ __device__
     Matrix<T, Rows, N> operator*(const Matrix<T, Cols, N>& b  /** @param b */) const
     {
         Matrix<T, Rows, N> c;
@@ -832,7 +823,7 @@ public:
 
 
 
-    mlib_host_device_
+    __host__ __device__
     /**
      * @brief perElementMultiply - elementwize product matlab: .*
      * @param b
@@ -853,7 +844,7 @@ public:
 
     ///@return the inner product of this and another vector @param b
     template<unsigned int Rows2, unsigned int Cols2>
-    mlib_host_device_
+    __host__ __device__
     T dot(const Matrix<T, Rows2, Cols2>& b) const
     {
         static_assert((Cols == 1 || Rows == 1),"The dot product is only defined for vectors.");
@@ -871,7 +862,7 @@ public:
 
 
 
-    mlib_host_device_
+    __host__ __device__
     /**
      * @brief cross  Compute the cross product of this and another vector
      * @param b
@@ -892,7 +883,7 @@ public:
     }
 
 
-    mlib_host_device_
+    __host__ __device__
     /**
      * @brief crossMatrix Return the cross product matrix corresponding to the vector
      * @return
@@ -910,7 +901,7 @@ public:
     }
 
     ///@return The sum of all elements
-    mlib_host_device_
+    __host__ __device__
     T sum() const
     {
         const Matrix& a = *this;
@@ -922,7 +913,7 @@ public:
     }
 
     ///@return The sum of the squared elements
-    mlib_host_device_
+    __host__ __device__
     inline T squaredNorm() const
     {
         const Matrix& a = *this;
@@ -934,13 +925,13 @@ public:
     }
 
     /// @return The L2 norm
-    mlib_host_device_
+    __host__ __device__
     T norm() const
     {
         return std::sqrt(squaredNorm());
     }
     /// @return The L2 norm
-    mlib_host_device_
+    __host__ __device__
     T norm2() const
     {
         return squaredNorm();
@@ -948,7 +939,7 @@ public:
 
 
     ///@return The vector L2 norm, with a different name
-    mlib_host_device_
+    __host__ __device__
     T length() const
     {
         static_assert(Cols == 1 || Rows == 1,
@@ -957,7 +948,7 @@ public:
     }
 
     /// the matrix divided by its own L2-norm
-    mlib_host_device_
+    __host__ __device__
     void normalize()
     {
         (*this) /= norm();
@@ -969,7 +960,7 @@ public:
     }
 
     ///@return Homogeneous coordiates, its always the last row
-    mlib_host_device_
+    __host__ __device__
     Matrix<T, Rows - 1, Cols> hnormalized() const
     {
         Matrix< T, Rows - 1, Cols> b;
@@ -985,12 +976,12 @@ public:
         return b;
     }
     ///@return the hnormalized() vector
-    mlib_host_device_
+    __host__ __device__
     Matrix<T, Rows - 1, Cols> dehom() const
     {
         return hnormalized();
     }
-    mlib_host_device_
+    __host__ __device__
     Matrix<T, Rows - 1, Cols> drop_first() const noexcept
     {
         Matrix< T, Rows - 1, Cols> b;
@@ -1004,7 +995,7 @@ public:
         return b;
     }
 
-    mlib_host_device_
+    __host__ __device__
     Matrix<T, Rows - 1, Cols> drop_last() const noexcept
     {
         Matrix< T, Rows - 1, Cols> b;
@@ -1028,7 +1019,7 @@ public:
 
 
     ///@return the matrix with a final row of ones
-    mlib_host_device_
+    __host__ __device__
     Matrix< T, Rows + 1, Cols> homogeneous() const
     {
         Matrix< T, Rows + 1, Cols> b;
@@ -1041,7 +1032,7 @@ public:
         }
         return b;
     }
-    mlib_host_device_
+    __host__ __device__
     Matrix< T, Rows+1, 1> push_first_zero() const{
         static_assert(Cols==1,"");
 
@@ -1052,7 +1043,7 @@ public:
         return m;
     }
     ///inplace line normalization:
-    mlib_host_device_
+    __host__ __device__
     void  lineNormalize(){
         static_assert((Rows==3 && Cols == 1)||(Rows==1 && Cols == 3),"Line norm only defined for 3 vectors here");
         if((Rows==3 && Cols == 1)||(Rows==1 && Cols == 3)){
@@ -1086,7 +1077,7 @@ public:
     }
 
     ///@return true if is a identical to b
-    mlib_host_device_
+    __host__ __device__
     bool operator==(const Matrix& b /** @param b */) const
     {
         const Matrix& a = *this;
@@ -1098,7 +1089,7 @@ public:
     }
     // utility
     ///@return the maximum value in the matrix
-    mlib_host_device_
+    __host__ __device__
     T max(){
         const Matrix& A = *this;
         T maxv=A(0);
@@ -1107,7 +1098,7 @@ public:
         return maxv;
     }
     ///@return the minimum value in the matrix
-    mlib_host_device_
+    __host__ __device__
     T min(){
         const Matrix& A = *this;
         T minv=A(0);
@@ -1116,7 +1107,7 @@ public:
         return minv;
     }
 
-    mlib_host_device_
+    __host__ __device__
     /**
      * @brief minmax sets the minv and maxv to the min and max values respectively
      * @param minv
@@ -1131,7 +1122,7 @@ public:
         }
     }
     ///@return max of elementwise absolute value, only for reals
-    mlib_host_device_
+    __host__ __device__
     T absMax() const{
         const Matrix& A = *this;
         T maxv=A(0);
@@ -1150,7 +1141,7 @@ public:
             if(A(i)!=T(0)) return true;
         return false;
     }
-    mlib_host_device_
+    __host__ __device__
     T absSum(){
         const Matrix& A = *this;
         T absv=std::abs(A(0));
@@ -1160,7 +1151,7 @@ public:
         return absv;
     }
     ///@return Elementwise absolute
-    mlib_host_device_
+    __host__ __device__
     Matrix abs(){
         Matrix A=(*this);
         T val;
@@ -1183,7 +1174,7 @@ public:
 
 #if 0
 
-    mlib_host_device_
+    __host__ __device__
     /**
      * @brief getSubMatrix - submatrices do not take ownership of data!
      * @param rowstart
@@ -1210,7 +1201,7 @@ public:
 
     ///@return The specified block. Note blocks are copies! of submatrixes use for small stuff!
     template<unsigned int rowstart,unsigned int colstart, unsigned int Height,unsigned int Width>
-    mlib_host_device_
+    __host__ __device__
     Matrix<T, Height, Width> getBlock() const
     {
         static_assert(rowstart + Height <= Rows,"Source matrix is too small");
@@ -1223,7 +1214,7 @@ public:
     }
     ///@return The specified block. Note blocks are copies! of submatrixes use for small stuff!
     template<unsigned int rowstart,unsigned int colstart, unsigned int Height,unsigned int Width>
-    mlib_host_device_
+    __host__ __device__
     Matrix<T, Height*Width,1> vectorize_block() const
     {
         static_assert(rowstart + Height <= Rows,"Source matrix is too small");
@@ -1242,16 +1233,16 @@ public:
         return out;
     }
     ///@return the the top left 3x3 part
-    mlib_host_device_
+    __host__ __device__
     Matrix<T,3,3> getRotationPart() const{
         return getBlock<0,0,3,3>();
     }
     ///@return the 4th column
-    mlib_host_device_
+    __host__ __device__
     Matrix<T,3,1> getTranslationPart() const{
         return getBlock<0,3,3,1>();
     }
-
+    __host__ __device__
     bool in(Matrix lower, Matrix upper /*not inluding*/) const{
         const Matrix& a = *this;
         for(unsigned int index=0;index<Rows*Cols;++index)
@@ -1259,6 +1250,11 @@ public:
         for(unsigned int index=0;index<Rows*Cols;++index)
             if(a(index)>= upper(index)) return false;
         return true;
+    }
+
+        __host__ __device__
+    inline bool in(T l0, T l1, T h0, T h1) const{            
+        return (!(_data[0]<l0||_data[0]>=h0||_data[1]<l1||_data[1]>=h1));
     }
     std::array<T,Rows*Cols> std_array(){
         std::array<T,Rows*Cols> arr;
@@ -1337,7 +1333,7 @@ Matrix<T,3,1> operator*(const Matrix<T,4,4>& M, const Matrix<T,3,1>& v){
 
 
 template<typename T, unsigned int Rows, unsigned int Cols>
-mlib_host_device_
+__host__ __device__
 /**
  * @brief operator * Free scalar-matrix multiplication s * matrix
  * @param s
@@ -1354,7 +1350,7 @@ Matrix<T, Rows, Cols> operator*(const T& s, const Matrix<T, Rows, Cols>& a)
 }
 
 template<class T, unsigned int Rows, unsigned int Cols,unsigned int Rows2, unsigned int Cols2>
-mlib_host_device_
+__host__ __device__
 /**
  * @brief dot Compute the inner product of this and another vector
  * @param a
@@ -1377,7 +1373,7 @@ inline T dot(const Matrix<T, Rows, Cols>& a, const Matrix<T, Rows2, Cols2>& b)
 
 ///@return Elementwise absolute value of @param a
 template<typename T, unsigned int Rows, unsigned int Cols>
-mlib_host_device_
+__host__ __device__
 Matrix<T, Rows, Cols> abs(const Matrix<T, Rows, Cols>& a)
 {
     Matrix<T, Rows, Cols> b;
@@ -1392,7 +1388,7 @@ Matrix<T, Rows, Cols> abs(const Matrix<T, Rows, Cols>& a)
 
 ///@return Elementwise square root
 template<typename T, unsigned int Rows, unsigned int Cols>
-mlib_host_device_
+__host__ __device__
 Matrix<T, Rows, Cols> sqrt(const Matrix<T, Rows, Cols>& a  /** @param a */)
 {
     Matrix<T, Rows, Cols> b;
@@ -1462,12 +1458,12 @@ template <typename T> using Matrix4 = Matrix<T, 4,4>;
 * @return a x b
 */
 template<class T>
-mlib_host_device_
+__host__ __device__
 Vector3<T> cross(const Vector3<T>& a, const Vector3<T>& b){
     return a.cross(b);
 }
 template<class T>
-mlib_host_device_
+__host__ __device__
 /**
  * @brief getLineFrom2Points
  * @param a
@@ -1481,7 +1477,7 @@ Vector3<T> getLineFrom2Points(const Vector2<T>& a,
     return line;
 }
 template<class T>
-mlib_host_device_
+__host__ __device__
 /**
  * @brief getLineFrom2HomogeneousPoints
  * @param a
@@ -1500,7 +1496,7 @@ Vector3<T> getLineFrom2Points(const Vector3<T>& a,
 
 
 template<class T>
-mlib_host_device_
+__host__ __device__
 /**
  * @brief get4x4 - returns a 4x4 matrix with the last column set to (t;1)
  * @param t
@@ -1514,7 +1510,7 @@ Matrix4<T> get4x4(const Vector3<T>& t){
 }
 
 template<class T>
-mlib_host_device_
+__host__ __device__
 /**
  * @brief get4x4 sets the top left block to the R matrix
  * @param R
@@ -1527,7 +1523,7 @@ Matrix4<T> get4x4(const Matrix3<T>& R){
                       0     ,     0,     0,1);
 }
 template<class T>
-mlib_host_device_
+__host__ __device__
 /**
  * @brief get4x4 sets the top left block to the R matrix and the last column to (t,1)
  * @param R
@@ -1541,7 +1537,7 @@ Matrix4<T> get4x4(const Matrix3<T>& R,const Vector3<T>& t){
                       T(0)     ,     T(0),     T(0), T(1)   );
 }
 template<class T>
-mlib_host_device_
+__host__ __device__
 /**
  * @brief get3x4 create a projection matrix from the rigid transform R,t
  * @param R

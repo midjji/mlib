@@ -16,9 +16,8 @@ IntParameter* Parametrized::pint(
         int minv,
         int maxv)
 {
-    auto p=new IntParameter(default_value,name, group,desc,minv,maxv);
-    param->add(p);
-    return p;
+   return param->add<IntParameter>(name, default_value, name, group, desc, minv, maxv);
+
 }
 RealParameter* Parametrized::preal(double default_value,
                                    std::string name,
@@ -26,8 +25,10 @@ RealParameter* Parametrized::preal(double default_value,
                                    std::string desc,
                                    double minv,
                                    double maxv) {
-    auto p=new RealParameter(default_value,name, group,desc,minv,maxv);
-            param->add(p);
-    return p;
+   return  param->add<RealParameter>(name, default_value,name, group,desc,minv,maxv);
+
+}
+void Parametrized::add(std::shared_ptr<PSet> p){
+    param->add(p);
 }
 }

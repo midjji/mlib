@@ -37,6 +37,7 @@ public:
         case 2: return P_cam2_imu_;
         case 3: return P_cam3_imu_;
         case 4: return P_cam4_imu_;
+        default: exit(1); return P_left_imu_;
         }
     }
 

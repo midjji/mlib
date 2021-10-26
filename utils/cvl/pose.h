@@ -78,12 +78,12 @@ public:
 
 
     T& operator[](uint index){ return data[index];}
-    mlib_host_device_
+    __host__ __device__
     /**
          * @brief Pose initializes as a identity transform, trouble, this prevents std::trivial!
          */
     Pose():data{T(1.0),T(0.0),T(0.0),T(0.0),T(0.0),T(0.0),T(0.0)}{}
-    mlib_host_device_
+    __host__ __device__
     static Pose Identity(){return Pose();}
 
 
@@ -91,14 +91,14 @@ public:
 
     Pose(const Pose<U>& p):data(p.qt()){}
 
-    mlib_host_device_
+    __host__ __device__
     Pose(Vector<T,7> v):data(v){}
 
-    mlib_host_device_
+    __host__ __device__
     Pose(Vector4<T> q, Vector3<T> t):data(q[0],q[1],q[2],q[3],t[0],t[1],t[2]){}
 
 
-    mlib_host_device_
+    __host__ __device__
     /**
          * @brief Pose copies
          * @param q_ unit quaternion pointer
@@ -108,7 +108,7 @@ public:
         for(int i=0;i<4;++i){data[i]=q[i];}
         for(int i=0;i<3;++i){data[4+i]=t[i];}
     }
-    mlib_host_device_
+    __host__ __device__
     /**
          * @brief Pose copies
          * @param data
@@ -118,7 +118,7 @@ public:
     }
 
     // user must verify that the matrix is a rotation separately
-    mlib_host_device_
+    __host__ __device__
     /**
          * @brief Pose
          * @param R Rotation matrix
@@ -132,14 +132,14 @@ public:
     }
 
     // Rotation is i<T>entity
-    mlib_host_device_
+    __host__ __device__
     /**
          * @brief Pose identity rotation assumed
          * @param t_ translation vector
          */
     Pose (const Vector3<T>& t):data{T(1.0),T(0.0),T(0.0),T(0.0),t[0],t[1],t[2]}{}
 
-    mlib_host_device_
+    __host__ __device__
     /**
          * @brief Pose
          * @param P a 3x4 matrix with a top left part beeing a rotation matrix
@@ -150,7 +150,7 @@ public:
         for(int i=0;i<4;++i){data[i]=q[i];}
         for(int i=0;i<3;++i){data[4+i]=t[i];}
     }
-    mlib_host_device_
+    __host__ __device__
     /**
          * @brief Pose
          * @param P a 4x4 matrix with a top left part beeing a rotation matrix
@@ -165,33 +165,33 @@ public:
     }
 
 
-    mlib_host_device_
+    __host__ __device__
     static Pose<T> eye(){
         return Pose(Vector<T,4>(1.0,0.0,0.0,0.0),Vector<T,3>(0.0,0.0,0.0));
     }
 
 
-    mlib_host_device_
+    __host__ __device__
     T* getRRef() {return data.begin();}
-    mlib_host_device_
+    __host__ __device__
     T* getTRef(){return t_begin();}
     T* t_begin(){return &data[4];}
     T* begin(){return data.begin();}
     T* end(){return data.end();}
 
-    mlib_host_device_
+    __host__ __device__
     void setT(Vector3<T> t){for(int i=0;i<3;++i) data[4+i]=t[i];}
-    mlib_host_device_
+    __host__ __device__
     void setQuaternion(Vector4<T> q){for(int i=0;i<4;++i) data[i]=q[i];}
-    mlib_host_device_
+    __host__ __device__
     void set_t(Vector3<T> t){for(int i=0;i<3;++i) data[4+i]=t[i];}
-    mlib_host_device_
+    __host__ __device__
     void set_q(Vector4<T> q){for(int i=0;i<4;++i) data[i]=q[i];}
 
 
 
 
-    mlib_host_device_
+    __host__ __device__
     /**
          * @brief operator * applies the transform on the point
          * @param ins
@@ -211,7 +211,7 @@ public:
         return Vector4<T>(v3[0],v3[1],v3[2],ray[3]);
     }
 
-    mlib_host_device_
+    __host__ __device__
     /**
          * @brief operator * apply the pose from the left!
          * @param rhs
@@ -221,7 +221,7 @@ public:
         return Pose(QuaternionProduct(q(),rhs.q()),
                     QuaternionRotate(q(),rhs.t())+t());
     }
-    mlib_host_device_
+    __host__ __device__
     /**
          * @brief inverse, note uses that the rotation inverse is its transpose
          * @return
@@ -236,11 +236,11 @@ public:
     }
     inline Vector3<T> apply_inverse(Vector3<T> x){
         require(false,"implementation");
-        //x-=t();
-        //quaternionRotate(conjugateQuaternion(q()));
+        x-=t();
+        quaternionRotate(conjugateQuaternion(q()));
     }
 
-    mlib_host_device_
+    __host__ __device__
     /**
          * @brief invert, note uses that the rotation inverse is its transpose
          * @return
@@ -248,7 +248,7 @@ public:
     void invert() {
         data=inverse().data;
     }
-    mlib_host_device_
+    __host__ __device__
     /**
          * @brief getR
          * @return the rotation matrix
@@ -256,7 +256,7 @@ public:
     Matrix3<T> getR() const{
         return getRotationMatrix(q());
     }
-    mlib_host_device_
+    __host__ __device__
     /**
          * @brief noRotation is the rotation matrix identity
          * @return
@@ -267,7 +267,7 @@ public:
             if(data[i]!=0) return false;
         return true;
     }
-    mlib_host_device_
+    __host__ __device__
     /**
          * @brief isIdentity
          * @return is the pose a identity transform
@@ -277,19 +277,19 @@ public:
         for(int i=0;i<7;++i) if(data[i]!=0.0) return false;
         return true;
     }
-    mlib_host_device_
+    __host__ __device__
     /**
          * @brief getT
          * @return the translation
          */
     Vector3<T> getT() const{return t();}
-    mlib_host_device_
+    __host__ __device__
     /**
          * @brief translation
          * @return the translation
          */
     Vector3<T> translation() const{return t();}
-    mlib_host_device_
+    __host__ __device__
     /**
          * @brief scaleT applies a scaling to the translation
          * @param scale
@@ -298,7 +298,7 @@ public:
         for(int i=4;i<7;++i)
             data[i]*=scale;
     }
-    mlib_host_device_
+    __host__ __device__
     /**
          * @brief get3x4
          * @return the 3x4 projection matrix corresp to the rigid transform
@@ -307,7 +307,7 @@ public:
         Matrix<T,3,3> R=getR();
         return ::cvl::get3x4(R,t());
     }
-    mlib_host_device_
+    __host__ __device__
     /**
          * @brief get4x4
          * @return the 4x4 maxtrix rep of the rigid transform
@@ -340,14 +340,14 @@ public:
     }
 
     /// get the position of th     //time+=delta_t*0.5;e camera center in world coordinates
-    mlib_host_device_
+    __host__ __device__
     /**
          * @brief getTinW
          * @return the camera center in world coordinates
          */
     Vector3<T> getTinW() const{        return inverse().t();            }
 
-    mlib_host_device_
+    __host__ __device__
     /**
          * @brief essential_matrix
          * @return the normalized essential matrix. This function defines the definition of E used.
@@ -361,7 +361,7 @@ public:
         E/=max;
         return E;
     }
-    mlib_host_device_
+    __host__ __device__
     /**
          * @brief distance
          * @param p
@@ -372,8 +372,6 @@ public:
         Pose Pab=(*this)*p.inverse();
         return Pab.t().length();
     }
-
-
     T geodesic(Pose<T> b) const {
         return geodesic_vector(b).norm();
     }
@@ -398,7 +396,7 @@ public:
     }
 
     /// returns true if no value is strange
-    mlib_host_device_
+    __host__ __device__
     /**
          * @brief isnormal
          * @return true if the pose contains no nans or infs and the quaternion is a unit quaternion
@@ -409,7 +407,7 @@ public:
         return true;
     }
 
-    mlib_host_device_
+    __host__ __device__
     /**
          * @brief normalize ensures that the quaternion length is 1, helpful to counter numerical errors
          */
@@ -419,7 +417,7 @@ public:
         for(int i=0;i<4;++i)
             data[i] =tmp[i];
     }
-    mlib_host_device_
+    __host__ __device__
     /**
          * @brief rotate
          * @param x

@@ -47,8 +47,9 @@ private:
 
     void loop(){
         //std::cout<<"looping"<<std::endl;
+        int samples=ds->samples();
         for(uint index=offset;
-            running && int(index)<int(ds->samples());
+            running && (int(index)<samples);
             ++index)
         {
             while(queue.size()>5 && running)    mlib::sleep_ms(10);
@@ -56,7 +57,8 @@ private:
                 break;
             loadtimer.tic();
             auto sample=ds->sample(index);
-            loadtimer.toc();
+
+            loadtimer.toc();            
             queue.push(sample);
         }
         //std::cout<<"looping done"<<std::endl;
