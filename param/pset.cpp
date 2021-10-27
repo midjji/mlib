@@ -1,53 +1,84 @@
 #include <pset.h>
 #include <parameter.h>
 #include <sstream>
+#include <filesystem>
+
 namespace cvl {
-PSet::PSet(std::string name, std::string desc):name(name),desc(desc){}
-std::shared_ptr<PSet> PSet::create(std::string name, std::string desc){
-    return std::make_shared<PSet>(name,desc);
-}
-void PSet::set_alive(bool val){
-    alive=val;
-}
-void PSet::update_all(){
-    for(auto& [name, p]:name2param)
+PSet::PSet(std::string name,
+           std::string desc):name(name),desc(desc){}
+
+
+void PSet::update_all()
+{
+    for(auto& [name, p]:identifier2param)
         p->update_value();
 }
-void PSet::add(std::shared_ptr<PSet> ps){
-    subsets_.push_back(ps);
+void PSet::add(std::string unique_identifier,
+               std::shared_ptr<PSet> ps){
+    identifier2subset[unique_identifier]=ps;
 }
-const std::vector<std::shared_ptr<PSet>>& PSet::subsets(){
-    return subsets_;
-}
+
 std::map<std::string,
 std::vector<std::shared_ptr<Parameter>>> PSet::param_groups(){
     std::map<std::string,
     std::vector<std::shared_ptr<Parameter>>> groups;
-    for(auto [name, p]:name2param)
+    for(auto& [name, p]:identifier2param)
         groups[p->group].push_back(p);
 return groups;
 }
-
-
-std::string PSet::serialize(){
-    // we want to be able to save and load with missing values.
-    // we do this by requireing each param to have a unique name,
-    // but only in the chain?
-
-/*
+std::vector<std::shared_ptr<PSet>> PSet::subsets(){
+    std::vector<std::shared_ptr<PSet>> ss;ss.reserve(identifier2subset.size());
+    for(auto& [uid, ps]:identifier2subset)ss.push_back(ps);
+    return ss;
+}
+std::string PSet::display()const {
     std::stringstream ss;
-    ss<<"#"<<name<<"\n";
-    auto pgroups=param_groups();
-    for(auto [group, ps]:pgroups) {
-            std::stringstream ssp;
-            ssp<<"#"<<group<<"\n";
-
+    ss<<"PSet: "<<name;
+    for(auto& [uid, p]:identifier2param)
+        ss<<uid<<": "<<p->display()<<"\n";
+    for(auto& [uid, ps]:identifier2subset)
+        ss<<"Subset: "<<uid<<" "<<ps->display()<<"\n";
+    return ss.str();
+}
+#if 0
+void PSet::load(std::string path){
+    std::ifstream ifs(path+"/"+name+".txt");
+    int params=0;
+    ifs>>params;
+    for(int i=0;i<params;++i){
+        std::string uid;
+        char toss;
+        int count=0;
+        ifs>>count;
+        ifs>>toss;
+        for(int i=0;i<count;++i){
+            ifs>>toss;
+            uid.push_back(toss);
+        }
 
     }
-*/
+
+
 
 
 }
-static PSet deserialize();
+void PSet::save(std::string path)
+{
+    std::filesystem::create_directories(path);
+    std::ofstream ofs(path+name+".txt");
+    ofs<<identifier2param.size()<<" ";
+    for(auto& [uid, p]: identifier2param)
+    {
+        ofs<<uid.size()<<" "<<uid<<p->serialize();
+    }
+    for(auto& [uid, ps]:identifier2subset){
+
+    }
 
 }
+#endif
+}
+
+
+
+

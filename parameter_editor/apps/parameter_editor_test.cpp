@@ -5,18 +5,25 @@
 using namespace cvl;
 
 std::shared_ptr<PSet> test_PSet(){
-    auto top=PSet::create("top","top desc");
-    top->add<IntParameter>("top",1,"top 1");
-    top->add<IntParameter>("top 2", 1,"top 2");
-    top->add(PSet::create("a",""));
-    auto b=PSet::create("b");
-    b->add<IntParameter>("top4",2,"top 4","group 1");
-    b->add<IntParameter>("top 5", 2,"top 5","group 1");
-    b->add<IntParameter>("top 6", 2,"top 6","group 2");
-    top->add(b);
-    b->add(PSet::create("c"));
-    b->add(PSet::create("d","ddesc"));
+    auto top=std::make_shared<PSet>("top","top desc");
+    top->param<IntParameter>("top",1,"top 1");
+    top->param<IntParameter>("top 2", 1,"top 2");
+    top->add("subseta", std::make_shared<PSet>("a",""));
+    auto b=std::make_shared<PSet>("b");
+    b->param<IntParameter>("top4",2,"top 4","group 1");
+    b->param<IntParameter>("top 5", 2,"top 5","group 1");
+    b->param<IntParameter>("top 6", 2,"top 6","group 2");
+    top->add("subsetb", b);
+    b->add("subsetc", std::make_shared<PSet>("c"));
+    b->add("subsetd",std::make_shared<PSet>("d","ddesc"));
     return top;
+}
+
+std::shared_ptr<PSet> load_pset(std::string path="test.parameterset")
+{
+    std::shared_ptr<PSet> ps=std::make_shared<PSet>();
+   // ps->load(path);
+    return ps;
 }
 
 

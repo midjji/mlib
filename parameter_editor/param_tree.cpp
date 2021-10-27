@@ -66,7 +66,7 @@ void ParamTree::clear()
 
 void addtree(PSetPtr ps,
              QStandardItem * node){
-    auto pi=new ParamItem(ps);
+    auto* pi=new ParamItem(ps);
     node->appendRow(pi);
     for(const auto& p:ps->subsets())
         addtree(p,pi);

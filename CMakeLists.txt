@@ -25,12 +25,7 @@ include("mlib.cmake")
 INIT_BUILD()
 
 
-# a c++11 only parameter gui
-add_subdirectory(param)
-target_link_libraries(mlib INTERFACE param)
-# a qt based parameter editor
-add_subdirectory(parameter_editor)
-target_link_libraries(mlib INTERFACE editor)
+
 # a bunch of different external stuff
 add_subdirectory(extern)
 
@@ -58,7 +53,12 @@ target_link_libraries(mlib INTERFACE mlib-sfm)
 add_subdirectory(datasets)
 target_link_libraries(mlib INTERFACE mlib-datasets)
 
-
+# a c++11 only parameter gui
+add_subdirectory(param)
+target_link_libraries(mlib INTERFACE param)
+# a qt based parameter editor
+add_subdirectory(parameter_editor)
+target_link_libraries(mlib INTERFACE editor)
 
 add_subdirectory(gui)
 target_link_libraries(mlib INTERFACE mlib-gui)

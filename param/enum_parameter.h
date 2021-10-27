@@ -2,24 +2,19 @@
 #include "parameter.h"
 #include <atomic>
 #include <mutex>
+#include <map>
 namespace cvl {
 
 
 
-struct IntParameter:public Parameter {
-    IntParameter(
-            int default_value,
+struct EnumParameter:public Parameter {
+    EnumParameter(int default_,
+            std::map<int, std::string> options,
             std::string name="unnamed",
             std::string group="",
-            std::string desc="no tool tip",
-            int minv=std::numeric_limits<int>::min(),
-            int maxv=std::numeric_limits<int>::max());
-    // the value range
-    const int minv;
-    const int maxv;
-    bool ranged() const;
-    // USED BY THE Parametrized class...
-    // the user value
+            std::string desc="no tool tip");
+
+    // the currently cached selected value,
     int value() const;
     // the user selects when to update
     bool update_value() override;
@@ -31,11 +26,9 @@ struct IntParameter:public Parameter {
     void set_value(int value);
     bool changed() const;
 
-    bool is_int() const override{return true;}
-    std::string display() const override{std::stringstream ss; ss<<"int: "<<value();return ss.str();}
-
 
 private:
+    const std::map<int, std::string> options;
     // The active value, used by the user, update_value changes local
     int value_;
     std::atomic<int> new_value;

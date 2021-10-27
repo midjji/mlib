@@ -24,8 +24,9 @@ public:
     // once this thing gets the parametset,
     // the parameter set may no longer change?
     void set(std::shared_ptr<PSet> ps);
-
-void set_display(std::shared_ptr<PSet> ps);
+private:
+    void set_display(std::shared_ptr<PSet> ps);
+    std::shared_ptr<PSet> ps;
 
 };
 

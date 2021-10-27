@@ -8,5 +8,6 @@ Parameter::Parameter(std::string name,
     name(name),group(group),desc(desc) {}
 bool Parameter::is_int() const{return false;};
 bool Parameter::is_double() const{return false;};
+std::string Parameter::display() const{return "";};
 }
 

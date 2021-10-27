@@ -30,6 +30,7 @@ struct RealParameter:public Parameter {
     void set_value(double value);
     bool changed() const;
     bool is_double() const override{return true;}
+    std::string display() const override{std::stringstream ss; ss<<"real: "<<value();return ss.str();}
 
 
 private:

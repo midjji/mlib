@@ -10,7 +10,9 @@ struct Parametrized {
                  std::string desc="no desc");
     virtual ~Parametrized();
 
-    void add(std::shared_ptr<PSet> p);
+
+    void add(std::string unique_identifier,
+             std::shared_ptr<PSet> p);
     std::shared_ptr<PSet> params();
     void update_all();
 
@@ -33,6 +35,9 @@ struct Parametrized {
                          std::string desc="no tool tip",
                          double minv=std::numeric_limits<double>::lowest(),
                          double maxv=std::numeric_limits<double>::max());
+    std::string display()const {
+        return param->display();
+    };
 
 private:
     std::shared_ptr<PSet> param;

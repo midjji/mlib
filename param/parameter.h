@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <sstream>
 namespace cvl {
 
 
@@ -21,6 +22,7 @@ public:
     virtual type_t type() const=0;
     virtual bool is_int() const;
     virtual bool is_double() const;
+    virtual std::string display() const;
 
 };
 }

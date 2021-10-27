@@ -59,8 +59,10 @@ PSetWidget::PSetWidget(QWidget* parent):
     });
 
 }
-void PSetWidget::set_display(std::shared_ptr<PSet> ps){
-    layout()->removeWidget(display);
+void PSetWidget::set_display(std::shared_ptr<PSet> ps)
+{
+
+    layout()->removeWidget(display);    
     delete display;
     display=new PSetDisplayWidget(ps, this);
 
@@ -69,7 +71,9 @@ void PSetWidget::set_display(std::shared_ptr<PSet> ps){
 }
 
 
-void PSetWidget::set(std::shared_ptr<PSet> ps) {
+void PSetWidget::set(std::shared_ptr<PSet> ps)
+{
+    this->ps=ps; // keep a local copy
     tree->clear();
     tree->add(ps);
     set_display(ps);
