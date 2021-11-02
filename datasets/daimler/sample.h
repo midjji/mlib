@@ -28,10 +28,6 @@ public:
 
 private:   
     cv::Mat1b labels;
-    int frameid_;
-    double time_;
-
-
 };
 using sDaimlerSample=std::shared_ptr<DaimlerSample>;
 

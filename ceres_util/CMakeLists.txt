@@ -17,6 +17,6 @@ else()
 
 
     target_link_libraries(mlib-ceres-util PUBLIC mceres)
-    target_link_libraries(mlib-ceres-util PUBLIC mlib-utils)
+    target_link_libraries(mlib-ceres-util PRIVATE mlib-utils)
 
 endif()

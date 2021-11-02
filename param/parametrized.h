@@ -1,7 +1,7 @@
 #pragma once
-#include <pset.h>
-#include <int_parameter.h>
-#include <real_parameter.h>
+#include <mlib/param/pset.h>
+#include <mlib/param/int_parameter.h>
+#include <mlib/param/real_parameter.h>
 
 namespace cvl {
 

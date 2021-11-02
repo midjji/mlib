@@ -23,7 +23,8 @@ void testKittiStereo(kitti::KittiDataset kd, bool testing);
 
 void testbmstereo(kitti::KittiDataset kd);
 
-int test(){
+int test()
+{
     std::string path="/home/mikael/datasets/kitti/odometry/";
     testKittiStereo(cvl::kitti::KittiDataset(path),true);
     return 0;
@@ -65,7 +66,7 @@ void testKittiStereo(kitti::KittiDataset kd, bool testing){
 
             cvl::MBMStereoStream mbm;
             // cvl::TemporalStereoStream tss;
-            mbm.init(128,seq->rows(),seq->cols());
+            mbm.init(64,seq->rows(),seq->cols());
 
             // tss.init(seq.rows,seq.cols,cvl::Matrix<float,3,3>(seq.getK()),seq.baseline);
 

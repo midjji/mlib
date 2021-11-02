@@ -48,7 +48,7 @@ public:
              std::shared_ptr<PSet> ps);
     std::vector<std::shared_ptr<PSet>> subsets();
 
-//TODO fix save, load...
+    //TODO fix save, load...
 
     std::string display()const;
 private:

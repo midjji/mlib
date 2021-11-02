@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-set(CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/bin)
+
 
 option(BUILD_MLIB_APPS "build mlib apps" ${BUILD_MLIB_APPS_DEFAULT})
 if(BUILD_MLIB_APPS)

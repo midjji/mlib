@@ -22,10 +22,8 @@
  *
  ******************************************************************************/
 
-
-
-//#ifndef __CUDACC_VER_MAJOR__
-
+// Im kindof concerned this is a suboptimal way to do this, but there is no real option thats better...
+// NVCC simply either reads this or not.
 #ifndef __host__
 #define __host__
 #define __device__

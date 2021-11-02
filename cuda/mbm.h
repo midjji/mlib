@@ -1,10 +1,11 @@
 #pragma once
 #include <mutex>
 #include <memory>
-#include <opencv2/core.hpp>
+#include <opencv2/core/mat.hpp>
 #include <mlib/utils/mlibtime.h>
 #include <mlib/utils/cvl/matrix_adapter.h>
 #include <mlib/cuda/devmemmanager.h>
+#include <mlib/
 
 namespace cvl{
 
