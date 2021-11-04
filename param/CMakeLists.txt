@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.20)
 project(param CXX)
 file(GLOB srcs  "*.cpp" "*.h" )
 add_library(param ${srcs} ) # must be after the qt stuff is set!

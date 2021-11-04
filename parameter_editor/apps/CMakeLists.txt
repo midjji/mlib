@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.20)
 project(paramgui-app CXX)
 
 if(BUILD_MLIB_APPS)

@@ -1,13 +1,13 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.20)
 
 project(mlib VERSION 2.0
     DESCRIPTION "general utility library"
-    LANGUAGES CXX)
+    LANGUAGES CXX CUDA)
 message("\n\nmlib configuration begin\n\n")
 # everything at once
 add_library(mlib INTERFACE )
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+#set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 
@@ -80,7 +80,7 @@ if(WITH_VIS)
     target_link_libraries(mlib INTERFACE mlib-vis)
 endif(WITH_VIS)
 
-option(WITH_MLIB_CUDA "build mlib-cuda" OFF)
+option(WITH_MLIB_CUDA "build mlib-cuda" ON)
 if(WITH_MLIB_CUDA)
     add_subdirectory(cuda)
     target_link_libraries(mlib INTERFACE mlib-cuda)

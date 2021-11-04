@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.20)
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_BINARY_DIR}/bin)
 
 option(BUILD_MLIB_APPS "build mlib apps" ${BUILD_MLIB_APPS_DEFAULT})

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.20)
 project(mlib-kitti-mots VERSION 1.0
     DESCRIPTION "Very nice project"
     LANGUAGES CXX)

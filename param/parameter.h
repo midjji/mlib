@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <sstream>
+#include <memory>
 namespace cvl {
 
 
@@ -23,6 +24,9 @@ public:
     virtual bool is_int() const;
     virtual bool is_double() const;
     virtual std::string display() const;
+    //std::string serialize() const=0;
+    //std::shared_ptr<Parameter> read(std::istream& is);
 
 };
+
 }

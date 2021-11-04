@@ -89,6 +89,8 @@ Tracker::Tracker(  const std::string&  name )
     : Parametrized(name," klt tracker remake")
 {
 
+
+
     harris=new HarrisDetector();
     target_image_host_    = new Texture< float,false>();
     target_image_device_  = new Texture< float,true>();
@@ -101,7 +103,9 @@ Tracker::Tracker(  const std::string&  name )
     add("corner_detector", harris->params());
 
     // tracker subtype,
+
     tracker_subtype=pint(0, "tracker subtype", "Tracker", "0 standard, 1 mean, 2 1D",0,3);
+
     pyramid_levels=pint(4,"number of pyramid levels","Tracker", "0 means only original image?", 0);
     pool_size=pint(10000, "Maximum number of tracks", "Tracker","",0);
 

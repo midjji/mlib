@@ -75,7 +75,9 @@ public:
     std::vector<SFeature_t> pool;
 };
 
-cv::Mat3b draw_feature_pool(klt::FeaturePool& pool,
+cv::Mat3b draw_feature_pool(FeaturePool& pool,
                             cv::Mat3b rgb);
+
+cv::Mat3b draw_feature_pool_prediction(const FeaturePool& pool, cv::Mat3b rgb);
 
 }

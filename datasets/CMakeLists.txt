@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.20)
 
 
 add_library(mlib-datasets "stereo_datasets.h" "stereo_datasets.cpp" "stereo_calibration.cpp")

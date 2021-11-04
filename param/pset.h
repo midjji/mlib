@@ -49,8 +49,12 @@ public:
     std::vector<std::shared_ptr<PSet>> subsets();
 
     //TODO fix save, load...
+    void save(std::string path);
+    void load(std::string path);
 
     std::string display()const;
+   // std::map<std::string, std::shared_ptr<Parameter>> flatten();
+
 private:
     //the parametersb
     std::map<std::string, std::shared_ptr<Parameter>> identifier2param;

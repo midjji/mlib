@@ -414,6 +414,7 @@ public:
     void normalize(){
         auto tmp=q();
         tmp.normalize();
+        if(tmp[0]<0) tmp*=T(-1);
         for(int i=0;i<4;++i)
             data[i] =tmp[i];
     }

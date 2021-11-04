@@ -1,4 +1,4 @@
-#include <pset.h>
+﻿#include <pset.h>
 #include <parameter.h>
 #include <sstream>
 #include <filesystem>
@@ -40,12 +40,18 @@ std::string PSet::display()const {
         ss<<"Subset: "<<uid<<" "<<ps->display()<<"\n";
     return ss.str();
 }
+
+
+
+
+void PSet::load(std::string path)
+{
 #if 0
-void PSet::load(std::string path){
     std::ifstream ifs(path+"/"+name+".txt");
     int params=0;
     ifs>>params;
-    for(int i=0;i<params;++i){
+    for(int i=0;i<params;++i)
+    {
         std::string uid;
         char toss;
         int count=0;
@@ -55,15 +61,14 @@ void PSet::load(std::string path){
             ifs>>toss;
             uid.push_back(toss);
         }
-
+        ifs>>Parameter
     }
-
-
-
+#endif
 
 }
 void PSet::save(std::string path)
 {
+#if 0
     std::filesystem::create_directories(path);
     std::ofstream ofs(path+name+".txt");
     ofs<<identifier2param.size()<<" ";
@@ -74,9 +79,10 @@ void PSet::save(std::string path)
     for(auto& [uid, ps]:identifier2subset){
 
     }
-
-}
 #endif
+}
+
+
 }
 
 

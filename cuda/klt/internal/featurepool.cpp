@@ -127,16 +127,33 @@ cv::Mat3b draw_feature_pool(klt::FeaturePool& pool,
     //cout<<"drawRawTracks"<<endl;
 
 
-    cv::Mat3b im=rgb.clone();
+
     for(auto f:pool){
         if(f.found()){
             mlib::draw_circle(rgb,f.rc<cvl::Vector2d>(),mlib::Color::green());
         }
         if(f.tracked()){
-            mlib::drawArrow(im,f.rc<cvl::Vector2d>(),f.previous_rc<cvl::Vector2d>(), mlib::Color::blue());
+            mlib::drawArrow(rgb,f.rc<cvl::Vector2d>(),f.previous_rc<cvl::Vector2d>(), mlib::Color::blue());
         }
     }
     //  cout<<"drawRawTracks - done"<<endl;
-    return im;
+    return rgb;
+}
+cv::Mat3b draw_feature_pool_prediction(const FeaturePool& pool, cv::Mat3b rgb){
+
+    for(const auto& f:pool)
+    {
+
+        if(f.tracked())
+            mlib::drawArrow(rgb, f.rc<cvl::Vector2d>(),f.predicted_rc<cvl::Vector2d>(),mlib::Color::blue());
+        if(f.found()){
+            auto yp=f.predicted_rc<cvl::Vector2d>();
+            //auto y=f.rc<Vector2d>();
+            if(!yp.in(cvl::Vector2d(1,1), cvl::Vector2d(rgb.rows-1,rgb.cols-1)))  continue;
+            mlib::drawArrow(rgb, f.rc<cvl::Vector2d>(),yp,mlib::Color::green());
+        }
+    }
+    return rgb;
+
 }
 }

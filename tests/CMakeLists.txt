@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.20)
 
 
 option(BUILD_MLIB_TESTS "build internal module tests" ${BUILD_MLIB_APPS_DEFAULT})

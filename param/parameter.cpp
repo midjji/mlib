@@ -1,4 +1,6 @@
 #include <parameter.h>
+#include <int_parameter.h>
+#include <real_parameter.h>
 namespace cvl {
 
 
@@ -9,5 +11,6 @@ Parameter::Parameter(std::string name,
 bool Parameter::is_int() const{return false;};
 bool Parameter::is_double() const{return false;};
 std::string Parameter::display() const{return "";};
+
 }
 

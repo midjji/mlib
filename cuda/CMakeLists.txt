@@ -1,13 +1,14 @@
 cmake_minimum_required(VERSION 3.20)
+#set(CMAKE_CUDA_SEPARABLE_COMPILATION ON)
 project(mlib-cuda VERSION 1.0
     DESCRIPTION "Very nice project"
-    LANGUAGES CXX)
+    LANGUAGES CXX CUDA)
 
 
 #add_subdirectory(cuda-api-wrappers)
 #add_subdirectory(cuda-kat)
-#set(CMAKE_CUDA_SEPARABLE_COMPILATION ON)
-add_definitions(-DWITH_CUDA)
+
+
 
 #set(CMAKE_CXX_STANDARD 17)
 #set(CMAKE_CUDA_STANDARD 14)

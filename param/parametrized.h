@@ -6,6 +6,11 @@
 namespace cvl {
 
 struct Parametrized {
+    // parametrized creates a public dependency, not ideal...
+    // parametrized is a bad idea...
+   // we want to abstract this further...
+
+
     Parametrized(std::string name="unnamed",
                  std::string desc="no desc");
     virtual ~Parametrized();
