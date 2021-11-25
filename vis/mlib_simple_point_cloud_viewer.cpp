@@ -159,6 +159,8 @@ void PointCloudViewer::run() {
         }
 
         viewer->setSceneData(scene);
+        //viewer->getCamera()->setClearMask(GL_DEPTH_BUFFER_BIT);
+        viewer->getCamera()->setClearColor(osg::Vec4(1.0, 1.0, 1.0, 1.0));
 
         //viewer->setUpViewInWindow(50, 50, 800, 600);
         viewer->apply(new osgViewer::SingleWindow(50,50,800,600,0));

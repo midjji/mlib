@@ -1297,8 +1297,14 @@ point_multiply(const Matrix<T, Rows, Cols>& a, const Matrix<T, Rows, Cols>& b){
 }
 
 
-
-
+template<class T, unsigned int Rows, unsigned int Cols>
+Matrix<T,Rows,Cols> elementwise_root(const Matrix<T,Rows,Cols>& m)
+{
+    Matrix<T,Rows,Cols> a=m;
+    for(auto& e:a)
+        e=std::sqrt(e);
+    return a;
+}
 
 
 

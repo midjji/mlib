@@ -10,3 +10,7 @@ void non_max_supression(
 
 
 
+void non_max_supression_approx(
+        const Texture< float, true>&  input,
+                   Texture< float, true>&  output,
+                   float radius);

@@ -94,6 +94,7 @@ std::string getNospaceIsoDateTime();
  */
 std::string getNospaceIsoDateTimeofStart();
 
+
 /**
  * @brief The Time class
  * A simplified convenient way to manage the std::chrono time system
@@ -129,6 +130,8 @@ Time operator+ (Time lhs, Time rhs);
 Time operator- (Time lhs, Time rhs);
 
 std::ostream& operator<<(std::ostream &os, Time t);
+Time now();
+
 
 /**
  * @brief sleep makes this_thread sleep for

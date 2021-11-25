@@ -17,57 +17,27 @@ namespace cvl{
 namespace unit_quaternion{
 
 
- // must be fully available for optimal performance.
+// must be fully available for optimal performance.
 inline double theta(double cos_theta, double abs_sin_theta)
 {
-    if(abs_sin_theta<(1e-1)){
 
-        // means cos(theta) is about 1 or -1
-        // if cos(theta)< 0 then return theta
-        /*
-        if(abs_sin_theta<(1e-3)){
-            if(cos_theta<(0.0)) return -abs_sin_theta;
-            return abs_sin_theta;
-        }
-        */
         return ((cos_theta < (0.0)) ?
                     std::atan2(-abs_sin_theta, -cos_theta):
                     std::atan2(abs_sin_theta, cos_theta));
-    }
-    // otherwise use the faster cos_theta?
-    double theta = std::acos(cos_theta);
-    // theta in [-pi/2 to pi/2] such that the shorter path is chosen
-    if(theta > (3.14159265359*0.5)) theta = 3.14159265359 - theta;
-    return theta;
+
+
 }
 
 template <typename V, int N> inline
 ceres::Jet<V, N> theta(const ceres::Jet<V, N>& cos_theta, const ceres::Jet<V, N>& abs_sin_theta)
 {
     using T=ceres::Jet<V, N>;
-//#warning "should be like 0.1!"
-    if(abs_sin_theta<T(1e-1)){
-
-        // means cos(theta) is about 1 or -1
-        // if cos(theta)< 0 then return theta
-        /*
-        if(abs_sin_theta<T(1e-3)){ // this is wrong!
-            if(cos_theta<T(0.0)) return -abs_sin_theta;
-            return abs_sin_theta;
-        }
-        */
-        return ((cos_theta < T(0.0)) ?
-                    ceres::atan2(-abs_sin_theta, -cos_theta):
-                    ceres::atan2(abs_sin_theta, cos_theta));
-    }
-    // otherwise use the faster cos_theta?
-    T theta = ceres::acos(cos_theta);
-    // theta in [-pi/2 to pi/2] such that the shorter path is chosen
-    if(theta > (3.14159265359*0.5)) theta = 3.14159265359 - theta;
-    return theta;
+    return ((cos_theta < T(0.0)) ?
+                ceres::atan2(-abs_sin_theta, -cos_theta):
+                ceres::atan2(abs_sin_theta, cos_theta));
 }
 // must be fully available for optimal performance.
-inline double theta(Vector4d q) {
+inline double theta(const Vector4d& q) {
 
     return theta(q[0], std::sqrt(q[1]*q[1] + q[2]*q[2] +q[3]*q[3]));
 }
@@ -168,6 +138,7 @@ inline Vector4<ceres::Jet<V, N>> log(const Vector4<ceres::Jet<V, N>>& q)
     const T sin_squared_theta = q1 * q1 + q2 * q2 + q3 * q3;
     const T abs_sin_theta = ceres::sqrt(sin_squared_theta);
     const T& cos_theta = q0;
+    // theta is picked as the shorter path
     T theta_ =theta(cos_theta, abs_sin_theta);
 
 

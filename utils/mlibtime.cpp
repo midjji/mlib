@@ -16,6 +16,8 @@ namespace mlib{
 // but it works for clang 9+ and gcc 8+, c++11
 static_assert (sizeof(float128) ==16, "long float128 implementation is missing" );
 
+
+
 void sleep(float128 seconds){
     if(seconds<0) return;
     std::this_thread::sleep_for(
@@ -106,6 +108,7 @@ std::chrono::time_point<std::chrono::steady_clock,std::chrono::nanoseconds > sta
 float128  get_steady_now(){
     return (mlibtime::clock.now()-mlibtime::start).count();
 }
+Time now(){return get_steady_now();}
 
 
 

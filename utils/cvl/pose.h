@@ -223,12 +223,10 @@ public:
     }
     __host__ __device__
     /**
-         * @brief inverse, note uses that the rotation inverse is its transpose
+         * @brief inverse,
          * @return
          */
-    inline Pose<T> inverse() const{
-        //assert(isnormal());
-        //Matrix3<T> Ri=getR().transpose();
+    inline Pose<T> inverse() const{   
         Vector<T,4> qi=conjugateQuaternion(q());
 
         Vector3<T> ti=-QuaternionRotate(qi,t());
@@ -319,6 +317,7 @@ public:
          * @brief angle
          * @return the angle of the rotation in radians
          * double the theta for quaternions
+         * can be negative!
          */
     T angle() const
     {
@@ -390,8 +389,8 @@ public:
 
     inline Vector<T,6> geodesic_vector() const
     {
-        Vector3<T> v=unit_quaternion::log(q()).drop_first();
-        return Vector<T,6>(v[0],v[1],v[2],
+        Vector4<T> v=unit_quaternion::log(q());
+        return Vector<T,6>(v[1],v[2],v[3],
                 data[4],data[5],data[6]);
     }
 
@@ -457,7 +456,29 @@ public:
 
     inline Vector<T,7> qt() const{return data;}
 
+
 };
+template<class T> Pose<T>
+///
+/// \brief interpolate
+/// \param P0
+/// \param P1
+/// \param time
+///
+/// interpolate(0)==P0,
+/// interpolate(1)==P1
+///
+interpolate(Pose<T> P0 /*from*/, Pose<T> P1/*to*/, double fraction)
+{
+    Quaternion<T> q0(P0.q());
+    Quaternion<T> q1(P1.q());
+    Quaternion<T> q=(q1*q0.conj()).upow(fraction)*q0;
+    Vector3d prev_t= P0.t();
+    Vector3d next_t= P1.t();
+    Vector3d t=(next_t - prev_t)*fraction + prev_t;
+    return Pose<T>(q.q,t);
+}
+
 /// convenience alias for the standard pose
 typedef Pose<double> PoseD;
 

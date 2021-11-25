@@ -109,14 +109,15 @@ bool KittiDataset::checkFiles(){
 
 }
 KittiDataset::KittiDataset(const std::string& basepath):basepath(basepath) {
+    seqs.reserve(sequence_indexes.size());
     for(int seq:sequence_indexes){
         auto s=Sequence::create(basepath,seq,rowss[seq],colss[seq],seqimgs[seq]);
         seqs.push_back(s);
     }
 }
 
-std::vector<std::shared_ptr<Sequence>> KittiDataset::get_training_sequences(){
-    std::vector<std::shared_ptr<Sequence>> ss; ss.reserve(11);
+std::vector<std::shared_ptr<Sequence>> KittiDataset::get_training_sequences() const{
+    std::vector<std::shared_ptr<Sequence>> ss; ss.reserve(training_sequences);
     for(int i=0;i<training_sequences;++i)
         ss.push_back(seqs[i]);
     return ss;
