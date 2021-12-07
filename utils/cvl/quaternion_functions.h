@@ -20,12 +20,9 @@ namespace unit_quaternion{
 // must be fully available for optimal performance.
 inline double theta(double cos_theta, double abs_sin_theta)
 {
-
         return ((cos_theta < (0.0)) ?
                     std::atan2(-abs_sin_theta, -cos_theta):
                     std::atan2(abs_sin_theta, cos_theta));
-
-
 }
 
 template <typename V, int N> inline
@@ -67,7 +64,7 @@ inline Vector4<double> log(const Vector4d& q)
     out[0]=T(0.0);
     T k;
     // so this should be the short path
-    if(abs_sin_theta<T(1e-6) )
+    if(abs_sin_theta<T(1e-12) )
         k = cos_theta<T(0) ? T(-1): T(1);
     else
         k = theta_/abs_sin_theta;
@@ -192,7 +189,7 @@ Vector4<ceres::Jet<V, N>> pow(const Vector4<ceres::Jet<V, N>>& q, double alpha)
 
     out[0]= ceres::cos(alpha*theta_);
     T k;
-    if(abs_sin_theta<T(1e-6) ){
+    if(abs_sin_theta<T(1e-12) ){
         //mlog()<<"hits this"<<abs_sin_theta<<"\n";
         k = cos_theta<T(0) ? T(-alpha): T(alpha);
     }

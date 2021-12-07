@@ -101,25 +101,6 @@ public:
         return M*b.q;
     }
 
-
-    /**
-     * @brief theta_
-     * @param cos_theta
-     * @param abs_sin_theta
-     * @return
-     *
-     * theta is the angle with represents the shortest path from this to the next
-     *
-     *
-     *
-     * atan2 must be ceres::atan2 if its to be derivable
-     *
-     *
-     *
-     *
-     *
-     */
-    inline T theta_(T cos_theta, T abs_sin_theta) const {        return unit_quaternion::theta(cos_theta, abs_sin_theta);    }
     /**
      * @brief theta_
      * @return

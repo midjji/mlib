@@ -7,8 +7,6 @@ namespace cvl {
 
 
 
-
-
 template<class Intrinsics, int StateSize>
 class ReprojectionCost
 {
@@ -43,8 +41,7 @@ public:
         return true;
     }
 };
-template<class Intrinsics,
-         int StateSize>
+template<class Intrinsics,int StateSize>
 class StereoCost
 {
 public:
@@ -79,25 +76,6 @@ public:
         return true;
     }
 };
-
-
-
-
-template<class Intrinsics, int StateSize=4> auto reprojection_cost(Intrinsics intrinsics, Vector2d y){
-    using cost=ReprojectionCost<Intrinsics,StateSize>;
-    return (new ceres::AutoDiffCostFunction<cost, cost::resids, 7, StateSize >(
-                new cost(intrinsics, y)));
-}
-template<class Intrinsics, int StateSize=4> ceres::CostFunction* reprojection_cost(Intrinsics intrinsics, Vector3d y)
-{
-    if(y[2]<0) return reprojection_cost(intrinsics, y.drop_last());
-
-    using cost=StereoCost<Intrinsics,StateSize>;
-    // resid,first param,second param, third param
-    return (new ceres::AutoDiffCostFunction<cost, cost::resids, 7, StateSize >(
-                new cost(intrinsics, y)));
-}
-
 template<class Intrinsics>
 class PoseCost
 {
@@ -142,32 +120,6 @@ public:
         return true;
     }
 };
-
-template<class Intrinsics, int StateSize=4> auto reprojection_cost(Intrinsics intrinsics, Vector2d y,Vector4d xw){
-    using cost=PoseCost<Intrinsics>;
-    return (new ceres::AutoDiffCostFunction<cost, cost::resids, 7>(
-                new cost(intrinsics, y,xw)));
-}
-
-template<class Intrinsics, int StateSize=4> ceres::CostFunction* reprojection_cost(Intrinsics intrinsics, Vector3d y,Vector4d xw)
-{
-    if(y[2]<0) return reprojection_cost(intrinsics, y.drop_last(),xw);
-
-    using cost=StereoPoseCost<Intrinsics>;
-    // resid,first param,second param, third param
-    return (new ceres::AutoDiffCostFunction<cost, cost::resids, 7>(
-                new cost(intrinsics, y,xw)));
-}
-
-template<class Intrinsics> auto reprojection_cost(Intrinsics intrinsics, Vector2d y, Vector3d xw){
-    return reprojection_cost(intrinsics, y, xw.homogeneous().normalized());
-}
-
-template<class Intrinsics> ceres::CostFunction* reprojection_cost(Intrinsics intrinsics, Vector3d y,Vector3d xw)
-{
-    return reprojection_cost(intrinsics, y, xw.homogeneous().normalized());
-}
-
 template<class Intrinsics, int StateSize>
 class TriangulationCost
 {
@@ -190,9 +142,6 @@ public:
         return true;
     }
 };
-
-
-
 template<class Intrinsics, int StateSize>
 class StereoTriangulationCost
 {
@@ -217,12 +166,46 @@ public:
 
 };
 
+template<class Intrinsics, int StateSize=4> ceres::CostFunction* reprojection_cost(Intrinsics intrinsics, Vector2d y){
+    using cost=ReprojectionCost<Intrinsics,StateSize>;
+    return (new ceres::AutoDiffCostFunction<cost, cost::resids, 7, StateSize >(
+                new cost(intrinsics, y)));
+}
+template<class Intrinsics, int StateSize=4> ceres::CostFunction* reprojection_cost(Intrinsics intrinsics, Vector3d y)
+{
+    if(y[2]<0) return reprojection_cost(intrinsics, y.drop_last());
+
+    using cost=StereoCost<Intrinsics,StateSize>;
+    // resid,first param,second param, third param
+    return (new ceres::AutoDiffCostFunction<cost, cost::resids, 7, StateSize >(
+                new cost(intrinsics, y)));
+}
+template<class Intrinsics, int StateSize=4> ceres::CostFunction* reprojection_cost(Intrinsics intrinsics, Vector2d y,Vector4d xw){
+    using cost=PoseCost<Intrinsics>;
+    return (new ceres::AutoDiffCostFunction<cost, cost::resids, 7>(
+                new cost(intrinsics, y,xw)));
+}
+template<class Intrinsics, int StateSize=4> ceres::CostFunction* reprojection_cost(Intrinsics intrinsics, Vector3d y,Vector4d xw)
+{
+    if(y[2]<0) return reprojection_cost(intrinsics, y.drop_last(),xw);
+
+    using cost=StereoPoseCost<Intrinsics>;
+    // resid,first param,second param, third param
+    return (new ceres::AutoDiffCostFunction<cost, cost::resids, 7>(
+                new cost(intrinsics, y,xw)));
+}
+template<class Intrinsics> ceres::CostFunction* reprojection_cost(Intrinsics intrinsics, Vector2d y, Vector3d xw){
+    return reprojection_cost(intrinsics, y, xw.homogeneous().normalized());
+}
+template<class Intrinsics> ceres::CostFunction* reprojection_cost(Intrinsics intrinsics, Vector3d y, Vector3d xw)
+{
+    return reprojection_cost(intrinsics, y, xw.homogeneous().normalized());
+}
 template<class Intrinsics, int StateSize=4> ceres::CostFunction* reprojection_cost(Intrinsics intrinsics, PoseD Pvw, Vector2d y){
     using cost=TriangulationCost<Intrinsics,StateSize>;
     return (new ceres::AutoDiffCostFunction<cost, cost::resids, StateSize >(
                 new cost(intrinsics, Pvw, y)));
 }
-
 template<class Intrinsics, int StateSize=4> ceres::CostFunction* reprojection_cost(Intrinsics intrinsics, PoseD Pvw, Vector3d y){
 
     if(y[2]<0) return reprojection_cost(intrinsics, Pvw, y.drop_last());
@@ -230,8 +213,5 @@ template<class Intrinsics, int StateSize=4> ceres::CostFunction* reprojection_co
     return (new ceres::AutoDiffCostFunction<cost, cost::resids, StateSize >(
                 new cost(intrinsics, Pvw, y)));
 }
-
-
-
 
 }

@@ -100,13 +100,15 @@ namespace  {
 
 std::vector<Color> colors = {
 
+    Color::green(),
+    Color::blue(),
+    Color::red(),
     Color::yellow(),
     Color::cyan(),
     Color::white(),
     //Color::gray(),
-    Color::pink(),    
-    Color::green(),
-    Color::red(),
+    Color::pink(),        
+
     //Color::random(),
 };
 

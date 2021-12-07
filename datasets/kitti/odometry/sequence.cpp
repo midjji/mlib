@@ -171,7 +171,11 @@ cv::Mat1b Sequence::getPoseConfusionMatrix(){
     if(!is_training()) return im;
     for(int i=0;i<samples();++i){
         for(int j=0;j<samples();++j){
-            double dist=255-std::min(255.0,2.55*(gt_poses_[i].distance(gt_poses_[j])));
+            PoseD a_Pwv=gt_poses_[i];
+            PoseD b_Pwv=gt_poses_[j];
+            PoseD Pab=a_Pwv.inverse()*b_Pwv;
+
+            double dist=255-std::min(255.0,2.55*(Pab.geodesic_vector().norm()));
             // double rdist=255-std::min(255.0,255*std::abs((gt_poses[i].inverse()*(gt_poses[j])).getAngle())/1.5);
             im(i,j)=dist;
             //im(i,j)=cv::Vec3b(dist,0,rdist);

@@ -4,9 +4,9 @@ project(mlib-utils VERSION 1.0
     LANGUAGES CXX)
 # changes means you need to rerun cmake to update
 
-file(GLOB utils-srcs  "*.cpp" "mlog/log.cpp")
+file(GLOB utils-srcs  "*.cpp" "mlog/log.cpp" "spline/*.cpp")
 #PrintList("${utils-srcs}" "")
-file(GLOB utils-headers  "*.h" "*.hpp" "cvl/*.h" "cvl/*.hpp" "mzip/*.h")
+file(GLOB utils-headers  "*.h" "*.hpp" "cvl/*.h" "cvl/*.hpp" "mzip/*.h" "spline/*.h")
 
 add_library(${PROJECT_NAME} ${utils-srcs} ${utils-headers})
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)

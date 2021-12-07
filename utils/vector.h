@@ -132,6 +132,15 @@ template<typename T>
 T variance(const std::vector<T>& v)   {
     return ((double)v.size()/((double)v.size()-1))*variance(v,mean(v));
 }
+template<typename T>
+/**
+ * @brief variance
+ * @param v
+ * @return the sample variance of (v)
+ */
+T standard_deviation(const std::vector<T>& v)   {
+    return std::sqrt(variance(v));
+}
 template<class T> bool hasNan(const std::vector<T>& xs)
 {
     for (const T& x : xs)

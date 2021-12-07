@@ -58,7 +58,9 @@ namespace cvl{
  * This is the ceres& mathematical default
  *  but opengl libraries sometimes change the order of quaternion elements
  * There is no intrinsic direction of a transform Xa = Pab*Xb
- * Always specify a,b
+ * Always specify a,b, its very tempting to make them two ints as template!
+ * but compile times would become atrocious...
+ * for now use transformdirection struct below
  *
  *
  *
@@ -66,7 +68,6 @@ namespace cvl{
  *
  * Tested by posetest.cpp
  */
-
 template<class T>
 class Pose {
     /// the unit quaternion representing the rotation, s,i,j,k
@@ -326,17 +327,7 @@ public:
     T angle_degrees(){ // visualization only
         return angle()*T(180.0/3.14159265359);
     }
-    /**
-         * @brief angle_distance
-         * @param p
-         * @return the positive angle between two coordinate systems
-         */
-    double angle_distance(const Pose<double>& p) const{
-        Pose Pab=(*this)*p.inverse();
-        double angle=Pab.angle();
-        if(angle<0)return -angle;
-        return angle;
-    }
+
 
     /// get the position of th     //time+=delta_t*0.5;e camera center in world coordinates
     __host__ __device__
@@ -360,35 +351,16 @@ public:
         E/=max;
         return E;
     }
+
+    // never create distance(Pose function, it , or geodesic(Pose...
+    // it practically guarantees the user will make errors, that wont be compiler caught...
+
+
     __host__ __device__
-    /**
-         * @brief distance
-         * @param p
-         * @return distance between two coordinate system centers
-         */
-    double distance(const Pose<double>& p) const
-    {
-        Pose Pab=(*this)*p.inverse();
-        return Pab.t().length();
-    }
-    T geodesic(Pose<T> b) const {
-        return geodesic_vector(b).norm();
-    }
-    inline Vector<T,3> q_geodesic_vector(const Pose<T>& Pbw) const
-    {
-        Vector<T,6> gv=geodesic_vector(Pbw);
-        return Vector<T,3> (gv[0],gv[1],gv[2]);
-    }
-
-    inline Vector<T,6> geodesic_vector(const Pose<T>& Pbw) const
-    {
-        const Pose<T> Paw=*this;
-        const Pose<T> Pab = Paw*Pbw.inverse();
-        return Pab.geodesic_vector();
-    }
-
     inline Vector<T,6> geodesic_vector() const
     {
+        // implies a scaling of R vs t!
+        // never ever use these in optimization! severe numerics issues
         Vector4<T> v=unit_quaternion::log(q());
         return Vector<T,6>(v[1],v[2],v[3],
                 data[4],data[5],data[6]);
@@ -458,6 +430,10 @@ public:
 
 
 };
+
+
+
+
 template<class T> Pose<T>
 ///
 /// \brief interpolate
@@ -472,15 +448,80 @@ interpolate(Pose<T> P0 /*from*/, Pose<T> P1/*to*/, double fraction)
 {
     Quaternion<T> q0(P0.q());
     Quaternion<T> q1(P1.q());
-    Quaternion<T> q=(q1*q0.conj()).upow(fraction)*q0;
+    Quaternion<T> q=q0*(q0.conj()*q1).upow(fraction);
     Vector3d prev_t= P0.t();
     Vector3d next_t= P1.t();
     Vector3d t=(next_t - prev_t)*fraction + prev_t;
     return Pose<T>(q.q,t);
 }
 
+template<class T>
+/**
+ * @brief sensible_pose_error_vector
+ * @param Paw
+ * @param Paw_obs
+ * @return
+ *
+ *
+ * The fantastic thing about this metric is that the direction of the poses dont matter!
+ */
+inline Vector<T,9> sensible_pose_error_vector(const Pose<T>& Paw, const Pose<T>& Paw_obs)
+{
+    // could create the 3x4 matrix, but this approach is possibly numerically safer
+    Vector3<T> e0=Paw*Vector3<T>(T(1),T(0),T(0)) - Paw_obs*Vector3<T>(T(1),T(0),T(0));
+    Vector3<T> e1=Paw*Vector3<T>(T(0),T(1),T(0)) - Paw_obs*Vector3<T>(T(0),T(1),T(0));
+    Vector3<T> e2=Paw*Vector3<T>(T(0),T(0),T(1)) - Paw_obs*Vector3<T>(T(0),T(0),T(1));
+    Vector<T,9> residuals;
+    residuals[0]=e0[0];
+    residuals[1]=e0[1];
+    residuals[2]=e0[2];
+
+    residuals[3]=e1[0];
+    residuals[4]=e1[1];
+    residuals[5]=e1[2];
+
+    residuals[6]=e2[0];
+    residuals[7]=e2[1];
+    residuals[8]=e2[2];
+    return residuals;
+}
+
+template<class T> inline T sensible_pose_error(const Pose<T>& Paw, const Pose<T>& Paw_obs)
+{
+    return sensible_pose_error_vector(Paw, Paw_obs).norm()/9.0;
+}
+
 /// convenience alias for the standard pose
 typedef Pose<double> PoseD;
+
+
+struct TransformDirection{
+    struct geodesic_operator{
+        const bool common_from;
+        inline Vector6d operator()(PoseD A, PoseD B) const{
+            if (common_from){
+                // Pab, Pcb case
+                return (A*B.inverse()).geodesic_vector();
+
+            }
+            // Pab, Pac case
+            return (A.inverse()*B).geodesic_vector();
+        }
+    };
+
+    // x_a = P_{ab}(x_b)
+    uint32_t a=10; // estimates of a are 11-19 and so on...
+    uint32_t b=0;
+    auto geodesic_vector(const TransformDirection& dir) const{
+        if(a==dir.a)
+            return geodesic_operator{false};
+        if(b!=dir.b) {
+            mlog()<<"either A or B must match or you cant combine them! \n";
+            exit(1);
+        }
+        return geodesic_operator{true};
+    }
+};
 
 template<class T>
 /**
