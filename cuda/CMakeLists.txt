@@ -9,17 +9,25 @@ project(mlib-cuda VERSION 1.0
 #add_subdirectory(cuda-kat)
 
 
+#set(CMAKE_CUDA_STANDARD 11)
+#set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
-#set(CMAKE_CXX_STANDARD 17)
-#set(CMAKE_CUDA_STANDARD 14)
+#set(CMAKE_CUDA_ARCHITECTURES 61)
+SET(CUDA_SEPARABLE_COMPILATION ON)
+
+
+
 #set(CMAKE_CUDA_STANDARD_REQUIRED TRUE)
 #set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 add_library(mlib-cuda INTERFACE)
 add_subdirectory(klt)
 target_link_libraries(mlib-cuda INTERFACE klt)
+#add_library(mbml "mbm.cu" "devmemmanager.cu" "devstreampool.cu" "cuda_helpers.cu"  "cuda_helpers.h")
+#set_property(TARGET mbml PROPERTY CUDA_ARCHITECTURES 61)
+#target_link_libraries(mbml PRIVATE mlib-opencv-utils)
+#target_link_libraries(mlib-cuda INTERFACE mbml)
 
-#add_library(mlib-cuda "mbm.cu" "devmemmanager.cu" "devstreampool.cu" "cuda_helpers.cu"  "cuda_helpers.h")
 
 #set_property(TARGET mlib-cuda PROPERTY CUDA_ARCHITECTURES 61)
 #target_include_directories(mlib-cuda SYSTEM PUBLIC ${MLIB_TOP_PATH})
@@ -29,8 +37,9 @@ target_link_libraries(mlib-cuda INTERFACE klt)
 #find_package( OpenCV 4 REQUIRED)
 #target_include_directories(mlib-cuda SYSTEM PUBLIC ${OpenCV_INCLUDE_DIRS})
 #target_link_libraries(mlib-cuda PUBLIC ${OpenCV_LIBS})
-#target_link_libraries(mlib-cuda PUBLIC mlib-utils)
+#target_link_libraries(mlib-cuda INTERFACE mlib-utils)
 #add_executable(mbm apps/mbm_main.cpp)
+
 #add_executable(add apps/add.cu)
 #set_property(TARGET add PROPERTY CUDA_ARCHITECTURES 61)
 #target_link_libraries(add runtime-api)

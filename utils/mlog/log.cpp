@@ -11,7 +11,7 @@
 #include <mlib/utils/mlibtime.h>
 using std::cout;
 using std::endl;
-std::string code_position_impl(std::string function, std::string file, int line){
+std::string code_position_impl(std::string function, [[maybe_unused]] std::string file, int line){
     std::stringstream ss;
     ss<<function<<":"<<line<<"\n";
     return ss.str();

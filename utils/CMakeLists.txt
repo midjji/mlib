@@ -23,7 +23,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC stdfs )
 
 
 #unfortunately the quaternion requires ceres, but this can be trivially removed if you dont plan to use them in optimization.
-target_link_libraries(mlib-utils PUBLIC mlib-extern)
+target_link_libraries(mlib-utils PRIVATE mlib-extern)
 
 # this is required for __host__ __device__
 target_include_directories(mlib-utils PUBLIC "/usr/local/cuda/include/")

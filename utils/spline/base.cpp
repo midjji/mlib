@@ -189,6 +189,7 @@ std::vector<double> BaseUniformSpline::regularization_times(
                                                             double observation_t1,
                                                             double samples_per_control_point) const
 {
+
     int cpt0=std::floor(observation_t0/delta_time() -degree_);
     int cpt1=std::ceil(observation_t1/delta_time());
     if(observation_t0==observation_t1 || cpt0==cpt1){
@@ -251,6 +252,7 @@ double* BaseUniformSpline::view_control_point_param(int number) {
     // should this one insert? yes
     return control_point_ptr(number)->begin();
 }
+
 
 
 std::vector<double*> BaseUniformSpline::all_existing_parameters_before(double t1) const{

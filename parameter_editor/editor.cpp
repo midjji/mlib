@@ -29,10 +29,10 @@ void ParameterEditor::set(std::shared_ptr<PSet> p){
     central->set(p);
 }
 void ParameterEditor::save(std::string path){
-    if(path==""); // open a file dialogue...
+    //if(path==""); // open a file dialogue...
 }
 void ParameterEditor::load(std::string path){
-    if(path==""); // open a file dialogue
+    //if(path==""); // open a file dialogue
 
 }
 

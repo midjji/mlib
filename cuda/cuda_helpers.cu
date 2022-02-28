@@ -2,7 +2,7 @@
 #include <string>
 #include <iostream>
 #include <cuda_runtime.h>
-#include <mlib/cuda/cuda_helpers.h>
+#include "cuda_helpers.h"
 #include <sstream>
 
 using std::cout;

@@ -79,7 +79,7 @@ HarrisDetector::candidates(
 HarrisDetector::HarrisDetector(std::string name) :
     cvl::Parametrized("Corner Detector", "Harris Corner detector, i.e. minimum structure tensor eigenvalue")
 {
-    min_score_=preal(1000,"Minimum eigenvalue", "",">0 is sensible", 0);
+    min_score_=preal(100000,"Minimum eigenvalue", "",">0 is sensible", 0);
    // mlog()<<"min_score_: "<<min_score_->value()<<"\n";
     radius_=pint(10,"Nonmaxima supression radius", "","This is a prefilter, which should be applied before anms, sensible values are 3-20, but higher radii can be slow, ", 0,100);
    // mlog()<<"radius: "<<radius_->value()<<"\n";

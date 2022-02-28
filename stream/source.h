@@ -33,13 +33,15 @@ class Source {
 public:
     using Output=Output_;
     virtual ~Source(){}
-    virtual void add_sink(std::shared_ptr<Sink<Output>> sink) {
+    virtual void add_sink(std::shared_ptr<Sink<Output>> sink)
+    {
         if(sink==nullptr) return;
         std::unique_lock<std::mutex> ul(source_mtx);
         queues.reserve(100);
         queues.push_back(sink);
     }
-    uint listeners(){
+    uint listeners()
+    {
         std::unique_lock<std::mutex> ul(source_mtx);
         return queues.size();
     }
@@ -73,7 +75,8 @@ private:
     std::mutex source_mtx;
 };
 
-struct NoSource:public Source<int>{
+struct NoSource:public Source<int>
+{
 using Output= typename Source::Output;
     virtual ~NoSource(){}
 protected:

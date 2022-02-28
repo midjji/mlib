@@ -15,6 +15,7 @@ target_compile_options(mlib-tum PRIVATE ${WARNINGS})
 get_filename_component(${PROJECT_NAME}_top ../ ABSOLUTE)
 target_include_directories(${PROJECT_NAME} PUBLIC ${${PROJECT_NAME}_top})
 target_link_libraries(mlib-tum PUBLIC mlib-opencv-utils)
+target_link_libraries(mlib-tum PUBLIC mlib-utils)
 
 
 

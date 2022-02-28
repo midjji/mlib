@@ -60,23 +60,83 @@ Texture< float,false>& Tracker::target_image_host(){return *target_image_host_;}
 Texture< float,true>&  Tracker::target_image_device(){return *target_image_device_;}
 Texture< SCUDAKLTFeature_t, true >& Tracker::feature_pool_device(){return *feature_pool_device_;}
 Texture< SCUDAKLTFeature_t, false>& Tracker::feature_pool_host(){return *feature_pool_host_;}
-void Tracker::track(const cv::Mat1f& image)
+void Tracker::track(const cv::Mat1f& image, bool replace_previous, bool detect_new)
 {
+
+    // update all parameters from the gui, they wont change untill the next time this function is called.
+    update_all();
+
+    // which is which during this run
+    TrackerSample& curr=current();
+    TrackerSample& prev=previous();
+
+    // get the new image
+    target_image_host().set_to_image(image);
+    // upload which reuses the buffert
+    target_image_device()=target_image_host();
+
+    // could be done in parallel to this, but its fast enough anyways...
+    // not needed unless we intend to replace the previous one at the end...
+    mhere();
+    pyramid_gauss3x3_gauss5x5( target_image_device(),
+                               curr.image,
+                               pyramid_levels->value() );
+
+
+
+    // adapt the pool
+    mhere();
+    pool.resize(pool_size->value());
+    // Set all previous lost features to undefined state.
+    pool.clear_lost();
     mhere();
 
-    // reshuffle the data so the stride matches
-    // could possibly be avoided sometimes, but its not a serious bottleneck
-    auto& tih=target_image_host();
-    tih.resize_rc(image.rows,image.cols); // note be explicit here, since opencv stride is different
+
+
+
+
     mhere();
-    for(int r=0;r<image.rows;++r)
-        for(int c=0;c<image.cols;++c)
-            tih(r,c)=image(r,c);
+    if(previous_valid) // track
+    {
+
+        //"Track - Upload features" );
+        set_features(pool, feature_pool_host() );
+        feature_pool_device()       = feature_pool_host();
+        ////  "Track - Prepare Gradient Pyramid" );
+        klt( prev, curr);
+        mhere();
+
+
+
+
+        mhere();
+
+        // "Track - Download features" );
+        feature_pool_host()       = feature_pool_device();
+        mhere();
+        update_pool(pool, feature_pool_host(), max_residual->value() );
+        mhere();
+    }
     mhere();
-    // reuses the buffert
-    target_image_device()=tih;
-    mhere();
-    trackit();
+
+
+    if(replace_previous)
+    {
+        scharr_pyramid(curr.image, curr.dx, curr.dy);
+
+        if(detect_new)
+        {
+            mhere();
+
+            auto kps=harris->detect( curr.dx.getImage(0),
+                                     curr.dy.getImage(0),
+                                     pool.valid_kps());
+            pool.assign_new(kps,false);
+            mhere();
+        }
+        Acurrent=!Acurrent;
+    }
+    previous_valid=true;
 }
 
 namespace{
@@ -104,15 +164,15 @@ Tracker::Tracker(  const std::string&  name )
 
     // tracker subtype,
 
-    tracker_subtype=pint(0, "tracker subtype", "Tracker", "0 standard, 1 mean, 2 1D",0,3);
+    tracker_subtype=pint(1, "tracker subtype", "Tracker", "0 standard, 1 mean, 2 1D",0,3);
 
-    pyramid_levels=pint(4,"number of pyramid levels","Tracker", "0 means only original image?", 0);
-    pool_size=pint(10000, "Maximum number of tracks", "Tracker","",0);
+    pyramid_levels=pint(5,"number of pyramid levels","Tracker", "0 means only original image?", 0);
+    pool_size=pint(1000, "Maximum number of tracks", "Tracker","",0);
 
     half_window=pint(3, "half_window->value()", "Optimizer","",1,11);
     num_iterations=pint(40, "max iterations", "Optimizer","per pyramid level",3,100);
-    min_displacement=preal(0.1, "min delta", "Optimizer"," for the optimzer to be considered to have converged",0.01,0.5);
-    max_displacement=preal(1, "max delta", "Optimizer"," longest allowed step ",0.1,10);
+    min_displacement=preal(0.01, "min delta", "Optimizer"," for the optimzer to be considered to have converged",0.01,0.5);
+    max_displacement=preal(2, "max delta", "Optimizer"," longest allowed step ",0.1,10);
     max_residual=preal(-1, "max ssd error ", "Optimizer"," <0 for any ");
     mlog()<<display()<<"\n";
 }
@@ -176,68 +236,10 @@ void Tracker::klt(const TrackerSample& prev, const TrackerSample& curr, int stre
                        max_displacement->value(),
                        stream  );
         return;
-}
-}
-
-
-
-
-void
-Tracker::trackit(  )
-{
-    // update all parameters from the gui, they wont change untill the next time this function is called.
-    update_all();
-    pool.resize(pool_size->value());
-    mhere();
-    TrackerSample& curr=current();
-    TrackerSample& prev=previous();
-
-
-    // we have two streams, strictly speaking, so lots of speedup possible...
-    // leave it for now
-    mhere();
-    pyramid_gauss3x3_gauss5x5( target_image_device(), curr.image, pyramid_levels->value() );
-    mhere();
-    // Set all previous lost features to undefined state.
-    pool.clear_lost();
-    mhere();
-    if(previous_valid) // track
-    {
-
-        //"Track - Upload features" );
-        set_features(pool, feature_pool_host() );
-        feature_pool_device()       = feature_pool_host();
-        ////  "Track - Prepare Gradient Pyramid" );
-        klt( prev, curr);
-        mhere();
-
-
-
-
-        mhere();
-
-        // "Track - Download features" );
-        feature_pool_host()       = feature_pool_device();
-        mhere();
-        update_pool(pool, feature_pool_host(), max_residual->value() );
-        mhere();
     }
-    mhere();
-
-    scharr_pyramid(curr.image, curr.dx, curr.dy);
-
-
-    mhere();
-
-    auto kps=harris->detect( curr.dx.getImage(0),
-                            curr.dy.getImage(0),
-                            pool.valid_kps());
-    pool.assign_new(kps,false);
-    mhere();
-
-    Acurrent=!Acurrent;
-    previous_valid=true;
 }
+
+
 
 
 

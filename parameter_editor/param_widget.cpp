@@ -7,7 +7,7 @@
 #include <real_parameter.h>
 #include <parameter.h>
 
-#include <label.h>
+#include <mlib/gui/label.h>
 #include <QFormLayout>
 #include <QLineEdit>
 #include <QIntValidator>

@@ -20,7 +20,7 @@ namespace kitti{
 
 std::vector<std::shared_ptr<StereoSequence>>
 KittiDataset::sequences() const{
-    std::vector<std::shared_ptr<StereoSequence>> rets;
+    std::vector<std::shared_ptr<StereoSequence>> rets;rets.reserve(seqs.size());
     for(const auto& seq:seqs)
         rets.push_back(seq);
     return rets;

@@ -7,7 +7,8 @@ namespace cvl{
 struct StereoSample:public ImageSample
 {
 
-    StereoSample(float128 time,const std::shared_ptr<StereoSequence>ss,
+    StereoSample(float128 time,
+                 const std::shared_ptr<StereoSequence> ss,
                  int frame_id, std::vector<cv::Mat1f> images,
                  cv::Mat1f disparity_);
 
@@ -25,8 +26,8 @@ struct StereoSample:public ImageSample
     virtual float128 original_time() const{return 0;}
 
 
-protected:
-    cv::Mat1f disparity_;
+private:
+    const cv::Mat1f disparity_;
 };
 
 

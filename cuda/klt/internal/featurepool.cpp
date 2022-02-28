@@ -128,11 +128,16 @@ cv::Mat3b draw_feature_pool(klt::FeaturePool& pool,
 
 
 
-    for(auto f:pool){
-        if(f.found()){
+    for(const auto& f:pool)
+    {
+        if(!f.normal()) continue;
+        if(f.found())
+        {
             mlib::draw_circle(rgb,f.rc<cvl::Vector2d>(),mlib::Color::green());
         }
-        if(f.tracked()){
+        if(f.tracked())
+        {
+
             mlib::drawArrow(rgb,f.rc<cvl::Vector2d>(),f.previous_rc<cvl::Vector2d>(), mlib::Color::blue());
         }
     }
@@ -144,6 +149,7 @@ cv::Mat3b draw_feature_pool_prediction(const FeaturePool& pool, cv::Mat3b rgb){
     for(const auto& f:pool)
     {
 
+                if(!f.normal()) continue;
         if(f.tracked())
             mlib::drawArrow(rgb, f.rc<cvl::Vector2d>(),f.predicted_rc<cvl::Vector2d>(),mlib::Color::blue());
         if(f.found()){

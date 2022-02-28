@@ -63,7 +63,7 @@ private:
 
  /// Mask buffers
  Texture< float, true> mask_device;
- Texture< float, false > mask_host;
+ Texture< float, false> mask_host;
  Texture< float, true> masked_corner_score;
 
 

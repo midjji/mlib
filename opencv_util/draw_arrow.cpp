@@ -13,8 +13,9 @@ void draw_arrow(cv::Mat3b& im,
                cvl::Vector2d to, // row,col
                Color col,
                int thick,
-                int length){
-    drawArrow(im,from,to, col, thick, length);
+                int length,double arrow_min_dist)
+{
+    drawArrow(im,from,to, col, thick, length, arrow_min_dist);
 }
 
 
@@ -28,11 +29,13 @@ void draw_arrow(cv::Mat3b& im,
  * @param length
  * draws a arrow...
  */
-void drawArrow(cv::Mat3b& im, Vector2d from, Vector2d to, Color color, int thick, int length){
+void drawArrow(cv::Mat3b& im, Vector2d from, Vector2d to, Color color, int thick, int length, double arrow_min_dist){
 
 
-    if(!(from.isnormal()&& to.isnormal())) {
+    if(!(from.isnormal()&& to.isnormal()))
+    {
         mlog()<<"trying to draw bad arrow"<<from<< " "<<to<<"\n";
+        return;
     }
     //from.cap(Vector2d(0,0),Vector2d(im.rows,im.cols));
     //to.cap(Vector2d(0,0),Vector2d(im.rows,im.cols));
@@ -49,7 +52,8 @@ void drawArrow(cv::Mat3b& im, Vector2d from, Vector2d to, Color color, int thick
 
     float dist=(from - to).norm();
 
-    if( dist<15){
+    if( dist<arrow_min_dist)
+    {
         // only draw line
         cv::line(im,cfrom,cto,ccolor,thick);
         return;

@@ -310,7 +310,7 @@ template<class T> inline Vector3<T>
 angular_velocity(const Quaternion<T>& q,
                  const Quaternion<T>& q_dt)
 {
-
+    // is this body? not sure...
     // the simple and safe version
     //auto w=(q_dt*q.conj())*T(2.0);return w.vec();
     // the faster and num better version
@@ -340,6 +340,42 @@ Vector3<T> angular_velocity(
     return angular_velocity(qs[0],qs[1]);
 }
 
+//////////////////////////// World variant /////////////////////////////
+
+template<class T> inline Vector3<T>
+angular_velocity_world(const Quaternion<T>& q,
+                 const Quaternion<T>& q_dt)
+{
+    // am I sure which is which? NOT at all.. test
+    return (q.conj()*q_dt).vec()*T(2.0); // faster variant exists...
+}
+
+template<class T> inline Vector3<T>
+angular_velocity_world(const Vector<Quaternion<T>,3>& qs){
+    return angular_velocity_world(qs[0],qs[1]);
+}
+
+template<class T, uint N> inline
+Vector3<T> angular_velocity_world(
+        const Vector<Vector<T,7>, N/*Degree+1*/>& state,
+        const Vector3<Vector<double, N>>& as)
+{
+    Vector3<Quaternion<T>> qs=compute_qdot(state, as, true, false);
+    return angular_velocity_world(qs[0],qs[1]);
+}
+
+template<class T, uint N> inline
+Vector3<T> angular_velocity_world(
+        const Vector<Vector<T,7>, N/*Degree+1*/>& state,
+         const SplineBasisKoeffs& sbk)
+{
+    Vector3<Quaternion<T>> qs=compute_qdot(state, sbk.cbss<N-1>(), true, false);
+    return angular_velocity_world(qs[0],qs[1]);
+}
+///
+
+
+
 template<class T> inline Vector3<T>
 angular_acceleration(const Vector<Quaternion<T>,3>& qs)
 {
@@ -359,6 +395,36 @@ angular_acceleration(const Vector<Vector<T,7>, N/*Degree+1*/>& state,
                      const Vector3<Vector<double, N>>& as){
 return angular_acceleration(compute_qdot(state,as,true,true));
 }
+
+
+
+template<class T> inline Vector3<T>
+angular_jerk(const Vector<Quaternion<T>,3>& qs)
+{
+    // the nice and safe expression:
+    //auto w=(qs[2]*qs[0].conj() + qs[1]*qs[1].conj())*T(2.0);        return w.vec();
+    // hypothetically faster version, except its pretty much exactly as fast
+    // fast and better num version...
+    return qs[2].imag_of_multiply_b_conj(qs[0])*T(2.0);
+}
+template<class T, uint N> inline Vector3<T>
+angular_jerk(const Vector<Vector<T,7>, N/*Degree+1*/>& state,
+                     const SplineBasisKoeffs& sbk){
+return angular_jerk(compute_qdot(state,sbk,true,true));
+}
+template<class T, uint N> inline Vector3<T>
+angular_jerk(const Vector<Vector<T,7>, N/*Degree+1*/>& state,
+                     const Vector3<Vector<double, N>>& as){
+return angular_jerk(compute_qdot(state,as,true,true));
+}
+
+
+
+
+
+
+
+
 template<class T> inline Vector3<T>
 angular_derivative(
         const Vector<Quaternion<T>,3>& qs,

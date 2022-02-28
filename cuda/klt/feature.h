@@ -107,6 +107,7 @@ struct SFeature_t
 
     bool is_lost_or_undefined() const;
     bool valid() const;
+    bool normal() const;
     bool tracked_or_found() const;
 
 

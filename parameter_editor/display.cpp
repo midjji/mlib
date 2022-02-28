@@ -2,7 +2,7 @@
 #include <QLabel>
 
 #include <display.h>
-#include <label.h>
+#include <mlib/gui/label.h>
 #include <pset.h>
 #include <param_widget.h>
 

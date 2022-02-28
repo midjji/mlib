@@ -9,7 +9,8 @@
 namespace cvl{
 
 
-class DaimlerSample: public StereoSample{
+class DaimlerSample: public StereoSample
+{
 public:
 
     // dataset contains 1w images, 1f disparity, and 1b label images
@@ -19,7 +20,9 @@ public:
     DaimlerSample(std::vector<cv::Mat1w> images,
                   cv::Mat1f disparity_,
                   cv::Mat1b labels,
-                  int frameid, double time,const std::shared_ptr<StereoSequence>ss);
+                  int frameid,
+                  double time,
+                  const std::shared_ptr<StereoSequence> ss);
 
     bool is_car(double row, double col) const;
     bool is_car(Vector2d rowcol) const;

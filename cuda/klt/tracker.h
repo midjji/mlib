@@ -35,9 +35,15 @@ public:
     ~Tracker();
 
 
-
-    void track(const cv::Mat1f& image);
+    /**
+     * @brief track
+     * @param image
+     *
+     * tracks into the provided image, and updates which image we are tracking from and computes harris corners etc, updates feature pool etc...
+     */
+    void track(const cv::Mat1f& image, bool replace_previous=true, bool detect_new=true);
     FeaturePool&  getFeaturePool();
+
 
 
 private:
@@ -92,6 +98,11 @@ private:
 
 
 };
+
+
+
+
+
 
 }
 

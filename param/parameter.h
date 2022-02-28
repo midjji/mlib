@@ -15,6 +15,7 @@ public:
     Parameter(std::string name,
               std::string group,
               std::string desc);
+    virtual ~Parameter();
     const std::string name;
     const std::string desc; // tool tip
     const std::string group;

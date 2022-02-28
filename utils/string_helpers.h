@@ -34,8 +34,10 @@ std::string pad(std::string in, uint len, char key=' ');
 std::vector<std::string> split_lines(std::string s, char delim='\n');
 
 
-double str2double(char* str);
-int str2int(char* str);
+double str2double(const char* str);
+int str2int(const char* str);
+double str2double(const std::string& str);
+int str2int(const std::string& str);
 
 std::string toLowerCase(std::string in);
 

@@ -15,7 +15,7 @@
  * - cuda enabled
  *
  * \todo
- * - how to deal with the mlib_host_device_ defines properly
+ * - how to deal with the __host__ __device__ defines properly
  *
  *
  *
@@ -29,24 +29,11 @@
 #include <cstdint>
 #include <memory>
 #include <sstream>
-#ifndef WITH_CUDA
-#define WITH_CUDA 0 // this what would happen anyways, but now its explicit and intended
+#ifndef __host__
+#define __host__
+#define __device__
 #endif
 
-#if WITH_CUDA
-#ifndef __CUDACC_VER_MAJOR__
-//static_assert(false, "attempting to compile with cuda without cuda");
-#endif
-#endif
-
-#ifndef mlib_host_device_
-#if WITH_CUDA
-#include <cuda_runtime.h>
-#define mlib_host_device_ __host__ __device__
-#else
-#define mlib_host_device_
-#endif
-#endif
 
 /// the standard uint typedef
 typedef unsigned int uint;
@@ -62,14 +49,14 @@ template<class T>
 class  MatrixAdapter{
 public:
 
-    mlib_host_device_
+    __host__ __device__
     MatrixAdapter(){
         data=nullptr;
         rows=0;
         cols=0;
         stride=0;
     }
-    mlib_host_device_
+    __host__ __device__
     /**
      * @brief MatrixAdapter
      * @param data pointer to data, Adapter does not take ownership!
@@ -84,7 +71,7 @@ public:
         this->stride=cols*sizeof(T);
         assert(stride>=cols);
     }
-    mlib_host_device_
+    __host__ __device__
     /**
      * @brief MatrixAdapter
      * @param data pointer to data, Adapter does not take ownership!
@@ -103,7 +90,7 @@ public:
     }
 
 
-    mlib_host_device_
+    __host__ __device__
     /**
      * @brief MatrixAdapter construct submatrix from matrix m
      * @param m
@@ -121,18 +108,19 @@ public:
         stride=m.stride;
     }
     /// does not delete its datapointer
-    mlib_host_device_ ~MatrixAdapter(){}
+    __host__ __device__ ~MatrixAdapter(){}
 
     // accessors
 
-    mlib_host_device_
+    __host__ __device__
     /**
      * @brief operator ()
      * @param row
      * @param col
      * @return the element at (row,col)
      */
-    T& operator()( uint row, uint col){
+    T& operator()( uint row, uint col)
+    {
         assert(col<cols);
         assert(row<rows);
         T*  addr=(T*)(&data[row*stride +col*sizeof(T) ]);
@@ -148,7 +136,7 @@ public:
      * @param col
      * @return the element at (row,col)
      */
-    mlib_host_device_
+    __host__ __device__
     const T& operator()( uint row, uint col ) const    {
         assert(col<cols);
         assert(row<rows);
@@ -157,7 +145,7 @@ public:
 
     }
 
-    mlib_host_device_
+    __host__ __device__
     /**
      * @brief operator ()
      * @param row
@@ -185,7 +173,7 @@ public:
      * @param col
      * @return the element at (row,col)
      */
-    mlib_host_device_
+    __host__ __device__
     T& at(uint row, uint col){
         return this->operator ()(row,col);
     }
@@ -195,14 +183,14 @@ public:
      * @param col
      * @return pointer to specified element
      */
-    mlib_host_device_
+    __host__ __device__
     T* atref(uint row, uint col) const{
         assert(col<cols);
         assert(row<rows);
         return (T*)(&(this->operator ()(row,col)));
     }
 
-    mlib_host_device_
+    __host__ __device__
     /**
      * @brief begin
      * @return  pointer to the beginning of the Adapter, note only used begin, end if the matrix is continious
@@ -211,7 +199,7 @@ public:
         assert(cols*sizeof(T)==stride);
         return (T*)(&data[0]);
     }
-    mlib_host_device_
+    __host__ __device__
     /**
      * @brief end
      * @return ptr to end of matrix, see begin
@@ -221,7 +209,7 @@ public:
         return (T*)(&data[rows*stride*sizeof(T)]);
     }
     ///@return get memory which spans the matrix ie rows*stride !
-    mlib_host_device_
+    __host__ __device__
     uint size(){return rows*stride;}
 
 
@@ -231,7 +219,7 @@ public:
      * @param col
      * @return
      */
-    mlib_host_device_
+    __host__ __device__
     MatrixAdapter<T> getSubMatrix(uint row, uint col) const{
         assert(col<cols);        assert(row<rows);
         MatrixAdapter<T> m(atref(row,col),rows-row,cols-col,stride);
@@ -245,7 +233,7 @@ public:
      * @param cols
      * @return
      */
-    mlib_host_device_
+    __host__ __device__
     MatrixAdapter<T> getSubMatrix(uint row, uint col, uint rows_, uint cols_) const{
 
         assert(row+rows_<=rows);
@@ -261,7 +249,7 @@ public:
      * @param row
      * @return
      */
-    mlib_host_device_
+    __host__ __device__
     MatrixAdapter<T> row(uint row) {
         assert(row<rows);
         MatrixAdapter<T> m(atref(row,0),1,cols,stride);
@@ -273,7 +261,7 @@ public:
      * @return
      */
 
-    mlib_host_device_
+    __host__ __device__
     MatrixAdapter<T> col(uint col) {
         assert(col<cols);
         MatrixAdapter<T> m(atref(0,col),rows,1,stride);
@@ -324,7 +312,7 @@ public:
         return m;
     }
 
-    mlib_host_device_
+    __host__ __device__
     ///@return if the matrix is continious
     bool isContinuous() const {return cols*sizeof(T)==stride;}
     // in bytes

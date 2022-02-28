@@ -721,7 +721,10 @@ double SplineBasis::operator()(double time, int index, int derivative) const
 {
 
     double cardinal_time=time/delta_time - index;
-    double koeff=cumulative_cardinal_basis(cardinal_time, degree, derivative)*std::pow(1.0/delta_time,derivative);
+    double koeff=cumulative_cardinal_basis(cardinal_time, degree, derivative);
+
+    if(derivative!=0)
+        koeff*=std::pow(1.0/delta_time,derivative);
     return koeff;
 
 

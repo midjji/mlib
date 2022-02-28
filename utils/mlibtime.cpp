@@ -167,7 +167,9 @@ std::ostream& operator<<(std::ostream& os,Time t){
 TimeScope::TimeScope(Timer* timer):timer(timer){    timer->tic();}
 TimeScope::~TimeScope(){        timer->toc();    }
 
-ScopedDelay::ScopedDelay(float128 delay_ns){
+ScopedDelay::ScopedDelay(float128 delay_ns)
+{
+    mark=mlibtime::clock.now();
     if(delay_ns>0 && delay_ns<1e9)
         mark += std::chrono::nanoseconds(int64_t(delay_ns));
 
@@ -180,7 +182,7 @@ ScopedDelay::~ScopedDelay(){
 Timer::Timer():dotic(true){    ts.reserve(8*256);}
 Timer::Timer(std::string name,uint capacity): name(name),dotic(true){    ts.reserve(capacity);        }
 Timer::Timer(const std::string& name,
-      const std::vector<Time>& ts):name(name),ts(ts){};
+             const std::vector<Time>& ts):name(name),ts(ts){};
 void Timer::reserve(unsigned int size){
     ts.reserve(size);
 }

@@ -1,5 +1,5 @@
-#include <mlib/cuda/devstreampool.h>
-#include <mlib/cuda/cuda_helpers.h>
+#include "devstreampool.h"
+#include "cuda_helpers.h"
 namespace cvl{
 DevStreamPool::DevStreamPool(int size){ // 32 is the maximum number of async anyways...
 

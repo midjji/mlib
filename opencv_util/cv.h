@@ -45,6 +45,8 @@ cv::Point2f gridcoord(std::vector<cv::Mat> imgs,int i);
 void imshowmany(std::vector<cv::Mat> imgs,std::string name="map");
 
 
+void abs_inplace(cv::Mat1f& image);
+void abs_inplace(cv::Mat1d& image);
 
 
 
@@ -97,7 +99,7 @@ template<class T> T max(const cv::Mat_<T>& im){
 template<class T>
 cv::Mat1f normalize01(const cv::Mat_<T>& im){
     cv::Mat1f ret(im.rows,im.cols);
-    T min,max;min=0;max=1;
+    T min,max;
     minmax(im, min, max);
     //std::cout<<"cv minmax: "<<min<<" "<<max<<std::endl;
     for(int r=0;r<im.rows;++r)

@@ -1,4 +1,4 @@
-#include <mlib/cuda/devmemmanager.h>
+#include "devmemmanager.h"
 namespace cvl{
 #if 1
 DevMemManager::DevMemManager(){

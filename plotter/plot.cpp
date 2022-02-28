@@ -91,7 +91,9 @@ public:
     }
     void plot(const std::vector<double>& xs,
               const std::vector<double>& ys,
-              std::string title, std::string label){
+              std::string title, std::string label)
+    {
+        if(xs.size()==0||ys.size()==0) return;
         call_plot(xs,ys,title, label);
     }
 
@@ -102,6 +104,29 @@ public:
         auto plotter= std::shared_ptr<Plotter>(new Plotter);
         plotter->self=plotter;
         return plotter;
+    }
+
+    void x_limits(std::string name, double low, double high){
+
+        std::unique_lock<std::mutex> ul(call_plot_mutex);
+        // Here I know the plotter exists for as long as the
+        // capture this by reference, then run it in blocking mode, so the lambda finishes before the function returns
+        // actually opencv does not like blocking! hmm???
+        auto plotter=self.lock();
+        run_in_gui_thread(
+                    new QAppLambda([plotter,name,low,high](){
+            plotter->x_limits_internal(name,low,high);}));
+    }
+    void y_limits(std::string name, double low, double high){
+
+        std::unique_lock<std::mutex> ul(call_plot_mutex);
+        // Here I know the plotter exists for as long as the
+        // capture this by reference, then run it in blocking mode, so the lambda finishes before the function returns
+        // actually opencv does not like blocking! hmm???
+        auto plotter=self.lock();
+        run_in_gui_thread(
+                    new QAppLambda([plotter,name,low,high](){
+            plotter->y_limits_internal(name,low,high);}));
     }
 
 private:
@@ -137,12 +162,14 @@ private:
         auto figure=std::make_shared<Figure>();
         plots_[name]=figure;
         auto& plot=figure->plot;
-        plot.setWindowTitle(QString(name.c_str()));
+        plot.setWindowTitle(QString(name.c_str()));        
         // show plotter and make it a decent size
         plot.show();
         plot.resize(600,400);
         return figure;
     }
+
+
     void clear_plot_internal(std::string title){
         std::unique_lock<std::mutex> ul(plot_internal_mtx);
         auto it=plots_.find(title);
@@ -166,10 +193,20 @@ private:
         // 1. create a plotter window and get a pointer to the internal datastore (for convenience)
         std::shared_ptr<Figure> figure=named_plot(title);
         figure->set(xs,ys,label);
-
-
-
-
+    }
+    void x_limits_internal(std::string name, double x_min, double x_max){
+        auto it=plots_.find(name);
+        if(it==plots_.end()) {
+            mlog()<<"Warning: plotter setting xlimit ["<<x_min<<", "<<x_max<<"] for \""<<name<<"\" which does not exist.\n";return;
+        }
+        it->second->plot.setAbsoluteX(x_min,x_max);
+    }
+    void y_limits_internal(std::string name, double y_min, double y_max){
+        auto it=plots_.find(name);
+        if(it==plots_.end()) {
+            mlog()<<"Warning: plotter setting ylimit ["<<y_min<<", "<<y_max<<"] for \""<<name<<"\" which does not exist.\n";return;
+        }
+        it->second->plot.setAbsoluteY(y_min,y_max);
     }
 };
 
@@ -200,6 +237,12 @@ void plot(const std::vector<double>& xs,
           std::string label){
     plotter()->plot(xs,ys,title, label);
 }
+void histogram(const std::vector<double>& ys,std::string title, std::string label){
+    auto vals=ys;
+    std::sort(vals.begin(), vals.end());
+    plot(vals,title, label);
+}
+
 void plot(
         const std::vector<double>& xs,
         const std::map<std::string, std::vector<double>>& yss,
@@ -212,9 +255,12 @@ void plot(
 void initialize_plotter(){
     plotter();
 }
+
+void plot_x_limits(std::string name, double x_min, double x_max){
+    plotter()->x_limits(name,x_min, x_max);
+}
+void plot_y_limits(std::string name, double y_min, double y_max){
+    plotter()->y_limits(name,y_min, y_max);
 }
 
-
-
-
-
+}

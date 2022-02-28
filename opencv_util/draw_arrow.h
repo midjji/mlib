@@ -11,14 +11,16 @@ void draw_arrow(cv::Mat3b& im,
                cvl::Vector2d to, // row,col
                Color col=Color::cyan(),
                int thick=1,
-               int length=5);
+               int length=5,
+                double arrow_min_dist=15);
 
 void drawArrow(cv::Mat3b& im,
                cvl::Vector2d from, // row,col
                cvl::Vector2d to, // row,col
                Color col=Color::cyan(),
                int thick=1,
-               int length=5);
+               int length=5,
+               double arrow_min_dist=15);
 
 void draw_legend(cv::Mat3b& rgb, std::vector<std::tuple<std::string,Color>> labels);
 

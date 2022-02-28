@@ -40,9 +40,21 @@ public:
     // cant copy construct these
     Texture(const Texture&) =delete;
 
+    template<class Image>
+    Texture(const Image& image)
+    {
+        // note be explicit here, since opencv stride is likely different
+        // this is performance heavy compared to what it could be... but opencv stride must match the Texture one otherwise...
+        resize_rc(image.rows,image.cols);
+        for(int r=0;r<image.rows;++r)
+            for(int c=0;c<image.cols;++c)
+                at(r,c)=image(r,c);
+    }
 
     // owns its pointer,
     ~Texture(){        free();    }
+
+
 
     T* data() { return data_; }
     const T* cdata() const { return data_; }
@@ -66,10 +78,19 @@ public:
         return true;
     }
 
+    template<class Image> void set_to_image(const Image& image)
+    {
+        // note be explicit here, since opencv stride is different
+        resize_rc(image.rows,image.cols);
+        for(int r=0;r<image.rows;++r)
+            for(int c=0;c<image.cols;++c)
+                at(r,c)=image(r,c);
+    }
+
 private:
     static T* allocate_impl(int elements)
     {
-        mlog()<<"elements*sizeof(T): "<<elements*sizeof(T)<<"\n";
+        //mlog()<<"elements*sizeof(T): "<<elements*sizeof(T)<<"\n";
         T* data=nullptr;
         cudaError_t error;
         // gives aligned memory.
@@ -87,6 +108,7 @@ private:
     }
     void free()
     {
+        //mlog()<<"freeing texture\n";
         if(data_==nullptr){
             cols_ = 0;
             rows_ = 0;
@@ -157,7 +179,7 @@ public:
     }
     void resize_array(int elements){
         resize_rcs(1, elements,elements);
-    }    
+    }
     template<class A,  bool b >
     void resize( const Texture<A,b>& t)
     {
@@ -173,12 +195,21 @@ public:
 
     // use row=0, col instead for now
     //T& operator()(int index)    {        return this->operator()(index % stride_, index/stride_);    }
-    inline T& operator()(int row, int col){
-        //if(row<0||col<0||row>=rows_||col>=cols_)            mlog()<<row<<", "<<col<<": "<<rows_<<", "<<cols_<<"\n";
+    inline T& operator()(int row, int col)
+    {
+        if (device)            require(!device," not available...");
+        return data_[row*stride_ +col];
+    }
+    inline T& at(int row, int col)
+    {
+        if (device)
+            require(!device," not available...");
+
         return data_[row*stride_ +col];
     }
     inline const T operator()(int row, int col) const{
-        //if(row<0||col<0||row>=rows_||col>=cols_)            mlog()<<row<<", "<<col<<": "<<rows_<<", "<<cols_<<"\n";
+        if (device)
+            require(!device," not available...");
         return data_[row*stride_ +col];
     }
     cudaTextureObject_t texture() const

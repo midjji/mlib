@@ -105,7 +105,7 @@ void PointCloudViewer::setPointCloud(const std::vector<Vector3d>& xs,
     pc.posess.push_back(poses);
     pc.pose_colors.push_back(Color::nr(0));
     pc.coordinate_axis_length=coordinate_axis_length;
-    queue.push(std::make_unique<PCOrder>(pc));
+    add(pc);
 }
 void PointCloudViewer::sink_(std::unique_ptr<Order>& order){
     if(order!=nullptr) queue.push(std::move(order));
@@ -181,7 +181,8 @@ void PointCloudViewer::run() {
 
 
     viewer->realize();
-    while(!viewer->done() && running)    {
+    while(!viewer->done() && running)
+    {
         viewer->frame();
         mlib::ScopedDelay sd(1e7); // the loop will always take atleast 10ms
         //mlib::sleep_ms(50);
@@ -192,8 +193,9 @@ void PointCloudViewer::run() {
         std::unique_ptr<Order> order;
         while(queue.try_pop(order) && running)
         {
-            //if(queue.size()>10) queue.clear();
-            if(order->clear_scene){
+            if(queue.size()>10) queue.clear();
+            if(order->clear_scene)
+            {
                 for(auto add:added)
                     scene->removeChild(add);
                 added.clear();
@@ -212,7 +214,8 @@ void PointCloudViewer::run() {
 void PointCloudViewer::close(){    running=false;}
 bool PointCloudViewer::is_running(){return running;}
 
-void PointCloudViewer::wait_for_done(){
+void PointCloudViewer::wait_for_done()
+{
     while(running){
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }

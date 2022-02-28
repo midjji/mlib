@@ -28,8 +28,13 @@ void plot(const std::vector<double>& ys,
 void plot(const std::vector<double>& xs,
           const std::map<std::string, std::vector<double>>& yss,
           std::string title="unnamed window");
+
+void histogram(const std::vector<double>& ys, std::string title="untitled histogram plot", std::string label="unnamed sorted values");
 void clear_plot(std::string title="unnamed window");
 void initialize_plotter();
+
+void plot_x_limits(std::string name, double x_min, double x_max);
+void plot_y_limits(std::string name, double y_min, double y_max);
 
 
 

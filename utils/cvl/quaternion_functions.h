@@ -90,7 +90,7 @@ Vector4d pow(const Vector4d& q, double alpha)
     const T& q1 = q[1];
     const T& q2 = q[2];
     const T& q3 = q[3];
-    const T sin_squared_theta = q1 * q1 + q2 * q2 + q3 * q3;
+    const T sin_squared_theta = T(1.0) - cos_theta*cos_theta;//q1 * q1 + q2 * q2 + q3 * q3;
 
     if(sin_squared_theta<T(1e-12)) {
 

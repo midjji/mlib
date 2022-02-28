@@ -18,6 +18,6 @@ target_configure_warnings(mlib-opencv-utils)
 Find_OpenCV()
 target_link_libraries(mlib-opencv-utils PUBLIC opencv)
 
-target_link_libraries(mlib-opencv-utils PUBLIC mlib-utils)
+target_link_libraries(mlib-opencv-utils PRIVATE mlib-utils)
 
 endif()

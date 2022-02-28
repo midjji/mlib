@@ -249,7 +249,9 @@ float loc_win_val(cv::Mat1f& im, int row, int col){
     return im(row,col);
 }
 
-void post_process_disparity(cv::Mat1f& disparity){
+void post_process_disparity(cv::Mat1f& disparity)
+{
+    return;
     // there are a bit too many empty ones... so use a fill by nearest to shrink the holes
     // actually a really crappy fill is sufficient!
     for(int r=0;r<disparity.rows;++r)
@@ -273,11 +275,21 @@ void post_process_disparity(cv::Mat1f& disparity){
     }
 }
 
+cv::Mat1w shift_upwards(cv::Mat1w right, double up, double left)
+{
+cv::Mat1w rup(right.rows, right.cols, 0.0f);
+for(int r=up;r<right.rows;++r)
+    for(int c=left;c<right.cols;++c)
+        rup(r-up,c-left)=right(r,c);
+return rup;
+}
+
 bool DaimlerSequence::read_images(uint sample_index,
                                   cv::Mat1w& left,
                                   cv::Mat1w& right,
                                   cv::Mat1b& labels,
-                                  cv::Mat1f& disparity) const
+                                  cv::Mat1f& disparity)
+const
 {
 
     std::vector<std::thread> thrs;thrs.reserve(4);
@@ -286,15 +298,30 @@ bool DaimlerSequence::read_images(uint sample_index,
         if(!test_im(left))
             cout<<"failed left: \""<<path+"left/"     + mlib::toZstring(sample_index,6)+".png\""<<endl;
     }));
-    thrs.push_back(std::thread([&]() {
-        if(read_right)
+    thrs.push_back(std::thread([&]()
+    {
+        if(read_right){
             right=      cv::imread(path+"right/"    + mlib::toZstring(sample_index,6)+".png",cv::IMREAD_ANYDEPTH);
+            // because of fucking course the calibration is so horrifically shit even I can see it outright in tracking L2R...
+            // why didnt I check this earlier
+            right=shift_upwards(right,6,11);
+        }
         else
             right=cv::Mat1w(10,10);
 
+
     }));
     thrs.push_back(std::thread([&]() {
+
         disparity=  cv::imread(path+"lstereo/"  + mlib::toZstring(sample_index,6)+".exr",cv::IMREAD_ANYDEPTH);
+        // something is rescaling my disparities at random. make const somehow?
+        //mlog()<<"it looks alot like there is a factor of 2 wrong witht the disparity! fixing... also offset, fixing... \n";
+        //disparity=disparity/2.0f;// if the disparity is correct, then the right image is improperly undistorted.
+        // however it looks alot like its not, so more likely, disparities were computed at half resolution,
+        // and probably with a poor undistort, meaning all results are off by a factor 2. but possibly compensated for
+        // by the baseline, or my scaling beeing wrong.
+        // see also the shift for the right image, but its not enough...
+
 
         //post_process_disparity(disparity);
 

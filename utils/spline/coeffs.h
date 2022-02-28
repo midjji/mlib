@@ -35,7 +35,8 @@ class SplineBasisKoeffs
     SplineBasis sb;
 public:
     SplineBasisKoeffs(double time, SplineBasis sb):time(time), sb(sb){};
-    double operator()(int index, int derivative=0) const{
+    double operator()(int index, int derivative=0) const
+    {
         return sb(time, index, derivative);
     }
     template<int Degree> inline Vector<double,Degree+1> cbs(int derivative=0) const

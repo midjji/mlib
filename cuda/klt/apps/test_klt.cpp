@@ -30,7 +30,8 @@ using namespace cvl;
 struct TrackerTest:public cvl::Parametrized{
     klt::Tracker daimler_klt=klt::Tracker("daimler klt");
     klt::Tracker kitti_klt=klt::Tracker("kitti klt");
-    TrackerTest():cvl::Parametrized("Tracker Test",""){
+    TrackerTest():cvl::Parametrized("Tracker Test","")
+    {
         add("daimler", daimler_klt.params());
         add("kitti", kitti_klt.params());
     }
@@ -40,7 +41,6 @@ void track(std::shared_ptr<cvl::BufferedStream<StereoSequenceStream>> seq,
            klt::Tracker& tracker,
            std::string name)
 {
-
     auto s=seq->next();
     mlib::sleep(1);
     mlib::Timer timer(name+"klt1f");
@@ -79,8 +79,8 @@ int main(int argc, char** argv){
     w.set(tt.params());
     w.show();
 
-    std::thread thr1f([&](){track(buffered_daimler_sequence(950),tt.daimler_klt,"daimler");});
-    std::thread thr1w([&](){track(buffered_kitti_sequence(0),tt.kitti_klt,"kitti");});
+    std::thread thr1f([&](){track(buffered_daimler_sequence(950), tt.daimler_klt, "daimler");});
+    std::thread thr1w([&](){track(buffered_kitti_sequence(0),     tt.kitti_klt,   "kitti"  );});
 
     int r=QApplication::exec();
     std::this_thread::sleep_for(std::chrono::milliseconds(1000000000));

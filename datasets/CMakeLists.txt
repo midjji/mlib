@@ -6,9 +6,11 @@ add_library(mlib-datasets "stereo_datasets.h" "stereo_datasets.cpp" "stereo_cali
 file(GLOB srcs  "*.h" "*.cpp" )
 list(REMOVE_ITEM SRCS "stereo_datasets.*")
 add_library(mlib-datasets-interface ${srcs})
-message("DATASETS: ${srcs}")
+
+print_list(mlib/dataset srcs)
 target_compile_features(mlib-datasets-interface PRIVATE cxx_std_17)
 target_link_libraries(mlib-datasets-interface PUBLIC mlib-opencv-utils)
+target_link_libraries(mlib-datasets-interface PUBLIC mlib-utils)
 
 target_link_libraries(mlib-datasets PUBLIC mlib-datasets-interface)
 

@@ -285,6 +285,10 @@ public:
     T* begin() {
         return &_data[0];
     }
+    const T* cbegin() const
+    {
+        return &_data[0];
+    }
     __host__ __device__
     const T* end() const{
         // Matrix can be bigger than Rows*Cols, but its not strided
@@ -309,7 +313,7 @@ public:
     constexpr unsigned int rows() const{return Rows;}
 
     /// Default constructor
-    __host__ __device__
+    //__host__ __device__
     Matrix()=default;
 
     /**

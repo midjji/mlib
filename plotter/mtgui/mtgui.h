@@ -23,6 +23,20 @@
  *       in this case, you must create and exec QApplication in main, after which all this still works perfectly,
  *       which is good for making apis simple
  *
+ *
+ *       // for QT 5.10 and latter !
+ *
+ *       // invoke on the main thread
+QMetaObject::invokeMethod(qApp, []{ ... });
+
+// invoke on an object's thread
+QMetaObject::invokeMethod(obj, []{ ... });
+
+// invoke on a particular thread
+QMetaObject::invokeMethod(QAbstractEventDispatcher::instance(thread),
+                         []{ ... });
+ *
+ *
  * \author   Mikael Persson
  *
  ******************************************************************************/
@@ -85,7 +99,8 @@ template<class Lambda, class... Args>
  * the closure is usually enough though.
  *
 */
-struct QAppLambda: public AnyQAppLambda
+struct QAppLambda:
+        public AnyQAppLambda
 {
     //  // note do not capture context, all args must exist when called later,
     /**

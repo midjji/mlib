@@ -111,7 +111,8 @@ public:
     // must be templated on the node type,
     // since static does not know
     template<class NodeType, class... Args> static std::shared_ptr<NodeType>
-    create(Args... args) {
+    create(Args... args)
+    {
         std::shared_ptr<NodeType> ipp(new NodeType(args...));
         ipp->wp_self=ipp; // enable_shared_from_this is bugged in c++17
 

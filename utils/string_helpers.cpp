@@ -19,7 +19,7 @@ std::string pad(std::string in, uint len, char key){
 
 // string helpers
 
-double str2double(char *str)
+double str2double(const char *str)
 {
     std::istringstream ss(str);
     double d;
@@ -27,7 +27,22 @@ double str2double(char *str)
     return d;
 }
 
-int str2int(char *str)
+int str2int(const char *str)
+{
+    std::istringstream ss(str);
+    int d;
+    ss >> d;
+    return d;
+}
+double str2double(const std::string& str)
+{
+    std::istringstream ss(str);
+    double d;
+    ss >> d;
+    return d;
+}
+
+int str2int(const std::string& str)
 {
     std::istringstream ss(str);
     int d;

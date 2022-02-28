@@ -1,4 +1,4 @@
-
+#if 0
 #include <kitti/odometry/orig_gnu_plot.h>
 #include <sstream>
 #include <kitti/odometry/eval.h>
@@ -357,3 +357,4 @@ void plot_sequence(std::vector<cvl::PoseD> gt,
 }// end kitti namespace
 }// end namespace cvl
 
+#endif

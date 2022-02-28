@@ -1,7 +1,7 @@
 #include <mlib/opencv_util/convert.h>
 
 namespace cvl {
-cv::Mat3b image2rgb3b(const cv::Mat1b& img,
+cv::Mat3b image2rgb3b(const cv::Mat1b img,
                float scale,
                float offset)
 {
@@ -15,7 +15,7 @@ cv::Mat3b image2rgb3b(const cv::Mat1b& img,
         }
     return rgb;
 }
-cv::Mat3b image2rgb3b(const cv::Mat1f& img,
+cv::Mat3b image2rgb3b(const cv::Mat1f img,
                float scale,
                float offset)
 {
@@ -29,7 +29,7 @@ cv::Mat3b image2rgb3b(const cv::Mat1f& img,
         }
     return rgb;
 }
-cv::Mat3b image2rgb3(const cv::Mat1f& img,
+cv::Mat3b image2rgb3(const cv::Mat1f img,
                float scale,
                      float offset){
     cv::Mat3b rgb(img.rows,img.cols);
@@ -43,7 +43,7 @@ cv::Mat3b image2rgb3(const cv::Mat1f& img,
     return rgb;
 }
 
-cv::Mat3f image2rgb3f(const cv::Mat1w& img,
+cv::Mat3f image2rgb3f(const cv::Mat1w img,
                       float scale,
                       float offset){
     cv::Mat3f rgb(img.rows,img.cols);
@@ -54,7 +54,7 @@ cv::Mat3f image2rgb3f(const cv::Mat1w& img,
         }
     return rgb;
 }
-cv::Mat1f image2grey1f(const cv::Mat1w& img,
+cv::Mat1f image2grey1f(const cv::Mat1b img,
                       float scale,
                        float offset){
     cv::Mat1f im(img.rows,img.cols);
@@ -65,7 +65,18 @@ cv::Mat1f image2grey1f(const cv::Mat1w& img,
         }
     return im;
 }
-cv::Mat1w image2grey1w(const cv::Mat1b& img,
+cv::Mat1f image2grey1f(const cv::Mat1w img,
+                      float scale,
+                       float offset){
+    cv::Mat1f im(img.rows,img.cols);
+    for(int r=0;r<img.rows;++r)
+        for(int c=0;c<img.cols;++c){
+            float tmp=float(img(r,c))*scale + offset;
+            im(r,c)=tmp;
+        }
+    return im;
+}
+cv::Mat1w image2grey1w(const cv::Mat1b img,
                       float scale,
                        float offset){
     cv::Mat1w rgb(img.rows,img.cols);
@@ -76,7 +87,18 @@ cv::Mat1w image2grey1w(const cv::Mat1b& img,
         }
     return rgb;
 }
-cv::Mat1b image2grey1b(const cv::Mat1w& img,
+cv::Mat1b image2grey1b(const cv::Mat1w img,
+                      float scale,
+                       float offset){
+    cv::Mat1b rgb(img.rows,img.cols);
+    for(int r=0;r<img.rows;++r)
+        for(int c=0;c<img.cols;++c){
+            float tmp=img(r,c)*scale + offset;
+            rgb(r,c)=tmp;
+        }
+    return rgb;
+}
+cv::Mat1b image2grey1b(const cv::Mat1f img,
                       float scale,
                        float offset){
     cv::Mat1b rgb(img.rows,img.cols);
@@ -88,11 +110,10 @@ cv::Mat1b image2grey1b(const cv::Mat1w& img,
     return rgb;
 }
 
-
-std::vector<cv::Mat1f> images2grey1f(std::vector<cv::Mat1w> imgs,float scale, float offset)
+std::vector<cv::Mat1f> images2grey1f(const std::vector<cv::Mat1w>& imgs,float scale, float offset)
 {
     std::vector<cv::Mat1f> rets;rets.reserve(imgs.size());
-    for(auto im:imgs)
+    for(const auto& im:imgs)
         rets.push_back(image2grey1f(im,scale,offset));
     return rets;
 }

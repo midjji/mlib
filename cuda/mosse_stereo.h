@@ -153,12 +153,6 @@ public:
                 // beräkna filtret innom patchen
                 // beräkna svaret och skriv till
 
-
-
-
-
-
-
                 for(int d=0; d<max_disparity;++d){
                     // get cost at position: r,c vs r,c+d
                     double err=0;

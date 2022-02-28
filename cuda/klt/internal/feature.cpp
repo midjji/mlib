@@ -1,5 +1,6 @@
 #include <sstream>
 #include "klt/feature.h"
+#include <cmath>
 namespace klt {
 
 
@@ -72,9 +73,9 @@ bool SFeature_t::sensible_prediction() const {
 float SFeature_t::predicted_row() const{return predrow_;}
 float SFeature_t::predicted_col() const{return predcol_;}
 void SFeature_t::set(float row,
-         float col,
-         float predict_row,
-         float predict_col){
+                     float col,
+                     float predict_row,
+                     float predict_col){
     row_=row;
     col_=col;
     predrow_=predict_row;
@@ -85,6 +86,12 @@ void SFeature_t::set(float row,
 bool SFeature_t::is_lost_or_undefined()   const{return free()||lost();    }
 bool SFeature_t::tracked_or_found()       const{return tracked()||found();}
 bool SFeature_t::valid()                  const{return tracked()||found();}
+bool SFeature_t::normal()                  const{
+    double v=row() + col()+ predicted_col()+predicted_row();
+    if(std::isnan(v)) return false;
+    if(std::isinf(v)) return false;
+    return true;
+}
 
 bool SFeature_t::found()                  const{return state==FOUND;}
 bool SFeature_t::lost()                   const{return state==LOST;}

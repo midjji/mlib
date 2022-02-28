@@ -1,4 +1,4 @@
-#include <mlib/cuda/mbm.h>
+#include "mbm.h"
 #include <iostream>
 #include <mlib/cuda/cuda_helpers.h>
 #include <opencv2/highgui.hpp>
@@ -288,7 +288,8 @@ void MBMStereoStream::displayTimers(){
     std::vector<mlib::Timer> ts={timer,mediantimer,cumSumRowtimer,cumSumColtimer,adifftimer};
     cout<<ts<<endl;
 }
-cv::Mat1b MBMStereoStream::operator()(cv::Mat1b Left, cv::Mat1b Right){
+cv::Mat1b MBMStereoStream::operator()(cv::Mat1b Left, cv::Mat1b Right)
+{
     std::unique_lock<std::mutex> ul(mtx);// the images are allocated to new memory
     if(!inited){        std::cerr<<"MBMStereoStream called before init!"<<endl;        exit(1);    }
     timer.tic();

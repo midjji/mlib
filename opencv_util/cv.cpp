@@ -18,6 +18,20 @@ using std::endl;
 using namespace cvl;
 namespace mlib{
 
+void abs_inplace(cv::Mat1f& image){
+    for(int r=0;r<image.rows;++r)
+        for(int c=0;c<image.cols;++c)
+            image(r,c)=std::abs(image(r,c));
+
+}
+void abs_inplace(cv::Mat1d& image){
+    for(int r=0;r<image.rows;++r)
+        for(int c=0;c<image.cols;++c)
+            image(r,c)=std::abs(image(r,c));
+
+}
+
+
 double abs(const cv::Point2f& p){
     return sqrt(p.x*p.x + p.y*p.y);
 }

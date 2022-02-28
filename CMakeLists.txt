@@ -31,6 +31,15 @@ INIT_BUILD()
 # a bunch of different external stuff
 add_subdirectory(extern)
 
+#if ( TARGET Qt5::Core )
+#        get_property( core_options TARGET Qt5::Core PROPERTY INTERFACE_COMPILE_OPTIONS )
+#        string( REPLACE "-fPIC" "" new_core_options "${core_options}" )
+#        set_property( TARGET Qt5::Core PROPERTY INTERFACE_COMPILE_OPTIONS ${new_core_options} )
+#        set_property( TARGET Qt5::Core PROPERTY INTERFACE_POSITION_INDEPENDENT_CODE "ON" )
+#        set( CMAKE_CXX_COMPILE_OPTIONS_PIE "-fPIC" )
+#endif()
+
+
 # dependes on c++11
 add_subdirectory(utils)
 target_link_libraries(mlib INTERFACE mlib-utils)
@@ -58,12 +67,15 @@ target_link_libraries(mlib INTERFACE mlib-datasets)
 # a c++11 only parameter gui
 add_subdirectory(param)
 target_link_libraries(mlib INTERFACE param)
+
+add_subdirectory(gui)
+target_link_libraries(mlib INTERFACE mlib-gui)
+
 # a qt based parameter editor
 add_subdirectory(parameter_editor)
 target_link_libraries(mlib INTERFACE editor)
 
-add_subdirectory(gui)
-target_link_libraries(mlib INTERFACE mlib-gui)
+
 
 
 # set in extern

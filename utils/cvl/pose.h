@@ -496,7 +496,8 @@ typedef Pose<double> PoseD;
 
 
 struct TransformDirection{
-    struct geodesic_operator{
+    struct geodesic_operator
+    {
         const bool common_from;
         inline Vector6d operator()(PoseD A, PoseD B) const{
             if (common_from){

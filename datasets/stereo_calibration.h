@@ -51,7 +51,7 @@ public:
     double py_=1108.15;
     double px_=519.169;
     double baseline_=0.209114;
-    PoseD P_left_vehicle_; // P_left_vehicle_
+    PoseD P_left_vehicle_=PoseD::Identity(); // P_left_vehicle_
     inline PoseD P_left_vehicle()  const {        return P_left_vehicle_;    }
     inline PoseD P_right_vehicle() const {
         return P_left_vehicle_.q().append(P_left_vehicle_.t() + Vector3d(-baseline_,0,0));
