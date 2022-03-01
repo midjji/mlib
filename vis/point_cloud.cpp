@@ -53,7 +53,8 @@ osg::Node* MakePointCloud(
     geode->addDrawable(geo);
 
     osg::PolygonMode *pm = new osg::PolygonMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::POINT);
-    osg::Point *psz = new osg::Point(10*radius);
+    //osg::Point *psz = new osg::Point(10*radius);
+    osg::Point *psz = new osg::Point(radius);
 
     osg::StateSet *state = geode->getOrCreateStateSet();
     state->setAttributeAndModes(psz, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);

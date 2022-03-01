@@ -47,10 +47,10 @@ bool write_image_safe(std::string pth, cv::Mat img) noexcept
     default:
         mlog()<<"missing format: "<<pth<<"\n";
     }
-    std::string stem=p.stem();
-    std::string path2=stem+".inprogress"+str(get_steady_now())+ext;
-    if(ext.at(0)!='.') mlog()<<"extension error in write safe image!\n";
+    std::string dir=p.root_directory();
 
+    std::string path2=pth+".inprogress"+str(get_steady_now())+ext;
+    if(ext.at(0)!='.') mlog()<<"extension error in write safe image!\n";
     bool res=cv::imwrite(path2,img);
     if(!res) return false;
     fs::rename(path2,pth);

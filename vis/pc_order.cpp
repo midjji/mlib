@@ -82,7 +82,7 @@ osg::Node* PCOrder::group()
     auto& xs=pc.xs;
     auto& cs=pc.xs_cols;
     if(xs.size()>0)
-        group->addChild(MakePointCloud(xs, cs, scale));
+        group->addChild(MakePointCloud(xs, cs, 0.1*scale));
     return group;
 
 }

@@ -60,7 +60,7 @@ Vector3d triangulate(const StereoCalibration& intrinsics,
     }
     ceres::Solver::Summary summary;
     ceres::Solve(options, &problem, &summary);
-    /*
+
     std::cout<<summary.FullReport()<<std::endl;
     for(int i=0;i<obs.size();++i)
     {
@@ -70,7 +70,7 @@ Vector3d triangulate(const StereoCalibration& intrinsics,
         else
             cout<<obs[i]<<"\n"<<yr<<"\n";
     }
-    */
+
 
 
     return x;

@@ -24,7 +24,7 @@ PC default_scene();
 struct PCOrder:public Order{
     PCOrder(const PC& pc, bool clear_scene=true);
     PC pc;
-    double scale=1;
+    double scale=0.1;
     osg::Node* group() override;
 };
 

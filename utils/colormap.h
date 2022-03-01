@@ -3,6 +3,7 @@
 #include <vector>
 #include <mlib/utils/cvl/matrix.h>
 
+
 namespace mlib{
 
 
@@ -17,9 +18,16 @@ public:
 
     Color();
     // 0xrrggbb00
-    Color(uint32_t rgb);
+
+
+
+    static Color parse(int byte4);
 
     Color(uint8_t r, uint8_t g, uint8_t b);
+    template<class Vec>
+    static Color from_vec(Vec x)    {
+        return Color(x[0],x[1],x[2]);
+    }
 
     // replace with only good ones
     static Color red();
