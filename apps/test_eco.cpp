@@ -19,6 +19,7 @@
 #include <ceres/loss_function.h>
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/solver.h>
+#include <opencv2/features2d.hpp>
 
 using std::cout;
 using std::endl;
@@ -202,6 +203,40 @@ cv::Mat1f compute_filter(cv::Mat1f image, int row, int col, int size)
 }
 
 
+using namespace cv;
+void match_brief(cv::Mat1b A, cv::Mat1b B)
+{
+    auto detector=BRISK::create(30,3,1.0f);
+    std::vector<KeyPoint> keypoints1, keypoints2;
+    Mat descriptors1, descriptors2;
+    detector->detectAndCompute(A, noArray(), keypoints1, descriptors1, false);
+    detector->detectAndCompute(B, noArray(), keypoints2, descriptors2, false);
+
+
+        //-- Step 1: Detect the keypoints using SURF Detector, compute the descriptors
+        Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create(DescriptorMatcher::BRUTEFORCE_HAMMING);
+        std::vector< std::vector<DMatch> > knn_matches;
+        matcher->knnMatch( descriptors1, descriptors2, knn_matches, 2 );
+        //-- Filter matches using the Lowe's ratio test
+        const float ratio_thresh = 0.1f;
+        std::vector<DMatch> good_matches;
+        for (size_t i = 0; i < knn_matches.size(); i++)
+        {
+            if (knn_matches[i][0].distance < ratio_thresh * knn_matches[i][1].distance)
+            {
+                good_matches.push_back(knn_matches[i][0]);
+            }
+        }
+        //-- Draw matches
+        Mat img_matches;
+
+        drawMatches( A, keypoints1, B, keypoints2, good_matches, img_matches, Scalar::all(-1),
+                     Scalar::all(-1), std::vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
+        //-- Show detected matches
+        imshow("Good Matches", img_matches );
+        waitKey(0);
+}
+
 
 
 int main(int argc, char** argv)
@@ -259,9 +294,15 @@ int main(int argc, char** argv)
     if(params["dataset"]=="daimler")
         seq = buffered_daimler_sequence(offset);
 
+    auto a=seq->next();
+    auto b=seq->next();
+
+    match_brief(a->grey1b(), b->grey1b());
+
+
     while(true)
     {
-        auto s=seq->next();
+auto s=seq->next();
 
         if(!s) break;
         if(!s->has_stereo()) continue;
@@ -277,6 +318,8 @@ int main(int argc, char** argv)
         int cols=im.cols;
         cvl::imshow("rgb0", s->rgb(0));
         cvl::imshow("rgb1", s->rgb(1));
+
+
 
         cv::Mat3b target=s->rgb(0)(cv::Rect( tc-20, tr -20, 40, 40 ));
 

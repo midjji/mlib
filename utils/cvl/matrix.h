@@ -1647,6 +1647,8 @@ static_assert(std::is_trivially_copy_constructible<Matrix<double,3,3>>(),"speed"
 static_assert(std::is_trivially_constructible<Matrix<double,3,3>>(),"speed");
 static_assert(std::is_trivially_assignable<Matrix<double,3,3>,Matrix<double,3,3>>(),"speed");
 static_assert(std::is_trivial<Matrix<double,3,3>>(),"speed");
+static_assert(std::is_standard_layout <Matrix<double,3,3>>(),"speed");
+static_assert(std::is_pod<Matrix<double,3,3>>(),"speed");
 
 
 

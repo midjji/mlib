@@ -102,7 +102,8 @@ struct is_map< std::map<Key,Value,Less,Alloc> > : public std::true_type{};
 
 
 template<typename Stream, typename T>
-Stream& operator<<(Stream& s,bits_t<T> b) {
+Stream& operator<<(Stream& s,bits_t<T> b)
+{
     if(!s) return s;
     using Type=std::remove_reference_t<T>;
     if constexpr (std::is_trivially_copyable<Type>()){
@@ -174,7 +175,6 @@ Stream& operator>>(Stream& s, bits_t<T&> b) {
     }
     return s;
 }
-
 template<typename T> struct vbits_t { T t; }; //no constructor necessary
 template<typename T> vbits_t<T&> vbits(T& t) {    return vbits_t<T&>{t};}
 template<typename T> vbits_t<const T&> vbits(const T& t) {    return vbits_t<const T&>{t};}
@@ -203,3 +203,27 @@ S& operator>>(S& s, vbits_t<T&> b) {
         s.setstate(std::ios::failbit);
     return s;
 }
+
+
+
+
+/*
+#include "serialization.h"
+struct inner{
+    float a;
+    std::uint16_t d;
+}
+struct pod{
+    std::uint16_t a,b;
+    std::uint32_t c;
+    std::uint16_t d;
+    float c;
+    inner i;
+};
+void test(){
+    pod p;
+    ss<<bits(p);
+    ss>>bits(p);
+}
+*/
+
