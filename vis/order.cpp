@@ -3,7 +3,7 @@
 #include <mlib/vis/main_event_handler.h>
 
 namespace mlib {
-Order::Order(bool clear_scene):clear_scene(clear_scene){
+Order::Order(bool clear_scene, int last_n_index):clear_scene(clear_scene),last_n_index_(last_n_index){
     orders.reserve(64);
 }
 Order::~Order(){}
@@ -13,7 +13,8 @@ void Order::process_events(MainEventHandler* meh){
     event(meh);
 }
 void Order::push_back(std::unique_ptr<Order> order){orders.push_back(std::move(order));}
-osg::Node* Order::aggregate_groups(){
+osg::Node* Order::aggregate_groups()
+{
     osg::Group* n=nullptr;
     for(auto& order:orders){
         osg::Node* g=order->group();

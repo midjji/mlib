@@ -13,8 +13,8 @@ using namespace kitti;
 
 void filter(cv::Mat1f im)
 {
-    Texture<float,false> host_image(im);
-    Texture<float,true> dev_image=im;
+    Texture<float,false> host_image;host_image.set_to_image(im);
+    Texture<float,true> dev_image;dev_image.set_to_image(im);
 
 
 

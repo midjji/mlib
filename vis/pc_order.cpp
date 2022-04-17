@@ -60,7 +60,7 @@ PC default_scene(){
     return pc;
 }
 PCOrder::PCOrder(const PC& pc,
-                 bool clear_scene):Order(clear_scene),pc(pc){}
+                 bool clear_scene, int last_n_index):Order(clear_scene, last_n_index),pc(pc){}
 osg::Node* PCOrder::group()
 {
     osg::Group* group=new osg::Group;
@@ -82,7 +82,7 @@ osg::Node* PCOrder::group()
     auto& xs=pc.xs;
     auto& cs=pc.xs_cols;
     if(xs.size()>0)
-        group->addChild(MakePointCloud(xs, cs, 0.1*scale));
+        group->addChild(MakePointCloud(xs, cs, scale));
     return group;
 
 }

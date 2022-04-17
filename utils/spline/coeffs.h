@@ -6,9 +6,6 @@ double cumulative_cardinal_basis(double time, int degree, int derivative);
 double forward_extrapolation_cumulative_cardinal_basis(double time, int degree, int derivative);
 double backward_extrapolation_cumulative_cardinal_basis(double time, int degree, int derivative);
 
-// Multidim
-double cardinal_basis(double x, double y, int degree, int derivative);
-
 
 
 // interface for coefficients
@@ -44,6 +41,7 @@ public:
         Vector<double,Degree+1> ret;
         auto& a=*this;
         int j=0;
+        // did I mirror it, ? perhaps, but its symmetric, I think...
         for(int i=sb.get_first(time);i<=sb.get_last(time);++i){
             ret[j]=a(i,derivative);
             j++;

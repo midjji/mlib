@@ -13,13 +13,13 @@ inline void cap(int& v, int low = 0, int high = 255)
 }
 
 Color gray2jet(uint8_t graylevel){
-   uint8_t r = colormaps::jet[graylevel*3 + 0]; 
-   uint8_t g = colormaps::jet[graylevel*3 + 1];
-   uint8_t b = colormaps::jet[graylevel*3 + 2];
+    uint8_t r = colormaps::jet[graylevel*3 + 0];
+    uint8_t g = colormaps::jet[graylevel*3 + 1];
+    uint8_t b = colormaps::jet[graylevel*3 + 2];
 
-   Color c = Color(r, g, b);
+    Color c = Color(r, g, b);
 
-   return c;
+    return c;
 }
 
 void encodeRed2DarkGreen(const double  f_value_d,
@@ -104,7 +104,7 @@ std::vector<Color> colors = {
     Color::cyan(),
     Color::white(),
     //Color::gray(),
-    Color::pink(),        
+    Color::pink(),
 
     //Color::random(),
 };
@@ -226,7 +226,7 @@ std::vector<Color> brights={
     Color(190,153,112),
     Color(150,138,232),
     Color(187,136,0),
-//    Color(67,0,44),
+    //    Color(67,0,44),
     Color(222,255,116),
     Color(0,255,198),
     Color(255,229,2),
@@ -274,6 +274,67 @@ Color Color::codeDepthRedToDarkGreen(double depth, double mindepth, double maxde
     encodeRed2DarkGreen(depth, mindepth, maxdepth, r, g, b);
     return Color((uint8_t)r, (uint8_t)g, (uint8_t)b);
 }
+
+
+
+
+
+/*
+   Return a RGB colour value given a scalar v in the range [vmin,vmax]
+   In this case each colour component ranges from 0 (no contribution) to
+   1 (fully saturated), modifications for other ranges is trivial.
+   The colour is clipped at the end of the scales if v is outside
+   the range [vmin,vmax]
+
+   goes blue(min), green, red(max)
+*/
+namespace  {
+
+
+typedef struct {
+    double r,g,b;
+} COLOUR;
+
+COLOUR GetColour(double v,double vmin,double vmax)
+{
+    COLOUR c = {1.0,1.0,1.0}; // white
+    double dv;
+
+    if (v < vmin)
+        v = vmin;
+    if (v > vmax)
+        v = vmax;
+    dv = vmax - vmin;
+
+    if (v < (vmin + 0.25 * dv)) {
+        c.r = 0;
+        c.g = 4 * (v - vmin) / dv;
+    } else if (v < (vmin + 0.5 * dv)) {
+        c.r = 0;
+        c.b = 1 + 4 * (vmin + 0.25 * dv - v) / dv;
+    } else if (v < (vmin + 0.75 * dv)) {
+        c.r = 4 * (v - vmin - 0.5 * dv) / dv;
+        c.b = 0;
+    } else {
+        c.g = 1 + 4 * (vmin + 0.75 * dv - v) / dv;
+        c.b = 0;
+    }
+
+    return c;
+}
+int cn(double val){
+    if(val<0) return 0;
+    if(val<255) return val;
+    return 255;
+}
+}
+
+Color jet(double val, double vmin, double vmax){
+
+    COLOUR col=GetColour(val, vmin, vmax);
+    return Color(cn(col.r*255),cn(col.g*255),cn(col.b*255));
+}
+
 
 int Color::getR()  const
 {

@@ -355,7 +355,8 @@ public:
      * make sure this is the only one used anywhere!
      * \todo add alignas to the data array!
      */
-    static MatrixAdapter<T> allocate(uint rows, uint cols, uint stridestep=256){
+    static MatrixAdapter<T> allocate(uint rows, uint cols, uint stridestep=256)
+    {
         uint stride=MatrixAdapter<T>::getStride(cols,stridestep);
         // what is the alignment of the first element here?
         // guaranteed atleast 4, but only matters on cuda, and there it is 256

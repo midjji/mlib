@@ -23,6 +23,8 @@
 #include <mlib/utils/cvl/matrix.h>
 #include <mlib/utils/cvl/pose.h>
 namespace mlib{
+
+
 /// Uniform distribution on the unit sphere
 template<class T,int R> cvl::Vector<T,R> getRandomUnitVector(){
 
@@ -37,6 +39,10 @@ template<class T,int R> cvl::Vector<T,R> getRandomUnitVector(){
     return n.normalized();
 
 }
+template<class T,int R> inline cvl::Vector<T,R> random_unit_vector(){
+    return getRandomUnitVector<T,R>();
+}
+
 template<class T> cvl::Pose<T> getRandomPose(){
 
 return cvl::Pose<T>(getRandomUnitVector<double,4>(),getRandomUnitVector<double,3>()*randu(0,10));

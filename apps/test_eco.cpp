@@ -1,4 +1,4 @@
-
+#if 0
 #include <opencv2/core.hpp>
 
 #include <opencv2/highgui.hpp>
@@ -353,4 +353,6 @@ auto s=seq->next();
 
     return 0;
 }
-
+#else
+int main(){return 0;}
+#endif

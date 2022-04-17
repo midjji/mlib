@@ -52,7 +52,8 @@ class MainEventHandler;
  * que a new point cloud for display with setPointCloud
  *
  */
-class PointCloudViewer :public cvl::Sink<std::unique_ptr<Order>>{
+class PointCloudViewer :public cvl::Sink<std::unique_ptr<Order>>
+{
 public:
         static sPointCloudViewer start(std::string name="Point Cloud Viewer(wasdqe,mouse)");
 
@@ -93,7 +94,11 @@ public:
 
 
     void add(const FlowField& ff, bool clear_scene=true);
-    void add(PC pc, bool clear_scene=true);
+    void add(PC pc, bool clear_scene=true, int last_n_index=0);
+
+
+
+
 
 
 

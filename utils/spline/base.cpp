@@ -47,7 +47,6 @@ int BaseUniformSpline::get_last(double time) const {
         last=int(first_control_point_+degree_);
     return last;
 }
-
 double BaseUniformSpline::first_valid_time() const{
     if(size()==0) return 0;
     return delta_time()*(current_first_control_point()+ int(degree_+1));

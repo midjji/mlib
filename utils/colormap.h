@@ -50,6 +50,7 @@ public:
     cvl::Vector3d cvl();
 
     static Color codeDepthRedToDarkGreen(double depth, double mindepth=1, double maxdepth=100);
+
     int getR() const;
     int getG() const;
     int getB() const;
@@ -60,10 +61,12 @@ public:
     // for opencv scalar without including it as a dependency...
     //cv::Scalar toScalar(){return cv::Scalar(rgb[0],rgb[1],rgb[2],0);}
     template<class T> T toScalar(){return T(rgb[0],rgb[1],rgb[2],0);}
+    template<class T> T toV3(){return T(rgb[0],rgb[1],rgb[2]);}
 private: 
         int rgb[3];
         static int counter;
 };
+Color jet(double val, double vmin, double vmax);
 
 Color gray2jet(uint8_t graylevel);
 

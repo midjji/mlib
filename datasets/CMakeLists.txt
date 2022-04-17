@@ -46,3 +46,13 @@ if(WITH_HILTI)
     add_subdirectory(hilti)
     target_link_libraries(mlib-datasets PUBLIC mlib-hilti)
 endif()
+
+
+option(WITH_MDLIDAR "build MDLIDAR" ON)
+if(WITH_MDLIDAR)
+    add_subdirectory(mdlidar)
+    target_link_libraries(mlib-datasets PUBLIC mlib-mdlidar)
+endif()
+
+
+

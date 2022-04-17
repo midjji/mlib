@@ -113,9 +113,9 @@ void PointCloudViewer::sink_(std::unique_ptr<Order>& order){
 void PointCloudViewer::add(const FlowField& ff, bool clear_scene){
     queue.push(std::make_unique<FlowOrder>(ff,clear_scene));
 }
-void PointCloudViewer::add(PC pc, bool clear_scene){
+void PointCloudViewer::add(PC pc, bool clear_scene, int last_n_index){
     pc.fill_colors();
-    queue.push(std::make_unique<PCOrder>(pc, clear_scene));
+    queue.push(std::make_unique<PCOrder>(pc, clear_scene, last_n_index));
 }
 
 
@@ -141,13 +141,22 @@ sPointCloudViewer PointCloudViewer::start(std::string name){
 
 
 
-void PointCloudViewer::run() {
+
+
+void PointCloudViewer::run()
+{
     osg::ref_ptr<osgViewer::Viewer> viewer = new osgViewer::Viewer;
     osg::ref_ptr<mlib::MainEventHandler> meh = new mlib::MainEventHandler(viewer);
 
     osg::ref_ptr<osg::Group> scene=new osg::Group;
 
     std::set<osg::Node*> added;
+    osg::Group* last_N=new osg::Group;
+    scene->addChild(last_N);
+    bool first_order=true;
+
+
+
     { // init stuff
         // setup default scene
         {
@@ -186,7 +195,6 @@ void PointCloudViewer::run() {
     {
         viewer->frame();
         mlib::ScopedDelay sd(1e7); // the loop will always take atleast 10ms
-        //mlib::sleep_ms(50);
 
 
 
@@ -194,16 +202,35 @@ void PointCloudViewer::run() {
         std::unique_ptr<Order> order;
         while(queue.try_pop(order) && running)
         {
+
+
+
+
             if(queue.size()>10) queue.clear();
-            if(order->clear_scene)
+            if(order->clear_scene ||first_order)
             {
-                for(auto add:added)
+                first_order=false;
+                for(auto* add:added)
                     scene->removeChild(add);
+
+                last_N->removeChildren(0,last_N->getNumChildren());
+
                 added.clear();
+            }
+            int N=order->last_n_index();
+            if(N>0)
+            {
+
+                if(last_N->getNumChildren()<N)
+                    last_N->insertChild(N, order->aggregate_groups());
+                else
+                    last_N->setChild(N,order->aggregate_groups() );
+                continue;
             }
 
             osg::Node* group = order->aggregate_groups();
-            if(group!=nullptr){
+            if(group!=nullptr)
+            {
                 added.insert(group);
                 scene->addChild(group);
             }
@@ -212,6 +239,10 @@ void PointCloudViewer::run() {
     }
     viewer->setDone(true);
 }
+
+
+
+
 void PointCloudViewer::close(){    running=false;}
 bool PointCloudViewer::is_running(){return running;}
 

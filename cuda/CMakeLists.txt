@@ -14,7 +14,7 @@ project(mlib-cuda VERSION 1.0
 
 #set(CMAKE_CUDA_ARCHITECTURES 61)
 SET(CUDA_SEPARABLE_COMPILATION ON)
-
+target_include_directories(mlib INTERFACE SYSTEM "/usr/local/cuda/include")
 
 
 #set(CMAKE_CUDA_STANDARD_REQUIRED TRUE)
@@ -51,5 +51,7 @@ target_link_libraries(mlib-cuda INTERFACE klt)
 #target_link_libraries(mbm mlib mlib-cuda)
 #target_include_directories(mbm SYSTEM PUBLIC /usr/local/cuda/include)
 
-
+add_executable(raytrace apps/raytrace.cu)
+set_property(TARGET raytrace PROPERTY CUDA_ARCHITECTURES 61)
+target_link_libraries(raytrace mlib mlib-cuda)
 

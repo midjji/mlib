@@ -6,9 +6,10 @@
 #include <iostream>
 #include <sstream>
 #include <mlib/utils/mlog/log.h>
+#include <vector>
 
 
-/*
+
 #define mhere() {\
     cudaDeviceSynchronize();\
     auto err=cudaGetLastError();\
@@ -16,11 +17,28 @@
     mlog()<<cudaGetErrorName(err)<<": "<<cudaGetErrorString(err)<<"\n"; exit(1);}\
     }
 
-*/
-#define mhere()
 
+//#define mhere()
 
-
+template<class T>
+class Tex2
+{
+public:
+    T* data;
+    int rows, cols, stride;
+    __host__ __device__ Tex2(){}
+    __host__ __device__ Tex2(T* data, int rows, int cols, int stride):data(data),rows(rows),cols(cols),stride(stride){}
+    __host__ __device__ inline T& operator()(int row, int col){return data[row*stride +col];}
+    __host__ __device__ inline const T& operator()(int row, int col) const{return data[row*stride +col];}
+    __host__ __device__
+    inline T* begin() {        return data;    }
+    __host__ __device__
+    inline T* end() {return &data[rows*stride];}
+    __host__ __device__
+    inline const T* begin() const{        return data;    }
+    __host__ __device__
+    inline const T* end() const{return &data[rows*stride];}
+};
 
 
 template< class T, bool device>
@@ -40,16 +58,7 @@ public:
     // cant copy construct these
     Texture(const Texture&) =delete;
 
-    template<class Image>
-    Texture(const Image& image)
-    {
-        // note be explicit here, since opencv stride is likely different
-        // this is performance heavy compared to what it could be... but opencv stride must match the Texture one otherwise...
-        resize_rc(image.rows,image.cols);
-        for(int r=0;r<image.rows;++r)
-            for(int c=0;c<image.cols;++c)
-                at(r,c)=image(r,c);
-    }
+
 
     // owns its pointer,
     ~Texture(){        free();    }
@@ -86,6 +95,15 @@ public:
             for(int c=0;c<image.cols;++c)
                 at(r,c)=image(r,c);
     }
+    void set_to_vec(const std::vector<T>& es)
+    {
+        // note be explicit here, since opencv stride is different
+        resize_rc(es.size(),1);
+        for(int r=0;r<es.size();++r)
+                at(r,0)=es[r];
+    }
+
+
 
 private:
     static T* allocate_impl(int elements)
@@ -109,7 +127,8 @@ private:
     void free()
     {
         //mlog()<<"freeing texture\n";
-        if(data_==nullptr){
+        if(data_==nullptr)
+        {
             cols_ = 0;
             rows_ = 0;
             stride_=0;
@@ -254,6 +273,7 @@ public:
         worked(cudaCreateTextureObject(&tex, &rd, &td, nullptr),"failed to make texture?" );
         return tex;
     }
+    Tex2<T> tex2(){return Tex2<T>(data_, rows_, cols_, stride_);}
 
 
     template<bool dev>
@@ -296,6 +316,7 @@ private:
     int capacity_=0;
     T* data_=nullptr;
 };
+
 
 
 

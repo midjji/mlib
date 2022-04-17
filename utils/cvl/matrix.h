@@ -125,7 +125,7 @@ public:
 
     ///@return Access element (i). Useful for vectors and row-major iteration over matrices.
     __host__ __device__
-    T& operator()(unsigned int index /** @param index */)
+    inline T& operator()(unsigned int index /** @param index */)
     {
         assert(index<Rows*Cols);
         return _data[index];
@@ -133,7 +133,7 @@ public:
 
     ///@return Const access to element (i). Useful for vectors and row-major iteration over matrices.
     __host__ __device__
-    const T& operator()(unsigned int index /** @param index */) const
+    inline const T& operator()(unsigned int index /** @param index */) const
     {
         assert(index<Rows*Cols);
         return _data[index];
@@ -142,7 +142,7 @@ public:
 
     ///@return Access element (i). Useful for vectors and row-major iteration over matrices.
     __host__ __device__
-    T& operator[](unsigned int index /** @param index */)
+    inline T& operator[](unsigned int index /** @param index */)
     {
         assert(index<Rows*Cols);
 
@@ -151,7 +151,7 @@ public:
 
     ///@return Const access to element (i). Useful for vectors and row-major iteration over matrices.
     __host__ __device__
-    const T& operator[](unsigned int index /** @param index */) const
+    inline const T& operator[](unsigned int index /** @param index */) const
     {
         assert(index<Rows*Cols);
         return _data[index];
@@ -192,11 +192,11 @@ public:
 
 
     ///@return Get a pointer to the matrix or vector elements. The elements are stored in row-major order.
-    T* data()    {        return _data;    }
+    inline T* data()    {        return _data;    }
 
     ///@return Get a const pointer to the matrix or vector elements. The elements are stored in row-major order.
     __host__ __device__
-    const T* data() const   {
+    inline const T* data() const   {
         return _data;
     }
     /**
@@ -205,7 +205,7 @@ public:
      * @return a pointer to the rowth row of the matrix
      */
     __host__ __device__
-    T* getRowPointer(unsigned int row) {
+    inline T* getRowPointer(unsigned int row) {
         assert(row<Rows);
         return &((*this)(row,0));
     }
@@ -282,21 +282,21 @@ public:
     T& back(){ return _data[Rows*Cols-1];}
     const T& back() const{ return _data[Rows*Cols-1];}
 
-    T* begin() {
+    inline T* begin() {
         return &_data[0];
     }
-    const T* cbegin() const
+    inline const T* cbegin() const
     {
         return &_data[0];
     }
     __host__ __device__
-    const T* end() const{
+    inline const T* end() const{
         // Matrix can be bigger than Rows*Cols, but its not strided
         return begin()+(Cols*Rows);
     }
     ///@return a pointer to the last element +1
     __host__ __device__
-    T* end() {
+    inline T* end() {
          // Matrix can be bigger than Rows*Cols, but its not strided
         return begin()+(Cols*Rows);
     }
@@ -342,7 +342,7 @@ public:
      */
     template<class U>
     __host__ __device__
-    Matrix(Matrix<U,Rows,Cols> M)
+    Matrix(const Matrix<U,Rows,Cols>& M)
     {
         static_assert(Cols*Rows>0,"empty matrix?");
         Matrix& a = *this;
@@ -373,7 +373,7 @@ public:
 
     ///@return Add the elements of another matrix (elementwise addition)
     __host__ __device__
-    Matrix& operator+=(const Matrix& b  /** @param b */)
+    inline Matrix& operator+=(const Matrix& b  /** @param b */)
     {
         Matrix& a = *this;
         for (unsigned int i = 0; i < Rows * Cols; i++) {
@@ -384,7 +384,7 @@ public:
 
     ///@return Subtract the elements of another matrix (elementwise subtraction)
     __host__ __device__
-    Matrix& operator-=(const Matrix& b  /** @param b */)
+    inline Matrix& operator-=(const Matrix& b  /** @param b */)
     {
         Matrix& a = *this;
         for (unsigned int i = 0; i < Rows * Cols; i++) {
@@ -406,7 +406,7 @@ public:
 
     ///@return (*this) elementwise divided by a scalar
     __host__ __device__
-    Matrix& operator/=(const T& s  /** @param s */)
+    inline Matrix& operator/=(const T& s  /** @param s */)
     {
         Matrix& a = *this;
         T si=T(1.0)/s;
@@ -418,7 +418,7 @@ public:
     template<class S>
     __host__ __device__
     ///@return (*this) point multiplied with another matrix
-    Matrix& pointMultiply(const Matrix<S,Rows,Cols>& b  /** @param b */)
+    inline Matrix& pointMultiply(const Matrix<S,Rows,Cols>& b  /** @param b */)
     {
         Matrix& a = *this;
         for (unsigned int i = 0; i < Rows * Cols; ++i) {
@@ -429,7 +429,7 @@ public:
     template<class S>
     __host__ __device__
     ///@return (*this) point multiplied with another matrix
-    Matrix& point_multiply(const Matrix<S,Rows,Cols>& b  /** @param b */)
+    inline Matrix& point_multiply(const Matrix<S,Rows,Cols>& b  /** @param b */)
     {
         Matrix& a = *this;
         for (unsigned int i = 0; i < Rows * Cols; ++i) {
@@ -453,7 +453,7 @@ public:
 
     ///@return Elementwise matrix subtraction (*this) -b
     __host__ __device__
-    Matrix operator-(const Matrix& b  /** @param b */) const
+    inline Matrix operator-(const Matrix& b  /** @param b */) const
     {
         Matrix c;
         const Matrix& a = *this;
@@ -465,7 +465,7 @@ public:
 
     ///@return Element negation
     __host__ __device__
-    Matrix operator-() const
+    inline Matrix operator-() const
     {
         Matrix b;
         const Matrix& a = *this;
@@ -477,7 +477,7 @@ public:
 
     ///@return (*this) point multiplied by a scalar
     __host__ __device__
-    Matrix operator*(const T& scalar /** @param scalar*/) const
+    inline Matrix operator*(const T& scalar /** @param scalar*/) const
     {
         const Matrix& a = *this;
         Matrix b=a;
@@ -487,7 +487,7 @@ public:
 
     ///@return (*this) point divided by a scalar
     __host__ __device__
-    Matrix operator/(const T& scalar /** @param scalar */) const
+    inline Matrix operator/(const T& scalar /** @param scalar */) const
     {
         Matrix b;
         const Matrix& a = *this;
@@ -805,7 +805,7 @@ public:
     ///@return Matrix multiplication
     template<unsigned int N>
     __host__ __device__
-    Matrix<T, Rows, N> operator*(const Matrix<T, Cols, N>& b  /** @param b */) const
+    inline Matrix<T, Rows, N> operator*(const Matrix<T, Cols, N>& b  /** @param b */) const
     {
         Matrix<T, Rows, N> c;
         const Matrix& a = *this;
@@ -928,13 +928,13 @@ public:
 
     /// @return The L2 norm
     __host__ __device__
-    T norm() const
+    inline T norm() const
     {
-        return std::sqrt(squaredNorm());
+        return sqrt(squaredNorm());
     }
     /// @return The L2 norm
     __host__ __device__
-    T norm2() const
+    inline T norm2() const
     {
         return squaredNorm();
     }
@@ -942,7 +942,7 @@ public:
 
     ///@return The vector L2 norm, with a different name
     __host__ __device__
-    T length() const
+    inline T length() const
     {
         static_assert(Cols == 1 || Rows == 1,
                 "length() is only defined for vectors. Use norm() with matrices.");
@@ -951,12 +951,13 @@ public:
 
     /// the matrix divided by its own L2-norm
     __host__ __device__
-    void normalize()
+    inline void normalize()
     {
         (*this) /= norm();
     }
     ///@return a L2 normalized copy
-    Matrix normalized() const
+    __host__ __device__
+    inline Matrix normalized() const
     {
         return (*this) * (T(1) / norm());
     }
@@ -979,7 +980,7 @@ public:
     }
     ///@return the hnormalized() vector
     __host__ __device__
-    Matrix<T, Rows - 1, Cols> dehom() const
+    inline Matrix<T, Rows - 1, Cols> dehom() const
     {
         return hnormalized();
     }
@@ -1288,12 +1289,35 @@ public:
             ab[j++] = b._data[i];
         return ab;
     }
+    // because opencv are retarded
+    int channel_type(){
+        return 0;
+    }
+    void floor(){
+        auto& a=*this;
+        for(int i=0;i<Rows*Cols;++i)
+            a(i) = int(a(i));
+    }
+    Matrix<int, Rows,Cols> floor2i(){
+        auto& a=*this;
+        Matrix<int, Rows,Cols> b;
+        for(int i=0;i<Rows*Cols;++i)
+            b(i) = int(a(i));
+        return b;
+    }
+    Matrix floored(){
+
+        Matrix b=*this;
+        b.floor();
+        return b;
+    }
 };
 
 
 
 template<uint Rows, uint Cols, class T> Matrix<T, Rows, Cols>
-point_multiply(const Matrix<T, Rows, Cols>& a, const Matrix<T, Rows, Cols>& b){
+__host__ __device__
+inline point_multiply(const Matrix<T, Rows, Cols>& a, const Matrix<T, Rows, Cols>& b){
     Matrix<T, Rows, Cols> c;
     for(uint i=0;i<Rows*Cols;++i)
         c[i] = a[i]*b[i];
@@ -1310,8 +1334,16 @@ Matrix<T,Rows,Cols> elementwise_root(const Matrix<T,Rows,Cols>& m)
     return a;
 }
 
-
-
+template<class T, unsigned int Rows, unsigned int Cols>
+__host__ __device__
+inline Matrix<T,Rows,Cols> point_divide(const Matrix<T,Rows,Cols>& a, const Matrix<T,Rows,Cols>& b)
+{
+    Matrix<T,Rows,Cols> c;
+    for (unsigned int i = 0; i < Rows * Cols; ++i) {
+        c(i) = a(i) / b(i);
+    }
+    return c;
+}
 
 
 
@@ -1325,7 +1357,7 @@ template<class T>
  * @param v
  * @return
  */
-Matrix<T,2,1> operator*(const Matrix<T,3,3>& M, const Matrix<T,2,1>& v){
+inline Matrix<T,2,1> operator*(const Matrix<T,3,3>& M, const Matrix<T,2,1>& v){
     return (M*v.homogeneous()).dehom();
 }
 /**
@@ -1335,7 +1367,7 @@ Matrix<T,2,1> operator*(const Matrix<T,3,3>& M, const Matrix<T,2,1>& v){
  * @return
  */
 template<class T>
-Matrix<T,3,1> operator*(const Matrix<T,4,4>& M, const Matrix<T,3,1>& v){
+inline Matrix<T,3,1> operator*(const Matrix<T,4,4>& M, const Matrix<T,3,1>& v){
     return (M*v.homogeneous()).dehom();
 }
 
@@ -1348,7 +1380,7 @@ __host__ __device__
  * @param a
  * @return s*a
  */
-Matrix<T, Rows, Cols> operator*(const T& s, const Matrix<T, Rows, Cols>& a)
+inline  Matrix<T, Rows, Cols> operator*(const T& s, const Matrix<T, Rows, Cols>& a)
 {
     Matrix<T, Rows, Cols> b;
     for (unsigned int i = 0; i < Rows * Cols; ++i) {
@@ -1382,7 +1414,7 @@ inline T dot(const Matrix<T, Rows, Cols>& a, const Matrix<T, Rows2, Cols2>& b)
 ///@return Elementwise absolute value of @param a
 template<typename T, unsigned int Rows, unsigned int Cols>
 __host__ __device__
-Matrix<T, Rows, Cols> abs(const Matrix<T, Rows, Cols>& a)
+inline Matrix<T, Rows, Cols> abs(const Matrix<T, Rows, Cols>& a)
 {
     Matrix<T, Rows, Cols> b;
     for (unsigned int i = 0; i < Rows * Cols; i++) {

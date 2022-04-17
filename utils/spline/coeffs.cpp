@@ -83,11 +83,7 @@ double cardinal_basis(double x, int degree, int derivative)
     return (cardinal_basis(x,degree-1,derivative)*x + cardinal_basis(x-1, degree-1,derivative)*(degree+1.0-x))/double(degree);
 }
 
-double cardinal_basis(double x, double y, int degree, int derivative){
-    //Not multiplied, convolved;
-    return 0;
-    return cardinal_basis(x,degree, derivative)*cardinal_basis(y,degree,derivative);
-}
+
 
 double cumulative_cardinal_basis(double x, int degree, int derivative){
 

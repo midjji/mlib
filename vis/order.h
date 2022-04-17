@@ -14,7 +14,7 @@ class MainEventHandler;
  */
 struct Order{    
     bool clear_scene;
-    Order(bool clear_scene=true);
+    Order(bool clear_scene=true,int last_n_index=0);
     virtual ~Order();
     // stack up orders
 
@@ -29,9 +29,11 @@ struct Order{
     virtual osg::Node* group();
     // defaults to nothing
     virtual void event(MainEventHandler* meh);
+    int last_n_index(){return last_n_index_;}
 
 private:
-        std::vector<std::unique_ptr<Order>> orders;
+    int last_n_index_;
+    std::vector<std::unique_ptr<Order>> orders;
 };
 
 

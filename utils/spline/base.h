@@ -13,13 +13,6 @@
 namespace cvl
 {
 
-
-
-
-
-
-
-
 class BaseUniformSpline
 {
 
@@ -46,9 +39,6 @@ public:
     BaseUniformSpline(double delta_time_, int degree_);
     // the static constexpr matches, but is stronger, so no override or virtual...
     int degree() const{return degree_;}
-
-
-
     void set_delta_time(double dt);
     inline double delta_time() const {return delta_time_;}
     int first_control_point() const;
@@ -56,6 +46,7 @@ public:
     // without interpolations needed if this is included
     int current_first_control_point() const;
     int current_last_control_point() const;
+
     double time_of_controlpoint(int i) const;
 
     int get_first(double time) const ;
@@ -156,5 +147,22 @@ public:
 
     std::string display() const;
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }

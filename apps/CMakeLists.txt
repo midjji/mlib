@@ -30,9 +30,7 @@ endif()
 
 
 
-
-
-
+message("building apps: ")
 # add an option for each
 foreach(item ${apps})
     get_filename_component(name ${item} NAME_WE)
@@ -41,9 +39,12 @@ foreach(item ${apps})
         add_executable(${name} ${item})
         target_link_libraries(${name} mlib)
         target_configure_warnings(${name})
+        message(" --  ${name} from ${item}")
     endif()
 endforeach()
 
+
+add_subdirectory(raytrace)
 
 
 message("apps done\n")

@@ -16,11 +16,12 @@ template<class T>
  */
 Pose<T> lookAt(Vector3<T> point,
                                  Vector3<T> from,
-                                 Vector3<T> up) {
+                                 Vector3<T> up)
+{
 
     // the pose is x_c=Pcw*x_w
     // point up and from are in w
-#if 1
+
     // This lookat is bizzarre,
     // but I think it returns a lookat that works for osg,
     // which probably means its rotated (1,0,0,0,-1,0,0,0,-1)
@@ -41,11 +42,18 @@ Pose<T> lookAt(Vector3<T> point,
     assert(R.isnormal());
     Pose<T> P(R,-R*from);
 
+return P;
+}
+template<class T>
+Pose<T> lookAt_sane(Vector3<T> point,
+                                 Vector3<T> from,
+                                 Vector3<T> up)
+{
+
+    // the pose is x_c=Pcw*x_w
+    // point up and from are in w
 
 
-
-
-#else
     // lookat above is utterly bizzare,TODO:  figure out why!
 
     // opt axis
@@ -69,14 +77,8 @@ Pose<T> lookAt(Vector3<T> point,
 
    Pose<T> P(R,-R*from);
    // tests
-
-
-#endif
-//std::cout<<(P.getTinW() - from).norm()<<std::endl;
-//std::cout<<"R*z= (0,0,1) = "<<R*z<<std::endl;
 return P;
 }
-
 
 }// end namespace cvl
 

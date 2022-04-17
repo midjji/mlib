@@ -69,7 +69,11 @@ RANDOM_SEED_VALUE
 // faster for clang and better in general for scientific simulations
 static std::mt19937_64 generator(seed);
 } // end namespace random
-
+template<class T>
+T randu_(T low, T high){
+    std::uniform_real_distribution<T> rn(low,high);
+    return rn(random::generator);
+}
 double randu(double low=0, double high=1);
 int randui(int low=0, int high=1);
 double randn(double mean=0, double sigma=1);
